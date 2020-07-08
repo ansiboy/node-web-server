@@ -1,43 +1,44 @@
-const { WebServer } = require("../out/web-server");
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const out_1 = require("../out");
 const assert = require("assert");
-const Browser = require('zombie');
-
+const Browser = require("zombie");
+const { VirtualDirectory } = require("../out/virtual-directory");
+const path_concat_1 = require("../out/path-concat");
+const fs = require("fs");
 describe("web-server", function () {
-    it("start auto port", async function () {
-        let settings = {};
-        new WebServer(settings);
-        assert.notEqual(settings.port, null);
-    })
-
-    it("port setting", async function () {
-        let settings = { port: 1024 };
-        new WebServer(settings);
-        assert.equal(settings.port, 1024);
-    })
-
-    it("getPathExtention", function () {
-        let w = new WebServer({});
-        let ext = w.getPathExtention("/aa.tt");
-        assert.equal(ext, "tt");
-    })
-
-    it("file processor", async function () {
-        let port = 1025;
-        new WebServer({
-            port: port,
-            fileProcessors: {
-                "tt": {
-                    execute: () => {
-                        return "hello world";
-                    }
-                }
-            }
+    let settings = { root: new VirtualDirectory(path_concat_1.pathConcat(__dirname, "website")) };
+    let w = new out_1.WebServer(settings);
+    const browser = new Browser();
+    it("start auto port", function () {
+        return __awaiter(this, void 0, void 0, function* () {
+            let settings = {};
+            new out_1.WebServer(settings);
+            assert.notEqual(settings.port, null);
         });
-
-        // Browser.localhost("127.0.0.1:1025", 3000)
-        const browser = new Browser();
-        await browser.visit(`http://127.0.0.1:${port}/a.tt`);
-        assert.equal(browser.source, "hello world");
-
-    })
-})
+    });
+    it("port setting", function () {
+        return __awaiter(this, void 0, void 0, function* () {
+            let settings = { port: 1024 };
+            new out_1.WebServer(settings);
+            assert.equal(settings.port, 1024);
+        });
+    });
+    it("file index.html", function () {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield browser.visit(`http://127.0.0.1:${settings.port}/index.html`);
+            let buffer = fs.readFileSync(path_concat_1.pathConcat(__dirname, "website/index.html"));
+            let source = buffer.toString();
+            assert.equal(browser.source, source.toString());
+        });
+    });
+});

@@ -1,9 +1,10 @@
 {
     "compilerOptions": {
         "target": "es6",
-        "outDir": "out",
+        "outDir": "../out",
         "declaration": true,
         "sourceMap": true,
-        "module": "commonjs"
+        "module": "commonjs",
+        "strict": true
     }
 }

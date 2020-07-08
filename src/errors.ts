@@ -1,4 +1,11 @@
 export let errors = {
+    filePathNotExtention(virtualPath: string) {
+        let msg = `File path has not a extention name.`;
+        let error = new Error(msg);
+        let name: keyof typeof errors = "filePathNotExtention";
+        error.name = name;
+        return error;
+    },
     vitualPathRequirePhysicalPath(virtualPath: string, physicalPath: string) {
         let msg = `The physical path '${physicalPath}' of virtual path '${virtualPath}' is not a physical path.`
         let error = new Error(msg);
@@ -39,9 +46,15 @@ export let errors = {
         error.name = name;
         return error;
     },
-    virtualPathStartsWithSlash(path: string) {
-        let error = new Error(`Child directory path can not starts with slash, path is ${path}.`);
-        let name: keyof typeof errors = "virtualPathStartsWithSlash";
+    // virtualPathStartsWithSlash(path: string) {
+    //     let error = new Error(`Child directory path can not starts with slash, path is ${path}.`);
+    //     let name: keyof typeof errors = "virtualPathStartsWithSlash";
+    //     error.name = name;
+    //     return error;
+    // },
+    virtualPathNotStartsWithSlash(path: string) {
+        let error = new Error(`Child directory path is not starts with slash, path is ${path}.`);
+        let name: keyof typeof errors = "virtualPathNotStartsWithSlash";
         error.name = name;
         return error;
     },

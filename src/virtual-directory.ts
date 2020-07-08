@@ -105,6 +105,20 @@ export class VirtualDirectory {
         return parentDir.directory(dirName);
     }
 
+    findFile(virtualPath: string) {
+        let arr = virtualPath.split("/");
+        let fileName = arr.pop();
+        if (fileName == null)
+            return null;
+            
+        let directoryPath = arr.join("/");
+        let directory = directoryPath ? this.findDirectory(directoryPath) : this;
+        if (directory == null)
+            throw errors.directoryNotExists(directoryPath);
+
+        return directory.files()[fileName];
+    }
+
     /**
      * 获取当前文件夹的子文件夹
      * @param name 子文件夹的名称
@@ -147,11 +161,16 @@ export class VirtualDirectory {
 
     private checkVirtualPath(virtualPath: string) {
         console.assert(virtualPath != null);
-        if (virtualPath[0] == "/")
-            throw errors.virtualPathStartsWithSlash(virtualPath);
+        if (virtualPath[0] != "/")
+            throw errors.virtualPathNotStartsWithSlash(virtualPath);
 
         if (virtualPath[virtualPath.length - 1] == "/")
             throw errors.virtualPathEndsWithSlash(virtualPath);
+    }
+
+    private checkFilePath(virtualPath: string) {
+        if (virtualPath.indexOf(".") < 0)
+            throw errors.filePathNotExtention(virtualPath);
     }
 
 }
