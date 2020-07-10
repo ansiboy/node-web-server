@@ -50,4 +50,12 @@ describe("web-server", function () {
             assert.equal(browser.source, source.toString());
         });
     });
+    it("default index.js", function () {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield browser.visit(`http://127.0.0.1:${settings.port}/index.js`);
+            let buffer = fs.readFileSync(path_concat_1.pathConcat(__dirname, "website/index.js"));
+            let source = buffer.toString();
+            assert.equal(browser.source, source.toString());
+        });
+    });
 });

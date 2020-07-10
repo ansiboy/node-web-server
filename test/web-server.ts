@@ -38,4 +38,11 @@ describe("web-server", function () {
         assert.equal(browser.source, source.toString());
     })
 
+    it("default index.js", async function () {
+        await browser.visit(`http://127.0.0.1:${settings.port}/index.js`);
+        let buffer: Buffer = fs.readFileSync(pathConcat(__dirname, "website/index.js"));
+        let source: string = buffer.toString();
+        assert.equal(browser.source, source.toString());
+    })
+
 })
