@@ -18,6 +18,7 @@ const fs = require("fs");
 describe("web-server", function () {
     let settings = { root: new VirtualDirectory(path_concat_1.pathConcat(__dirname, "website")) };
     let w = new out_1.WebServer(settings);
+    console.log(`Web server port is ${settings.port}.`);
     const browser = new Browser();
     it("start auto port", function () {
         return __awaiter(this, void 0, void 0, function* () {
@@ -36,6 +37,14 @@ describe("web-server", function () {
     it("file index.html", function () {
         return __awaiter(this, void 0, void 0, function* () {
             yield browser.visit(`http://127.0.0.1:${settings.port}/index.html`);
+            let buffer = fs.readFileSync(path_concat_1.pathConcat(__dirname, "website/index.html"));
+            let source = buffer.toString();
+            assert.equal(browser.source, source.toString());
+        });
+    });
+    it("default index.html", function () {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield browser.visit(`http://127.0.0.1:${settings.port}`);
             let buffer = fs.readFileSync(path_concat_1.pathConcat(__dirname, "website/index.html"));
             let source = buffer.toString();
             assert.equal(browser.source, source.toString());

@@ -1,3 +1,5 @@
+import { StatusCode } from "./status-code";
+
 export let errors = {
     filePathNotExtention(virtualPath: string) {
         let msg = `File path has not a extention name.`;
@@ -124,4 +126,20 @@ export let errors = {
         error.name = name;
         return error;
     },
+    pageNotFound(path: string) {
+        let msg = `Path '${path}' not found.`;
+        let name: keyof typeof errors = "pageNotFound";
+        let error = new Error(msg);
+        error.name = name;
+        error.statusCode = StatusCode.NotFound;
+        return error;
+    },
+    fileTypeNotSupport(ext: string) {
+        let msg = `File extention ${ext} is not supported.`;
+        let name: keyof typeof errors = "filePathNotExtention";
+        let error = new Error(msg);
+        error.name = name;
+        error.statusCode = StatusCode.NotFound;
+        return error;
+    }
 }

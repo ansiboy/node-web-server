@@ -2,8 +2,9 @@ import { FileProcessor } from "../file-processor";
 import { errorPages } from "../error-pages";
 import * as fs from "fs";
 import { StatusCode } from "../status-code";
+import { RequestProcessor } from "../request-processor";
 
-export let staticFileProcess: FileProcessor = function (args) {
+export let textFileProcessor: FileProcessor = function (args) {
     if (!args.physicalPath)
         return { statusCode: StatusCode.NotFound, content: errorPages.NotFound };
 
@@ -11,6 +12,7 @@ export let staticFileProcess: FileProcessor = function (args) {
         return { statusCode: 404, content: errorPages.NotFound };
 
     let data = fs.readFileSync(args.physicalPath);
+
     return { statusCode: StatusCode.OK, content: data.toString() };
 
 }
