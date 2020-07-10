@@ -4,28 +4,41 @@ import { AddressInfo } from "net";
 import url = require("url");
 import { errors } from "./errors";
 import { VirtualDirectory } from "./virtual-directory";
-import { Content } from "./request-processor";
+import { RequestProcessor } from "./request-processor";
 import { contentTypes } from "./content-types";
-import { staticFileRequestProcessor } from "./request-processors/static-file";
+import { requestProcessors } from "./request-processors";
 
 export class WebServer {
 
     #root: VirtualDirectory;
+    #requestProcessors: RequestProcessor[];
+    #settings: Settings;
 
     constructor(settings: Settings) {
         if (settings == null) throw errors.argumentNull("settings");
         settings.root = settings.root || new VirtualDirectory(__dirname);
         this.#root = settings.root || new VirtualDirectory(__dirname);
+        this.#settings = settings;
 
         let s = this.start(settings);
         if (!settings.port) {
             let address = s.address() as AddressInfo;
             settings.port = address.port;
         }
+
+        this.#requestProcessors = [requestProcessors.proxy, requestProcessors.static];
     }
 
     get root() {
         return this.#root;
+    }
+
+    get port() {
+        return this.#settings.port as number;
+    }
+
+    get requestProcessors() {
+        return requestProcessors;
     }
 
     private start(settings: Settings) {
@@ -42,20 +55,19 @@ export class WebServer {
                 physicalPath = settings.root?.findFile(path);
             }
 
-            let requestProcessors = settings.requestProcessors || [staticFileRequestProcessor];
-            for (let i = 0; i < requestProcessors.length; i++) {
-                let processor = requestProcessors[i];
+            for (let i = 0; i < this.#requestProcessors.length; i++) {
+                let processor = this.#requestProcessors[i];
                 try {
-                    let r = processor.execute({ virtualPath: path, physicalPath });
+                    let r = processor.execute({ virtualPath: path, physicalPath, req, res });
                     if (r != null) {
-                        if (r.statusCode) {
-                            res.statusCode = r.statusCode;
-                        }
-                        if (r.contentType) {
-                            res.setHeader("content-type", r.contentType);
-                        }
+                        // if (r.statusCode) {
+                        //     res.statusCode = r.statusCode;
+                        // }
+                        // if (r.contentType) {
+                        //     res.setHeader("content-type", r.contentType);
+                        // }
 
-                        this.outputContent(r.content, res);
+                        // this.outputContent(r.content, res);
                         return;
                     }
                 }
@@ -72,20 +84,6 @@ export class WebServer {
         return server.listen(settings.port, settings.bindIP);
     }
 
-    private outputContent(content: Content, res: http.ServerResponse) {
-        let p = content as Promise<any>;
-        if (p.then == null || p.catch == null) {
-            p = Promise.resolve(p);
-        }
-
-        let r = p.then(c => {
-            res.write(c);
-            res.end();
-        }).catch(err => {
-            this.outputError(err, res);
-        })
-
-    }
 
     private outputError(err: Error, res: http.ServerResponse) {
         if (err == null) {
@@ -120,12 +118,4 @@ export class WebServer {
     }
 
 
-    private getPathExtention(path: string): string | null {
-        let fileExtention: string | null = null;
-        if (path.indexOf(".") >= 0) {
-            let arr = path.split(".");
-            fileExtention = arr[arr.length - 1];
-        }
-        return fileExtention;
-    }
 }

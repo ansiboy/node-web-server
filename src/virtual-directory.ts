@@ -91,7 +91,7 @@ export class VirtualDirectory {
         if (!virtualPath) throw errors.argumentNull("path");
         if (virtualPath == "/")
             return this;
-            
+
         this.checkVirtualPath(virtualPath);
 
         let names = virtualPath.split("/").filter(o => o);
@@ -117,7 +117,7 @@ export class VirtualDirectory {
         let directoryPath = arr.join("/");
         let directory = directoryPath ? this.findDirectory(directoryPath) : this;
         if (directory == null)
-            throw errors.directoryNotExists(directoryPath);
+            return null;
 
         return directory.files()[fileName];
     }

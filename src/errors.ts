@@ -141,5 +141,28 @@ export let errors = {
         error.name = name;
         error.statusCode = StatusCode.NotFound;
         return error;
+    },
+    connectionClose() {
+        let msg = `Connection close.`;
+        let error = new Error(msg);
+        let name: keyof typeof errors = "connectionClose";
+        error.name = name;
+        return error;
+    },
+    requestNotReadable() {
+        let msg = `The request is not readable.`;
+        let error = new Error(msg);
+        let name: keyof typeof errors = "requestNotReadable";
+        error.name = name;
+        return error;
+    },
+    unexpectedNullValue(variableName: string) {
+        let msg = `Variable ${variableName} value is null.`
+        let error = new Error(msg)
+        let name: keyof typeof errors = "unexpectedNullValue";
+        error.name = name;
+        return error
     }
+
+
 }
