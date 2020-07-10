@@ -2,25 +2,45 @@ import { RequestProcessor } from "../request-processor";
 import { pathConcat } from "../path-concat";
 import { defaultFileProcessors } from "../file-processors";
 import { errors } from "../errors";
+import { FileProcessors, FileProcessor } from "../file-processor";
 
-export let staticFileRequestProcessor: RequestProcessor = function (args) {
 
-    if (args.physicalPath == null)
-        throw errors.pageNotFound(args.virtualPath);
+export type StaticFileProcessorConfig = {
+    fileProcessors: FileProcessors
+}
 
-    let ext = "";
-    if (args.physicalPath.indexOf(".") < 0) {
-        args.physicalPath = pathConcat(args.physicalPath, "index.html");
+export class StaticFileRequestProcessor implements RequestProcessor {
+
+    #fileProcessors: FileProcessors;
+
+    constructor() {
+        this.#fileProcessors = Object.assign({}, defaultFileProcessors);
     }
 
-    let arr = args.physicalPath.split(".");
-    console.assert(arr.length == 2);
-    ext = arr[1];
+    execute(args: { virtualPath: string; physicalPath?: string | null; }): { statusCode?: number; content: import("../request-processor").Content; contentType?: string; } | null {
+        if (args.physicalPath == null)
+            throw errors.pageNotFound(args.virtualPath);
 
-    let fileProcessor = defaultFileProcessors[ext];
-    if (fileProcessor == null)
-        throw errors.fileTypeNotSupport(ext);
+        let ext = "";
+        if (args.physicalPath.indexOf(".") < 0) {
+            args.physicalPath = pathConcat(args.physicalPath, "index.html");
+        }
 
-    return fileProcessor(args);
+        let arr = args.physicalPath.split(".");
+        console.assert(arr.length == 2);
+        ext = arr[1];
+
+        let fileProcessor = this.#fileProcessors[ext];
+        if (fileProcessor == null)
+            throw errors.fileTypeNotSupport(ext);
+
+        return fileProcessor(args);
+    }
+
+    get fileProcessors() {
+        return this.#fileProcessors;
+    }
 
 }
+
+export let staticFileRequestProcessor = new StaticFileRequestProcessor();

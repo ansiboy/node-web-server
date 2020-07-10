@@ -6,7 +6,6 @@ import { errors } from "./errors";
 import { VirtualDirectory } from "./virtual-directory";
 import { Content } from "./request-processor";
 import { contentTypes } from "./content-types";
-import { textFileProcessor } from "./file-processors/static-file";
 import { staticFileRequestProcessor } from "./request-processors/static-file";
 
 export class WebServer {
@@ -47,7 +46,7 @@ export class WebServer {
             for (let i = 0; i < requestProcessors.length; i++) {
                 let processor = requestProcessors[i];
                 try {
-                    let r = processor({ virtualPath: path, physicalPath, });
+                    let r = processor.execute({ virtualPath: path, physicalPath });
                     if (r != null) {
                         if (r.statusCode) {
                             res.statusCode = r.statusCode;

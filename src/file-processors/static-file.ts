@@ -2,7 +2,6 @@ import { FileProcessor } from "../file-processor";
 import { errorPages } from "../error-pages";
 import * as fs from "fs";
 import { StatusCode } from "../status-code";
-import { RequestProcessor } from "../request-processor";
 
 export let textFileProcessor: FileProcessor = function (args) {
     if (!args.physicalPath)
