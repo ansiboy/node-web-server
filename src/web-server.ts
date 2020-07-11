@@ -4,9 +4,10 @@ import { AddressInfo } from "net";
 import url = require("url");
 import { errors } from "./errors";
 import { VirtualDirectory } from "./virtual-directory";
-import { RequestProcessor } from "./request-processor";
+import { RequestProcessor, ExecuteResult, Content, RequestContext } from "./request-processor";
 import { contentTypes } from "./content-types";
 import { requestProcessors } from "./request-processors";
+import { ContentTransform } from "./content-transform";
 
 export class WebServer {
 
@@ -58,16 +59,28 @@ export class WebServer {
             for (let i = 0; i < this.#requestProcessors.length; i++) {
                 let processor = this.#requestProcessors[i];
                 try {
-                    let r = processor.execute({ virtualPath: path, physicalPath, req, res });
-                    if (r != null) {
-                        // if (r.statusCode) {
-                        //     res.statusCode = r.statusCode;
-                        // }
-                        // if (r.contentType) {
-                        //     res.setHeader("content-type", r.contentType);
-                        // }
+                    let r: ExecuteResult | null = null;
+                    let requestContext = { virtualPath: path, physicalPath, req, res };
+                    let p = processor.execute(requestContext);
+                    if (p == null)
+                        continue;
 
-                        // this.outputContent(r.content, res);
+                    if ((p as Promise<any>).then != null) {
+                        r = await p;
+                    }
+                    else {
+                        r = p as ExecuteResult;
+                    }
+
+                    if (r != null) {
+                        if (r.statusCode) {
+                            res.statusCode = r.statusCode;
+                        }
+                        if (r.contentType) {
+                            res.setHeader("content-type", r.contentType);
+                        }
+
+                        this.outputContent(r.content, requestContext, settings.contentTransforms || []);
                         return;
                     }
                 }
@@ -82,6 +95,25 @@ export class WebServer {
         })
 
         return server.listen(settings.port, settings.bindIP);
+    }
+
+    private async outputContent(content: Content, requestContext: RequestContext, contentTransforms: ContentTransform[]) {
+        for (let i = 0; i < contentTransforms.length; i++) {
+            let transform = contentTransforms[i];
+            console.assert(transform != null);
+            let r = contentTransforms[i](content);
+            if (r == null)
+                throw errors.contentTransformResultNull();
+
+            if ((r as Promise<any>).then != null)
+                content = await r;
+            else
+                content = r as Content;
+        }
+
+        let res = requestContext.res;
+        res.write(content);
+        res.end();
     }
 
 

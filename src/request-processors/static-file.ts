@@ -1,4 +1,4 @@
-import { RequestProcessor, RequestProcessorArguments, RequestProcessorResult } from "../request-processor";
+import { RequestProcessor, RequestContext, ExecuteResult } from "../request-processor";
 import { pathConcat } from "../path-concat";
 import { defaultFileProcessors } from "../file-processors";
 import { errors } from "../errors";
@@ -17,8 +17,8 @@ export class StaticFileRequestProcessor implements RequestProcessor {
         this.#fileProcessors = Object.assign({}, defaultFileProcessors);
     }
 
-    execute(args: RequestProcessorArguments): RequestProcessorResult {
-        
+    execute(args: RequestContext): ExecuteResult {
+
         if (args.physicalPath == null)
             throw errors.pageNotFound(args.virtualPath);
 
@@ -36,16 +36,7 @@ export class StaticFileRequestProcessor implements RequestProcessor {
             throw errors.fileTypeNotSupport(ext);
 
         let r = fileProcessor(args);
-        if (r.statusCode)
-            args.res.statusCode = r.statusCode;
-
-        if (r.contentType)
-            args.res.setHeader("content-type", r.contentType);
-
-        args.res.write(r.content);
-        args.res.end();
-
-        return {};
+        return { statusCode: r.statusCode, content: r.content, contentType: r.contentType };
     }
 
     get fileProcessors() {

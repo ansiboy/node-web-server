@@ -1,4 +1,4 @@
-import { RequestProcessor, Content, RequestProcessorArguments, RequestProcessorResult } from "../request-processor";
+import { RequestProcessor, Content, RequestContext, ExecuteResult } from "../request-processor";
 import http = require('http');
 import { errors } from "../errors";
 
@@ -21,7 +21,7 @@ export class ProxyRequestProcessor implements RequestProcessor {
         return this.#proxyTargets;
     }
 
-    execute(args: RequestProcessorArguments): RequestProcessorResult {
+    execute(args: RequestContext): Promise<ExecuteResult> | null {
 
         for (let key in this.#proxyTargets) {
             let regex = new RegExp(key)
@@ -43,23 +43,7 @@ export class ProxyRequestProcessor implements RequestProcessor {
                 })
             }
 
-            proxyRequestWithoutPipe(targetUrl, args.req, args.res, {}, args.req.method);
-            // let headers: { [key: string]: string } | undefined = undefined
-            // if (typeof proxyItem.headers == 'function') {
-            //     let r = proxyItem.headers()
-            //     let p = r as Promise<any>
-            //     if (p != null && p.then && p.catch) {
-            //         // headers = await p
-            //     }
-            //     else {
-            //         headers = r as { [key: string]: string }
-            //     }
-            // }
-            // else if (typeof proxyItem.headers == 'object') {
-            //     headers = proxyItem.headers
-            // }
-            return {};
-
+            return proxyRequest(targetUrl, args.req, args.res, {}, args.req.method);
         }
 
         return null;
@@ -69,9 +53,9 @@ export class ProxyRequestProcessor implements RequestProcessor {
 }
 
 
-export function proxyRequestWithoutPipe(targetUrl: string, req: http.IncomingMessage, res: http.ServerResponse,
-    headers: http.IncomingMessage["headers"], method?: string) {
-    return new Promise(function (resolve, reject) {
+export function proxyRequest(targetUrl: string, req: http.IncomingMessage, res: http.ServerResponse,
+    headers: http.IncomingMessage["headers"], method?: string): Promise<ExecuteResult> {
+    return new Promise<ExecuteResult>(function (resolve, reject) {
         headers = Object.assign({}, req.headers, headers || {});
         // headers = Object.assign(req.headers, headers);
         //=====================================================
@@ -93,16 +77,20 @@ export function proxyRequestWithoutPipe(targetUrl: string, req: http.IncomingMes
                 }
                 res.statusCode = response.statusCode || 200;
                 res.statusMessage = response.statusMessage || '';
-                // if (proxyResponse) {
-                //     proxyResponse(response, req, res);
-                // }
-                // else {
-                response.pipe(res);
-                // }
 
-                response.on("end", () => resolve());
+                let b = Buffer.from([]);
+
+                response.on("data", (data) => {
+                    b = Buffer.concat([b, data]);
+                });
+
+                response.on("end", () => {
+                    resolve({ content: b });
+                });
                 response.on("error", err => reject(err));
-                response.on("close", () => reject(errors.connectionClose()));
+                response.on("close", () => {
+                    reject(errors.connectionClose())
+                });
             }
         );
 
@@ -125,10 +113,6 @@ export function proxyRequestWithoutPipe(targetUrl: string, req: http.IncomingMes
             // logger.error(err);
             reject(err);
         });
-
-        // clientRequest.on("finish", function () {
-        //     resolve();
-        // })
     })
 }
 

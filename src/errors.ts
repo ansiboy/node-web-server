@@ -162,6 +162,13 @@ export let errors = {
         let name: keyof typeof errors = "unexpectedNullValue";
         error.name = name;
         return error
+    },
+    contentTransformResultNull() {
+        let msg = `Result of content transform is null.`;
+        let error = new Error(msg);
+        let name: keyof typeof errors = "contentTransformResultNull";
+        error.name = name;
+        return error;
     }
 
 
