@@ -4,9 +4,13 @@ import { pathConcat } from "../out/path-concat";
 import Browser = require('zombie');
 import * as fs from "fs";
 
-export function createWebserver() {
-
-    let settings: Settings = { root: new VirtualDirectory(pathConcat(__dirname, "website")) };
+export let websitePhysicalPath = pathConcat(__dirname, "website");
+export function createWebserver(settings?: Settings) {
+    // let settings: Settings = { root: new VirtualDirectory(pathConcat(__dirname, "website")) };
+    settings = settings || {};
+    settings = Object.assign(settings, {
+        root: new VirtualDirectory(websitePhysicalPath)
+    })
     let w = new WebServer(settings);
     console.log(`Web server port is ${settings.port}.`);
 
