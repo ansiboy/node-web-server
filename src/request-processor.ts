@@ -7,7 +7,8 @@ export type RequestContext = {
 }
 
 export type ExecuteResult = {
-    statusCode?: number, contentType?: string, content: Content
+    statusCode?: number, contentType?: string, content: Content,
+    headers?: { [key: string]: string }
 } | null
 
 export interface RequestProcessor {

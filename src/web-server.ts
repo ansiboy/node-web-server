@@ -79,6 +79,11 @@ export class WebServer {
                         if (r.contentType) {
                             res.setHeader("content-type", r.contentType);
                         }
+                        if (r.headers) {
+                            for (let key in r.headers) {
+                                res.setHeader(key, r.headers[key]);
+                            }
+                        }
 
                         this.outputContent(r.content, requestContext, settings.contentTransforms || []);
                         return;

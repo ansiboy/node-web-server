@@ -11,6 +11,9 @@ export declare type ExecuteResult = {
     statusCode?: number;
     contentType?: string;
     content: Content;
+    headers?: {
+        [key: string]: string;
+    };
 } | null;
 export interface RequestProcessor {
     execute(args: RequestContext): ExecuteResult | Promise<ExecuteResult> | null;
