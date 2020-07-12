@@ -19,8 +19,8 @@ export class WebServer {
 
     constructor(settings: Settings) {
         if (settings == null) throw errors.argumentNull("settings");
-        settings.root = settings.root || new VirtualDirectory(__dirname);
-        this.#root = settings.root || new VirtualDirectory(__dirname);
+        settings.root = settings.root || __dirname;
+        this.#root = new VirtualDirectory(settings.root);
         this.#settings = settings;
 
         let s = this.start(settings);
@@ -59,11 +59,11 @@ export class WebServer {
             let path = u.pathname || "";
             let physicalPath: string | null | undefined = null;
             if (path.indexOf(".") < 0) {
-                let dir = settings.root?.findDirectory(path);
+                let dir = this.#root.findDirectory(path);
                 physicalPath = dir?.physicalPath;
             }
             else {
-                physicalPath = settings.root?.findFile(path);
+                physicalPath = this.#root.findFile(path);
             }
 
             for (let i = 0; i < this.#requestProcessors.length; i++) {
