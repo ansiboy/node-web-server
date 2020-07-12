@@ -17,6 +17,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const path_concat_1 = require("../path-concat");
 const file_processors_1 = require("../file-processors");
 const errors_1 = require("../errors");
+const content_types_1 = require("../content-types");
 class StaticFileRequestProcessor {
     constructor() {
         _fileProcessors.set(this, void 0);
@@ -36,7 +37,8 @@ class StaticFileRequestProcessor {
         if (fileProcessor == null)
             throw errors_1.errors.fileTypeNotSupport(ext);
         let r = fileProcessor(args);
-        return { statusCode: r.statusCode, content: r.content, contentType: r.contentType };
+        let contentType = content_types_1.contentTypes[ext] || content_types_1.contentTypes.txt;
+        return { statusCode: r.statusCode, content: r.content, contentType: contentType };
     }
     get fileProcessors() {
         return __classPrivateFieldGet(this, _fileProcessors);

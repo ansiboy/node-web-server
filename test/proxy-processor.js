@@ -20,7 +20,7 @@ describe("proxy-processor", function () {
                 targetUrl: `http://127.0.0.1:${station.port}/$1`
             };
             let browser = common_1.createBrowser();
-            let url = `http://127.0.0.1:${webserver.port}/AdminWeiXin/index.html`;
+            let url = `http://127.0.0.1:${webserver.port}/index.html`;
             yield browser.visit(url);
             let filePhysicalPath = station.root.findFile("index.html");
             let text = common_1.readFile(filePhysicalPath);

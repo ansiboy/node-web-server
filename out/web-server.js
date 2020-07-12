@@ -29,6 +29,8 @@ const errors_1 = require("./errors");
 const virtual_directory_1 = require("./virtual-directory");
 const content_types_1 = require("./content-types");
 const request_processors_1 = require("./request-processors");
+const proxy_1 = require("./request-processors/proxy");
+const static_file_1 = require("./request-processors/static-file");
 class WebServer {
     constructor(settings) {
         _root.set(this, void 0);
@@ -44,7 +46,15 @@ class WebServer {
             let address = s.address();
             settings.port = address.port;
         }
-        __classPrivateFieldSet(this, _requestProcessors, [request_processors_1.requestProcessors.proxy, request_processors_1.requestProcessors.static]);
+        let configs = __classPrivateFieldGet(this, _settings).requestProcessorConfigs || {};
+        let types = __classPrivateFieldGet(this, _settings).requestProcessorTypes || [proxy_1.ProxyRequestProcessor, static_file_1.StaticFileRequestProcessor];
+        __classPrivateFieldSet(this, _requestProcessors, types.map(type => {
+            let name = type.name;
+            let alias = name.endsWith("RequestProcessor") ? name.substring(0, name.length - "RequestProcessor".length) : name;
+            let config = configs[name] || configs[alias] || {};
+            let processor = new type(config);
+            return processor;
+        }));
     }
     get root() {
         return __classPrivateFieldGet(this, _root);
@@ -59,7 +69,7 @@ class WebServer {
         let server = http.createServer((req, res) => __awaiter(this, void 0, void 0, function* () {
             var _a, _b;
             let u = url.parse(req.url || "");
-            let path = u.path || "";
+            let path = u.pathname || "";
             let physicalPath = null;
             if (path.indexOf(".") < 0) {
                 let dir = (_a = settings.root) === null || _a === void 0 ? void 0 : _a.findDirectory(path);
@@ -132,7 +142,7 @@ class WebServer {
             err.name = 'nullError';
         }
         const defaultErrorStatusCode = 600;
-        res.setHeader("content-type", content_types_1.contentTypes.applicationJSON);
+        res.setHeader("content-type", content_types_1.contentTypes.json);
         res.statusCode = err.statusCode || defaultErrorStatusCode;
         res.statusMessage = err.name; // statusMessage 不能为中文，否则会出现 invalid chartset 的异常
         if (/^\d\d\d\s/.test(err.name)) {

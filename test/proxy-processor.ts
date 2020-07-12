@@ -11,7 +11,7 @@ describe("proxy-processor", function () {
         };
 
         let browser = createBrowser();
-        let url = `http://127.0.0.1:${webserver.port}/AdminWeiXin/index.html`;
+        let url = `http://127.0.0.1:${webserver.port}/index.html`;
         await browser.visit(url);
 
         let filePhysicalPath = station.root.findFile("index.html");

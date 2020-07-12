@@ -4,7 +4,6 @@ export declare type FileProcessor = (args: {
 }) => {
     statusCode?: number;
     content: string;
-    contentType?: string;
 };
 export declare type FileProcessors = {
     [fileExtention: string]: FileProcessor;

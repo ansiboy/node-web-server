@@ -1,13 +1,15 @@
 import { Settings } from "./settings";
 import { VirtualDirectory } from "./virtual-directory";
+import { ProxyRequestProcessor } from "./request-processors/proxy";
+import { StaticFileRequestProcessor } from "./request-processors/static-file";
 export declare class WebServer {
     #private;
     constructor(settings: Settings);
     get root(): VirtualDirectory;
     get port(): number;
     get requestProcessors(): {
-        static: import("./request-processors/static-file").StaticFileRequestProcessor;
-        proxy: import("./request-processors/proxy").ProxyRequestProcessor;
+        static: StaticFileRequestProcessor;
+        proxy: ProxyRequestProcessor;
     };
     private start;
     private outputContent;
