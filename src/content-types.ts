@@ -1,5 +1,7 @@
 const encoding = 'UTF-8'
 export const contentTypes = {
-    applicationJSON: `application/json; charset=${encoding}`,
-    textPlain: `text/plain; charset=${encoding}`,
+    json: `application/json; charset=${encoding}`,
+    txt: `text/plain; charset=${encoding}`,
+    html: `text/html; charset=${encoding}`,
+    js: `application/x-javascript; charset=${encoding}`
 }

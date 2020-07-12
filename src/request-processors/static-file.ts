@@ -3,6 +3,7 @@ import { pathConcat } from "../path-concat";
 import { defaultFileProcessors } from "../file-processors";
 import { errors } from "../errors";
 import { FileProcessors } from "../file-processor";
+import { contentTypes } from "../content-types";
 
 
 export type StaticFileProcessorConfig = {
@@ -36,7 +37,8 @@ export class StaticFileRequestProcessor implements RequestProcessor {
             throw errors.fileTypeNotSupport(ext);
 
         let r = fileProcessor(args);
-        return { statusCode: r.statusCode, content: r.content, contentType: r.contentType };
+        let contentType = contentTypes[ext as keyof typeof contentTypes] || contentTypes.txt;
+        return { statusCode: r.statusCode, content: r.content, contentType: contentType };
     }
 
     get fileProcessors() {
