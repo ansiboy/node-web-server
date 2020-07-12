@@ -8,6 +8,8 @@ import { RequestProcessor, ExecuteResult, Content, RequestContext } from "./requ
 import { contentTypes } from "./content-types";
 import { requestProcessors } from "./request-processors";
 import { ContentTransform } from "./content-transform";
+import { ProxyRequestProcessor } from "./request-processors/proxy";
+import { StaticFileRequestProcessor } from "./request-processors/static-file";
 
 export class WebServer {
 
@@ -27,7 +29,15 @@ export class WebServer {
             settings.port = address.port;
         }
 
-        this.#requestProcessors = settings.requestProcessors || [requestProcessors.proxy, requestProcessors.static];
+        let configs = this.#settings.requestProcessorConfigs || {};
+        let types = this.#settings.requestProcessorTypes || [ProxyRequestProcessor, StaticFileRequestProcessor];
+        this.#requestProcessors = types.map(type => {
+            let name = type.name;
+            let alias = name.endsWith("RequestProcessor") ? name.substring(0, name.length - "RequestProcessor".length) : name;
+            let config = configs[name] || configs[alias] || {};
+            let processor = new type(config);
+            return processor;
+        });
     }
 
     get root() {
@@ -46,7 +56,7 @@ export class WebServer {
         let server = http.createServer(async (req, res) => {
             let u = url.parse(req.url || "");
 
-            let path = u.path || "";
+            let path = u.pathname || "";
             let physicalPath: string | null | undefined = null;
             if (path.indexOf(".") < 0) {
                 let dir = settings.root?.findDirectory(path);
@@ -130,7 +140,7 @@ export class WebServer {
 
         const defaultErrorStatusCode = 600;
 
-        res.setHeader("content-type", contentTypes.applicationJSON);
+        res.setHeader("content-type", contentTypes.json);
         res.statusCode = err.statusCode || defaultErrorStatusCode;
         res.statusMessage = err.name;      // statusMessage 不能为中文，否则会出现 invalid chartset 的异常
 

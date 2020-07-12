@@ -5,7 +5,9 @@ import { ContentTransform } from "./content-transform";
 export interface Settings {
     port?: number,
     bindIP?: string,
-    requestProcessors?: RequestProcessor[],
+    // requestProcessors?: RequestProcessor[],
+    requestProcessorTypes?: { new(config?: any): RequestProcessor }[],
+    requestProcessorConfigs?: { [key: string]: any },
     root?: VirtualDirectory,
     contentTransforms?: ContentTransform[]
 }
