@@ -27,7 +27,7 @@ export class WebServer {
             settings.port = address.port;
         }
 
-        this.#requestProcessors = [requestProcessors.proxy, requestProcessors.static];
+        this.#requestProcessors = settings.requestProcessors || [requestProcessors.proxy, requestProcessors.static];
     }
 
     get root() {

@@ -94,7 +94,7 @@ export class VirtualDirectory {
 
         this.checkVirtualPath(virtualPath);
 
-        let names = virtualPath.split("/").filter(o => o);
+        let names = virtualPath.split("/");//.filter(o => o);
         let dirName = names[names.length - 1];
         let parentPath = names.splice(0, names.length - 1).join("/");
         if (!parentPath) {
