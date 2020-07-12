@@ -2,16 +2,17 @@ import { FileProcessor } from "../file-processor";
 import { errorPages } from "../error-pages";
 import * as fs from "fs";
 import { StatusCode } from "../status-code";
+import { contentTypes } from "../content-types";
 
 export let textFileProcessor: FileProcessor = function (args) {
     if (!args.physicalPath)
-        return { statusCode: StatusCode.NotFound, content: errorPages.NotFound };
+        return { statusCode: StatusCode.NotFound, content: errorPages.NotFound, contentType: contentTypes.textPlain };
 
     if (!fs.existsSync(args.physicalPath))
-        return { statusCode: 404, content: errorPages.NotFound };
+        return { statusCode: 404, content: errorPages.NotFound, contentType: contentTypes.textPlain };
 
     let data = fs.readFileSync(args.physicalPath);
 
-    return { statusCode: StatusCode.OK, content: data.toString() };
+    return { statusCode: StatusCode.OK, content: data.toString(), contentType: contentTypes.textPlain };
 
 }
