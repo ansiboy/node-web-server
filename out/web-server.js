@@ -38,8 +38,8 @@ class WebServer {
         _settings.set(this, void 0);
         if (settings == null)
             throw errors_1.errors.argumentNull("settings");
-        settings.root = settings.root || new virtual_directory_1.VirtualDirectory(__dirname);
-        __classPrivateFieldSet(this, _root, settings.root || new virtual_directory_1.VirtualDirectory(__dirname));
+        settings.root = settings.root || __dirname;
+        __classPrivateFieldSet(this, _root, new virtual_directory_1.VirtualDirectory(settings.root));
         __classPrivateFieldSet(this, _settings, settings);
         let s = this.start(settings);
         if (!settings.port) {
@@ -67,16 +67,15 @@ class WebServer {
     }
     start(settings) {
         let server = http.createServer((req, res) => __awaiter(this, void 0, void 0, function* () {
-            var _a, _b;
             let u = url.parse(req.url || "");
             let path = u.pathname || "";
             let physicalPath = null;
             if (path.indexOf(".") < 0) {
-                let dir = (_a = settings.root) === null || _a === void 0 ? void 0 : _a.findDirectory(path);
+                let dir = __classPrivateFieldGet(this, _root).findDirectory(path);
                 physicalPath = dir === null || dir === void 0 ? void 0 : dir.physicalPath;
             }
             else {
-                physicalPath = (_b = settings.root) === null || _b === void 0 ? void 0 : _b.findFile(path);
+                physicalPath = __classPrivateFieldGet(this, _root).findFile(path);
             }
             for (let i = 0; i < __classPrivateFieldGet(this, _requestProcessors).length; i++) {
                 let processor = __classPrivateFieldGet(this, _requestProcessors)[i];

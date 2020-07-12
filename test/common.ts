@@ -9,8 +9,8 @@ export function createWebserver(settings?: Settings) {
     // let settings: Settings = { root: new VirtualDirectory(pathConcat(__dirname, "website")) };
     settings = settings || {};
     settings = Object.assign(settings, {
-        root: new VirtualDirectory(websitePhysicalPath)
-    })
+        root: websitePhysicalPath
+    } as Settings)
     let w = new WebServer(settings);
     console.log(`Web server port is ${settings.port}.`);
 

@@ -12,13 +12,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const out_1 = require("../out");
 const assert = require("assert");
 const Browser = require("zombie");
-const { VirtualDirectory } = require("../out/virtual-directory");
 const path_concat_1 = require("../out/path-concat");
 const fs = require("fs");
+const content_types_1 = require("../out/content-types");
+const common_1 = require("./common");
 describe("web-server", function () {
-    let settings = { root: new VirtualDirectory(path_concat_1.pathConcat(__dirname, "website")) };
-    let w = new out_1.WebServer(settings);
-    console.log(`Web server port is ${settings.port}.`);
+    let w = common_1.createWebserver();
+    console.log(`Web server port is ${w.port}.`);
     const browser = new Browser();
     it("start auto port", function () {
         return __awaiter(this, void 0, void 0, function* () {
@@ -36,7 +36,7 @@ describe("web-server", function () {
     });
     it("file index.html", function () {
         return __awaiter(this, void 0, void 0, function* () {
-            yield browser.visit(`http://127.0.0.1:${settings.port}/index.html`);
+            yield browser.visit(`http://127.0.0.1:${w.port}/index.html`);
             let buffer = fs.readFileSync(path_concat_1.pathConcat(__dirname, "website/index.html"));
             let source = buffer.toString();
             assert.equal(browser.source, source.toString());
@@ -44,7 +44,7 @@ describe("web-server", function () {
     });
     it("default index.html", function () {
         return __awaiter(this, void 0, void 0, function* () {
-            yield browser.visit(`http://127.0.0.1:${settings.port}`);
+            yield browser.visit(`http://127.0.0.1:${w.port}`);
             let buffer = fs.readFileSync(path_concat_1.pathConcat(__dirname, "website/index.html"));
             let source = buffer.toString();
             assert.equal(browser.source, source.toString());
@@ -52,10 +52,16 @@ describe("web-server", function () {
     });
     it("default index.js", function () {
         return __awaiter(this, void 0, void 0, function* () {
-            yield browser.visit(`http://127.0.0.1:${settings.port}/index.js?a=5`);
+            yield browser.visit(`http://127.0.0.1:${w.port}/index.js?a=5`);
             let buffer = fs.readFileSync(path_concat_1.pathConcat(__dirname, "website/index.js"));
             let source = buffer.toString();
             assert.equal(browser.source, source.toString());
+        });
+    });
+    it("javascript content type", function () {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield browser.visit(`http://127.0.0.1:${w.port}/index.js`);
+            assert.equal(browser.response.headers.get("content-type"), content_types_1.contentTypes.js);
         });
     });
 });
