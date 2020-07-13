@@ -7,4 +7,3 @@ exports.contentTypes = {
     html: `text/html; charset=${encoding}`,
     js: `application/x-javascript; charset=${encoding}`
 };
-//# sourceMappingURL=content-types.js.map

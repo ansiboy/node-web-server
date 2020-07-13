@@ -11,4 +11,3 @@ exports.textFileProcessor = function (args) {
     let data = fs.readFileSync(args.physicalPath);
     return { statusCode: status_code_1.StatusCode.OK, content: data.toString() };
 };
-//# sourceMappingURL=static-file.js.map

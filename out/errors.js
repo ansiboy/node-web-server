@@ -140,7 +140,7 @@ exports.errors = {
         let name = "filePathNotExtention";
         let error = new Error(msg);
         error.name = name;
-        error.statusCode = status_code_1.StatusCode.NotFound;
+        error.statusCode = status_code_1.StatusCode.UnsupportedMediaType;
         return error;
     },
     connectionClose() {
@@ -172,4 +172,3 @@ exports.errors = {
         return error;
     }
 };
-//# sourceMappingURL=errors.js.map

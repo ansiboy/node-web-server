@@ -12,16 +12,34 @@ export declare class VirtualDirectory {
     files(): {
         [name: string]: string;
     };
-    /** 添加子虚拟文件夹 */
-    addDirectory(name: string, physicalPath: string): VirtualDirectory;
-    /** 添加子虚拟文件 */
-    addFile(name: string, physicalPath: string): void;
+    /**
+     * 添加子虚拟文件夹
+     * @param name 文件夹名称
+     * @param physicalPath 该文件夹对应的物理路径
+     */
+    private addDirectory;
+    /**
+     * 添加子虚拟文件
+     * @param name 文件名称
+     * @param physicalPath 该文件名对应的物理路径
+     */
+    private addFile;
+    /** 添加虚拟路径
+     * @param virtualPath 要添加的虚拟路径
+     * @param physicalPath 虚拟路径所对应的物理路径
+     */
+    addPath(virtualPath: string, physicalPath: string): void;
     /**
      * 获取文件夹的物理路径
      * @param virtualPath 文件夹的虚拟路径
      * @returns 文件夹的物理路径
      */
     findDirectory(virtualPath: string): VirtualDirectory | null;
+    /**
+     * 获取文件的物理路径
+     * @param virtualPath 文件的虚拟路径
+     * @returns 文件的物理路径
+     */
     findFile(virtualPath: string): string | null;
     /**
      * 获取当前文件夹的子文件夹

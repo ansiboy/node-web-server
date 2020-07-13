@@ -16,6 +16,7 @@ const path_concat_1 = require("../out/path-concat");
 const fs = require("fs");
 const content_types_1 = require("../out/content-types");
 const common_1 = require("./common");
+const status_code_1 = require("../out/status-code");
 describe("web-server", function () {
     let w = common_1.createWebserver();
     console.log(`Web server port is ${w.port}.`);
@@ -62,6 +63,16 @@ describe("web-server", function () {
         return __awaiter(this, void 0, void 0, function* () {
             yield browser.visit(`http://127.0.0.1:${w.port}/index.js`);
             assert.equal(browser.response.headers.get("content-type"), content_types_1.contentTypes.js);
+        });
+    });
+    it("unsupport content type", function () {
+        return __awaiter(this, void 0, void 0, function* () {
+            browser.visit(`http://127.0.0.1:${w.port}/unsupport-file-type.bxs`).then(r => {
+                debugger;
+            }).catch(r => {
+                assert.equal(browser.status, status_code_1.StatusCode.UnsupportedMediaType);
+            });
+            // assert.equal(browser.response.headers.get("content-type"), contentTypes.js);
         });
     });
 });

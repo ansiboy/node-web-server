@@ -1,4 +1,11 @@
 "use strict";
+var __classPrivateFieldSet = (this && this.__classPrivateFieldSet) || function (receiver, privateMap, value) {
+    if (!privateMap.has(receiver)) {
+        throw new TypeError("attempted to set private field on non-instance");
+    }
+    privateMap.set(receiver, value);
+    return value;
+};
 var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (receiver, privateMap) {
     if (!privateMap.has(receiver)) {
         throw new TypeError("attempted to get private field on non-instance");
@@ -10,8 +17,20 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const http = require("http");
 const errors_1 = require("../errors");
 class ProxyRequestProcessor {
-    constructor() {
-        _proxyTargets.set(this, {});
+    constructor(config) {
+        _proxyTargets.set(this, void 0);
+        config = config || {};
+        __classPrivateFieldSet(this, _proxyTargets, {});
+        if (config.proxyTargets) {
+            for (let key in config.proxyTargets) {
+                if (typeof config.proxyTargets[key] == "string") {
+                    __classPrivateFieldGet(this, _proxyTargets)[key] = { targetUrl: config.proxyTargets[key] };
+                }
+                else {
+                    __classPrivateFieldGet(this, _proxyTargets)[key] = config.proxyTargets[key];
+                }
+            }
+        }
     }
     get proxyTargets() {
         return __classPrivateFieldGet(this, _proxyTargets);
@@ -92,4 +111,3 @@ function proxyRequest(targetUrl, req, res, headers, method) {
     });
 }
 exports.proxyRequest = proxyRequest;
-//# sourceMappingURL=proxy.js.map

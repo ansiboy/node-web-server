@@ -5,5 +5,5 @@ exports.defaultFileProcessors = {
     "txt": static_file_1.textFileProcessor,
     "html": static_file_1.textFileProcessor,
     "js": static_file_1.textFileProcessor,
+    "css": static_file_1.textFileProcessor,
 };
-//# sourceMappingURL=index.js.map

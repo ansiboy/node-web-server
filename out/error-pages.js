@@ -5,4 +5,3 @@ exports.errorPages = {
     Forbidden: "Forbidden",
     BadRequest: "Bad Request"
 };
-//# sourceMappingURL=error-pages.js.map

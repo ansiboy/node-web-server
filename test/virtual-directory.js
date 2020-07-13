@@ -25,4 +25,10 @@ describe("virtual directory", function () {
         let dir = root.findDirectory("/content");
         assert.notEqual(dir, null);
     });
+    it("add path", function () {
+        let p1 = path_concat_1.pathConcat(websitePath, "css/bootstrap.css");
+        root.addPath("/content/bootstrap.css", p1);
+        let p2 = root.findFile("/content/bootstrap.css");
+        assert.equal(p2, p1);
+    });
 });

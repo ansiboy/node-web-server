@@ -47,4 +47,3 @@ class StaticFileRequestProcessor {
 exports.StaticFileRequestProcessor = StaticFileRequestProcessor;
 _fileProcessors = new WeakMap();
 exports.staticFileRequestProcessor = new StaticFileRequestProcessor();
-//# sourceMappingURL=static-file.js.map

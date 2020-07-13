@@ -20,4 +20,3 @@ function pathConcat(...paths) {
     return str;
 }
 exports.pathConcat = pathConcat;
-//# sourceMappingURL=path-concat.js.map

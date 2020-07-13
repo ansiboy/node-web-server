@@ -11,14 +11,19 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const assert = require("assert");
 const common_1 = require("./common");
+const out_1 = require("../out");
 describe("proxy-processor", function () {
-    let webserver = common_1.createWebserver();
     let station = common_1.createWebserver();
+    let requestProcessorConfigs = {};
+    let proxyConfig = {
+        proxyTargets: {
+            "/AdminWeiXin/(\\S+)": { targetUrl: `http://127.0.0.1:${station.port}/$1` }
+        }
+    };
+    requestProcessorConfigs[out_1.ProxyRequestProcessor.name] = proxyConfig;
+    let webserver = common_1.createWebserver({ requestProcessorConfigs });
     it("request", function () {
         return __awaiter(this, void 0, void 0, function* () {
-            webserver.requestProcessors.proxy.proxyTargets["/AdminWeiXin/(\\S+)"] = {
-                targetUrl: `http://127.0.0.1:${station.port}/$1`
-            };
             let browser = common_1.createBrowser();
             let url = `http://127.0.0.1:${webserver.port}/index.html`;
             yield browser.visit(url);

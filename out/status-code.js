@@ -9,5 +9,6 @@ var StatusCode;
     StatusCode[StatusCode["BadRequest"] = 400] = "BadRequest";
     StatusCode[StatusCode["Forbidden"] = 403] = "Forbidden";
     StatusCode[StatusCode["NotFound"] = 404] = "NotFound";
+    StatusCode[StatusCode["UnsupportedMediaType"] = 415] = "UnsupportedMediaType";
+    StatusCode[StatusCode["UnknownError"] = 600] = "UnknownError";
 })(StatusCode = exports.StatusCode || (exports.StatusCode = {}));
-//# sourceMappingURL=status-code.js.map

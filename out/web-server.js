@@ -28,9 +28,9 @@ const url = require("url");
 const errors_1 = require("./errors");
 const virtual_directory_1 = require("./virtual-directory");
 const content_types_1 = require("./content-types");
-const request_processors_1 = require("./request-processors");
 const proxy_1 = require("./request-processors/proxy");
 const static_file_1 = require("./request-processors/static-file");
+const status_code_1 = require("./status-code");
 class WebServer {
     constructor(settings) {
         _root.set(this, void 0);
@@ -47,8 +47,8 @@ class WebServer {
             settings.port = address.port;
         }
         let configs = __classPrivateFieldGet(this, _settings).requestProcessorConfigs || {};
-        let types = __classPrivateFieldGet(this, _settings).requestProcessorTypes || [proxy_1.ProxyRequestProcessor, static_file_1.StaticFileRequestProcessor];
-        __classPrivateFieldSet(this, _requestProcessors, types.map(type => {
+        let types = __classPrivateFieldGet(this, _settings).requestProcessorTypes || WebServer.defaultRequestProcessorTypes;
+        __classPrivateFieldSet(this, _requestProcessors, types.map((type) => {
             let name = type.name;
             let alias = name.endsWith("RequestProcessor") ? name.substring(0, name.length - "RequestProcessor".length) : name;
             let config = configs[name] || configs[alias] || {};
@@ -63,7 +63,7 @@ class WebServer {
         return __classPrivateFieldGet(this, _settings).port;
     }
     get requestProcessors() {
-        return request_processors_1.requestProcessors;
+        return __classPrivateFieldGet(this, _requestProcessors);
     }
     start(settings) {
         let server = http.createServer((req, res) => __awaiter(this, void 0, void 0, function* () {
@@ -140,9 +140,9 @@ class WebServer {
             err = new Error(`Unkonwn error because original error is null.`);
             err.name = 'nullError';
         }
-        const defaultErrorStatusCode = 600;
+        // const defaultErrorStatusCode = 600;
         res.setHeader("content-type", content_types_1.contentTypes.json);
-        res.statusCode = err.statusCode || defaultErrorStatusCode;
+        res.statusCode = err.statusCode || status_code_1.StatusCode.UnknownError;
         res.statusMessage = err.name; // statusMessage 不能为中文，否则会出现 invalid chartset 的异常
         if (/^\d\d\d\s/.test(err.name)) {
             res.statusCode = Number.parseInt(err.name.substr(0, 3));
@@ -163,4 +163,4 @@ class WebServer {
 }
 exports.WebServer = WebServer;
 _root = new WeakMap(), _requestProcessors = new WeakMap(), _settings = new WeakMap();
-//# sourceMappingURL=web-server.js.map
+WebServer.defaultRequestProcessorTypes = [proxy_1.ProxyRequestProcessor, static_file_1.StaticFileRequestProcessor];

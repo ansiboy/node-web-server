@@ -4,9 +4,14 @@ import http = require('http');
 export interface ProxyItem {
     targetUrl: string;
 }
+export interface ProxyConfig {
+    proxyTargets: {
+        [key: string]: ProxyItem | string;
+    };
+}
 export declare class ProxyRequestProcessor implements RequestProcessor {
     #private;
-    constructor();
+    constructor(config: ProxyConfig);
     get proxyTargets(): {
         [key: string]: ProxyItem;
     };

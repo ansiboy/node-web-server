@@ -5,6 +5,7 @@ import { pathConcat } from "../out/path-concat";
 import * as fs from "fs";
 import { contentTypes } from "../out/content-types";
 import { createWebserver } from "./common";
+import { StatusCode } from "../out/status-code";
 
 describe("web-server", function () {
 
@@ -48,6 +49,15 @@ describe("web-server", function () {
     it("javascript content type", async function () {
         await browser.visit(`http://127.0.0.1:${w.port}/index.js`);
         assert.equal(browser.response.headers.get("content-type"), contentTypes.js);
+    })
+
+    it("unsupport content type", async function () {
+        browser.visit(`http://127.0.0.1:${w.port}/unsupport-file-type.bxs`).then(r => {
+            debugger
+        }).catch(r => {
+            assert.equal(browser.status, StatusCode.UnsupportedMediaType);
+        })
+        // assert.equal(browser.response.headers.get("content-type"), contentTypes.js);
     })
 
 })
