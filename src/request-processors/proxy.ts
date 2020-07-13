@@ -8,13 +8,28 @@ export interface ProxyItem {
     // response?: (proxResponse: http.IncomingMessage, req: http.IncomingMessage, res: http.ServerResponse) => void,
 }
 
+export interface ProxyConfig {
+    proxyTargets: { [key: string]: ProxyItem | string };
+}
 
 export class ProxyRequestProcessor implements RequestProcessor {
 
-    #proxyTargets: { [key: string]: ProxyItem } = {};
+    #proxyTargets: { [key: string]: ProxyItem };
 
-    constructor() {
 
+    constructor(config: ProxyConfig) {
+        config = config || {} as ProxyConfig;
+        this.#proxyTargets = {};
+        if (config.proxyTargets) {
+            for (let key in config.proxyTargets) {
+                if (typeof config.proxyTargets[key] == "string") {
+                    this.#proxyTargets[key] = { targetUrl: config.proxyTargets[key] as string };
+                }
+                else {
+                    this.#proxyTargets[key] = config.proxyTargets[key] as ProxyItem;
+                }
+            }
+        }
     }
 
     get proxyTargets() {

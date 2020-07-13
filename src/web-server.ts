@@ -6,16 +6,18 @@ import { errors } from "./errors";
 import { VirtualDirectory } from "./virtual-directory";
 import { RequestProcessor, ExecuteResult, Content, RequestContext } from "./request-processor";
 import { contentTypes } from "./content-types";
-import { requestProcessors } from "./request-processors";
 import { ContentTransform } from "./content-transform";
 import { ProxyRequestProcessor } from "./request-processors/proxy";
 import { StaticFileRequestProcessor } from "./request-processors/static-file";
+import { StatusCode } from "./status-code";
 
 export class WebServer {
 
     #root: VirtualDirectory;
     #requestProcessors: RequestProcessor[];
     #settings: Settings;
+
+    static defaultRequestProcessorTypes: { new(config?: any): RequestProcessor }[] = [ProxyRequestProcessor, StaticFileRequestProcessor];
 
     constructor(settings: Settings) {
         if (settings == null) throw errors.argumentNull("settings");
@@ -30,8 +32,8 @@ export class WebServer {
         }
 
         let configs = this.#settings.requestProcessorConfigs || {};
-        let types = this.#settings.requestProcessorTypes || [ProxyRequestProcessor, StaticFileRequestProcessor];
-        this.#requestProcessors = types.map(type => {
+        let types = this.#settings.requestProcessorTypes || WebServer.defaultRequestProcessorTypes;
+        this.#requestProcessors = types.map((type: any) => {
             let name = type.name;
             let alias = name.endsWith("RequestProcessor") ? name.substring(0, name.length - "RequestProcessor".length) : name;
             let config = configs[name] || configs[alias] || {};
@@ -49,7 +51,7 @@ export class WebServer {
     }
 
     get requestProcessors() {
-        return requestProcessors;
+        return this.#requestProcessors;
     }
 
     private start(settings: Settings) {
@@ -138,10 +140,10 @@ export class WebServer {
             err.name = 'nullError'
         }
 
-        const defaultErrorStatusCode = 600;
+        // const defaultErrorStatusCode = 600;
 
         res.setHeader("content-type", contentTypes.json);
-        res.statusCode = err.statusCode || defaultErrorStatusCode;
+        res.statusCode = err.statusCode || StatusCode.UnknownError;
         res.statusMessage = err.name;      // statusMessage 不能为中文，否则会出现 invalid chartset 的异常
 
         if (/^\d\d\d\s/.test(err.name)) {

@@ -6,4 +6,6 @@ export enum StatusCode {
     BadRequest = 400,
     Forbidden = 403,
     NotFound = 404,
+    UnsupportedMediaType = 415,
+    UnknownError = 600,
 }

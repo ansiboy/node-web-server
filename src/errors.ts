@@ -139,7 +139,7 @@ export let errors = {
         let name: keyof typeof errors = "filePathNotExtention";
         let error = new Error(msg);
         error.name = name;
-        error.statusCode = StatusCode.NotFound;
+        error.statusCode = StatusCode.UnsupportedMediaType;
         return error;
     },
     connectionClose() {

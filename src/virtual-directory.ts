@@ -62,11 +62,15 @@ export class VirtualDirectory {
         return filePhysicalPaths;
     }
 
-    /** 添加子虚拟文件夹 */
-    addDirectory(name: string, physicalPath: string): VirtualDirectory {
+    /** 
+     * 添加子虚拟文件夹 
+     * @param name 文件夹名称
+     * @param physicalPath 该文件夹对应的物理路径
+     */
+    private addDirectory(name: string, physicalPath: string): VirtualDirectory {
         if (!name) throw errors.argumentNull("name");
         if (!physicalPath) throw errors.argumentNull("physicalPath");
-        this.checkPhysicalPath(physicalPath);
+        // this.checkPhysicalPath(physicalPath);
 
         let dir = new VirtualDirectory(physicalPath);
         this.#directories[name] = dir;
@@ -74,12 +78,53 @@ export class VirtualDirectory {
         return dir;
     }
 
-    /** 添加子虚拟文件 */
-    addFile(name: string, physicalPath: string) {
+    /** 
+     * 添加子虚拟文件 
+     * @param name 文件名称
+     * @param physicalPath 该文件名对应的物理路径
+     */
+    private addFile(name: string, physicalPath: string) {
         if (!name) throw errors.argumentNull("name");
         if (!physicalPath) throw errors.argumentNull("physicalPath");
+        this.checkPhysicalPath(physicalPath);
 
         this.#files[name] = physicalPath;
+    }
+
+    /** 添加虚拟路径
+     * @param virtualPath 要添加的虚拟路径
+     * @param physicalPath 虚拟路径所对应的物理路径
+     */
+    addPath(virtualPath: string, physicalPath: string) {
+        if (!physicalPath) throw errors.argumentNull("physicalPath");
+
+        this.checkVirtualPath(virtualPath);
+        this.checkPhysicalPath(physicalPath);
+
+        let arr = virtualPath.split("/").filter(o => o);
+
+        let parent: VirtualDirectory = this;
+        for (let i = 0; i < arr.length; i++) {
+            let name = arr[i];
+        
+            let isFileName = i == arr.length - 1 && arr[arr.length - 1].indexOf(".") > 0;
+            if (isFileName) {
+                let file = parent.files()[name];
+                if (file == null) {
+                    parent.addFile(name, physicalPath);
+                }
+                break;
+            }
+
+            let current = parent.directory(name);
+            if (current == null) {
+                let directoryPhysicalPath = pathConcat(parent.physicalPath, name);
+                current = this.addDirectory(name, directoryPhysicalPath);
+            }
+
+            parent = current;
+
+        }
     }
 
     /**
@@ -108,6 +153,11 @@ export class VirtualDirectory {
         return parentDir.directory(dirName);
     }
 
+    /**
+     * 获取文件的物理路径
+     * @param virtualPath 文件的虚拟路径
+     * @returns 文件的物理路径
+     */
     findFile(virtualPath: string) {
         let arr = virtualPath.split("/");
         let fileName = arr.pop();
@@ -157,8 +207,8 @@ export class VirtualDirectory {
         if (!fs.existsSync(physicalPath))
             throw errors.physicalPathNotExists(physicalPath);
 
-        if (!fs.statSync(physicalPath).isDirectory())
-            throw errors.pathNotDirectory(physicalPath);
+        // if (!fs.statSync(physicalPath).isDirectory())
+        //     throw errors.pathNotDirectory(physicalPath);
 
     }
 
