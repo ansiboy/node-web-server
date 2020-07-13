@@ -38,8 +38,15 @@ class WebServer {
         _settings.set(this, void 0);
         if (settings == null)
             throw errors_1.errors.argumentNull("settings");
-        settings.root = settings.root || __dirname;
-        __classPrivateFieldSet(this, _root, new virtual_directory_1.VirtualDirectory(settings.root));
+        if (settings.root == null) {
+            __classPrivateFieldSet(this, _root, new virtual_directory_1.VirtualDirectory(__dirname));
+        }
+        else if (typeof settings.root == "string") {
+            __classPrivateFieldSet(this, _root, new virtual_directory_1.VirtualDirectory(settings.root));
+        }
+        else {
+            __classPrivateFieldSet(this, _root, settings.root);
+        }
         __classPrivateFieldSet(this, _settings, settings);
         let s = this.start(settings);
         if (!settings.port) {

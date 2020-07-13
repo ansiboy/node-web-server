@@ -21,10 +21,17 @@ export class WebServer {
 
     constructor(settings: Settings) {
         if (settings == null) throw errors.argumentNull("settings");
-        settings.root = settings.root || __dirname;
-        this.#root = new VirtualDirectory(settings.root);
-        this.#settings = settings;
+        if (settings.root == null) {
+            this.#root = new VirtualDirectory(__dirname);
+        }
+        else if (typeof settings.root == "string") {
+            this.#root = new VirtualDirectory(settings.root);
+        }
+        else {
+            this.#root = settings.root;
+        }
 
+        this.#settings = settings;
         let s = this.start(settings);
         if (!settings.port) {
             let address = s.address() as AddressInfo;

@@ -1,3 +1,4 @@
+import { VirtualDirectory } from "./virtual-directory";
 import { RequestProcessor } from "./request-processor";
 import { ContentTransform } from "./content-transform";
 export interface Settings {
@@ -9,6 +10,6 @@ export interface Settings {
     requestProcessorConfigs?: {
         [key: string]: any;
     };
-    root?: string;
+    root?: string | VirtualDirectory;
     contentTransforms?: ContentTransform[];
 }
