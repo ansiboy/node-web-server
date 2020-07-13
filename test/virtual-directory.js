@@ -24,6 +24,9 @@ describe("virtual directory", function () {
     it("findDirectory", function () {
         let dir = root.findDirectory("/content");
         assert.notEqual(dir, null);
+        dir = root.findDirectory("/");
+        assert.notEqual(dir, null);
+        assert.equal(dir, root);
     });
     it("add path", function () {
         let p1 = path_concat_1.pathConcat(websitePath, "css/bootstrap.css");

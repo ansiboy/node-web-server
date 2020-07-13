@@ -16,10 +16,10 @@ export class VirtualDirectory {
 
         if (!physicalPath) throw errors.argumentNull("physicalPaths");
 
-        if (!fs.existsSync(physicalPath))
-            throw errors.physicalPathNotExists(physicalPath);
+        // if (!fs.existsSync(physicalPath))
+        //     throw errors.physicalPathNotExists(physicalPath);
 
-        if (!fs.statSync(physicalPath).isDirectory())
+        if (fs.existsSync(physicalPath) && !fs.statSync(physicalPath).isDirectory())
             throw errors.pathNotDirectory(physicalPath);
 
 
@@ -30,7 +30,7 @@ export class VirtualDirectory {
     directories() {
         let childDirs: { [name: string]: VirtualDirectory } = this.#directories;
         this.checkPhysicalPath(this.#physicalPath);
-        let names = fs.readdirSync(this.#physicalPath);
+        let names = fs.existsSync(this.physicalPath) ? fs.readdirSync(this.#physicalPath) : [];
         names.map(name => {
             let childPhysicalPath = pathConcat(this.#physicalPath, name);
             if (!fs.statSync(childPhysicalPath).isDirectory())
@@ -47,10 +47,10 @@ export class VirtualDirectory {
     /** 该文件夹下文件的物理路径 */
     files() {
         let filePhysicalPaths: { [name: string]: string } = {};
-        if (!fs.existsSync(this.#physicalPath))
-            throw errors.physicalPathNotExists(this.#physicalPath);
+        // if (!fs.existsSync(this.#physicalPath))
+        //     throw errors.physicalPathNotExists(this.#physicalPath);
 
-        let names = fs.readdirSync(this.#physicalPath);
+        let names = fs.existsSync(this.#physicalPath) ? fs.readdirSync(this.#physicalPath) : [];
         names.forEach(name => {
             let childPhysicalPath = pathConcat(this.#physicalPath, name);
             if (fs.statSync(childPhysicalPath).isFile()) {
@@ -106,7 +106,7 @@ export class VirtualDirectory {
         let parent: VirtualDirectory = this;
         for (let i = 0; i < arr.length; i++) {
             let name = arr[i];
-        
+
             let isFileName = i == arr.length - 1 && arr[arr.length - 1].indexOf(".") > 0;
             if (isFileName) {
                 let file = parent.files()[name];
@@ -204,8 +204,8 @@ export class VirtualDirectory {
         if (!path.isAbsolute(physicalPath))
             throw errors.notPhysicalPath(physicalPath);
 
-        if (!fs.existsSync(physicalPath))
-            throw errors.physicalPathNotExists(physicalPath);
+        // if (!fs.existsSync(physicalPath))
+        //     throw errors.physicalPathNotExists(physicalPath);
 
         // if (!fs.statSync(physicalPath).isDirectory())
         //     throw errors.pathNotDirectory(physicalPath);

@@ -4,8 +4,6 @@ import { defaultFileProcessors } from "../file-processors";
 import { errors } from "../errors";
 import { FileProcessors } from "../file-processor";
 import { contentTypes } from "../content-types";
-import { StatusCode } from "../status-code";
-
 
 export type StaticFileProcessorConfig = {
     fileProcessors: FileProcessors

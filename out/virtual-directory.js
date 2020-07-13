@@ -29,9 +29,9 @@ class VirtualDirectory {
         _virtualPath.set(this, null);
         if (!physicalPath)
             throw errors_1.errors.argumentNull("physicalPaths");
-        if (!fs.existsSync(physicalPath))
-            throw errors_1.errors.physicalPathNotExists(physicalPath);
-        if (!fs.statSync(physicalPath).isDirectory())
+        // if (!fs.existsSync(physicalPath))
+        //     throw errors.physicalPathNotExists(physicalPath);
+        if (fs.existsSync(physicalPath) && !fs.statSync(physicalPath).isDirectory())
             throw errors_1.errors.pathNotDirectory(physicalPath);
         __classPrivateFieldSet(this, _physicalPath, physicalPath);
     }
@@ -39,7 +39,7 @@ class VirtualDirectory {
     directories() {
         let childDirs = __classPrivateFieldGet(this, _directories);
         this.checkPhysicalPath(__classPrivateFieldGet(this, _physicalPath));
-        let names = fs.readdirSync(__classPrivateFieldGet(this, _physicalPath));
+        let names = fs.existsSync(this.physicalPath) ? fs.readdirSync(__classPrivateFieldGet(this, _physicalPath)) : [];
         names.map(name => {
             let childPhysicalPath = path_concat_1.pathConcat(__classPrivateFieldGet(this, _physicalPath), name);
             if (!fs.statSync(childPhysicalPath).isDirectory())
@@ -53,9 +53,9 @@ class VirtualDirectory {
     /** 该文件夹下文件的物理路径 */
     files() {
         let filePhysicalPaths = {};
-        if (!fs.existsSync(__classPrivateFieldGet(this, _physicalPath)))
-            throw errors_1.errors.physicalPathNotExists(__classPrivateFieldGet(this, _physicalPath));
-        let names = fs.readdirSync(__classPrivateFieldGet(this, _physicalPath));
+        // if (!fs.existsSync(this.#physicalPath))
+        //     throw errors.physicalPathNotExists(this.#physicalPath);
+        let names = fs.existsSync(__classPrivateFieldGet(this, _physicalPath)) ? fs.readdirSync(__classPrivateFieldGet(this, _physicalPath)) : [];
         names.forEach(name => {
             let childPhysicalPath = path_concat_1.pathConcat(__classPrivateFieldGet(this, _physicalPath), name);
             if (fs.statSync(childPhysicalPath).isFile()) {
@@ -185,8 +185,8 @@ class VirtualDirectory {
     checkPhysicalPath(physicalPath) {
         if (!path.isAbsolute(physicalPath))
             throw errors_1.errors.notPhysicalPath(physicalPath);
-        if (!fs.existsSync(physicalPath))
-            throw errors_1.errors.physicalPathNotExists(physicalPath);
+        // if (!fs.existsSync(physicalPath))
+        //     throw errors.physicalPathNotExists(physicalPath);
         // if (!fs.statSync(physicalPath).isDirectory())
         //     throw errors.pathNotDirectory(physicalPath);
     }

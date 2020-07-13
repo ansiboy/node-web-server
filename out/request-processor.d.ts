@@ -14,7 +14,7 @@ export declare type ExecuteResult = {
     headers?: {
         [key: string]: string;
     };
-} | null;
+};
 export interface RequestProcessor {
     execute(args: RequestContext): ExecuteResult | Promise<ExecuteResult> | null;
 }
