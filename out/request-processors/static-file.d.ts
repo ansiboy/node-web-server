@@ -1,12 +1,16 @@
 import { RequestProcessor, RequestContext, ExecuteResult } from "../request-processor";
-import { FileProcessors } from "../file-processor";
+import { FileProcessor } from "../file-processor";
 export declare type StaticFileProcessorConfig = {
-    fileProcessors: FileProcessors;
+    fileProcessors: {
+        [key: string]: FileProcessor;
+    };
 };
 export declare class StaticFileRequestProcessor implements RequestProcessor {
     #private;
-    constructor();
+    constructor(config?: StaticFileProcessorConfig);
     execute(args: RequestContext): ExecuteResult;
-    get fileProcessors(): FileProcessors;
+    get fileProcessors(): {
+        [key: string]: FileProcessor;
+    };
 }
 export declare let staticFileRequestProcessor: StaticFileRequestProcessor;

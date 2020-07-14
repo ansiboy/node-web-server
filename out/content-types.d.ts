@@ -3,4 +3,5 @@ export declare const contentTypes: {
     txt: string;
     html: string;
     js: string;
+    css: string;
 };

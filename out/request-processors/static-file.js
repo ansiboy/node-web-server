@@ -1,28 +1,16 @@
 "use strict";
-var __classPrivateFieldSet = (this && this.__classPrivateFieldSet) || function (receiver, privateMap, value) {
-    if (!privateMap.has(receiver)) {
-        throw new TypeError("attempted to set private field on non-instance");
-    }
-    privateMap.set(receiver, value);
-    return value;
-};
-var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (receiver, privateMap) {
-    if (!privateMap.has(receiver)) {
-        throw new TypeError("attempted to get private field on non-instance");
-    }
-    return privateMap.get(receiver);
-};
-var _fileProcessors;
 Object.defineProperty(exports, "__esModule", { value: true });
 const path_concat_1 = require("../path-concat");
 const file_processors_1 = require("../file-processors");
 const errors_1 = require("../errors");
+// import { FileProcessors } from "../file-processor";
 const content_types_1 = require("../content-types");
 class StaticFileRequestProcessor {
-    constructor() {
-        _fileProcessors.set(this, void 0);
-        __classPrivateFieldSet(this, _fileProcessors, Object.assign({}, file_processors_1.defaultFileProcessors));
+    constructor(config) {
+        config = config || { fileProcessors: {} };
+        this.#fileProcessors = Object.assign(config.fileProcessors, file_processors_1.defaultFileProcessors);
     }
+    #fileProcessors;
     execute(args) {
         if (args.physicalPath == null)
             throw errors_1.errors.pageNotFound(args.virtualPath);
@@ -31,19 +19,17 @@ class StaticFileRequestProcessor {
             args.physicalPath = path_concat_1.pathConcat(args.physicalPath, "index.html");
         }
         let arr = args.physicalPath.split(".");
-        console.assert(arr.length == 2);
-        ext = arr[1];
-        let fileProcessor = __classPrivateFieldGet(this, _fileProcessors)[ext];
+        ext = arr[arr.length - 1];
+        let fileProcessor = this.#fileProcessors[ext];
         if (fileProcessor == null)
             throw errors_1.errors.fileTypeNotSupport(ext);
         let r = fileProcessor(args);
         let contentType = content_types_1.contentTypes[ext] || content_types_1.contentTypes.txt;
-        return { statusCode: r.statusCode, content: r.content, contentType: contentType };
+        return { statusCode: r.statusCode, content: r.content, contentType: r.contentType || contentType };
     }
     get fileProcessors() {
-        return __classPrivateFieldGet(this, _fileProcessors);
+        return this.#fileProcessors;
     }
 }
 exports.StaticFileRequestProcessor = StaticFileRequestProcessor;
-_fileProcessors = new WeakMap();
 exports.staticFileRequestProcessor = new StaticFileRequestProcessor();

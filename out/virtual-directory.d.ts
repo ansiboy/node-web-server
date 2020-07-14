@@ -3,7 +3,7 @@
  */
 export declare class VirtualDirectory {
     #private;
-    constructor(physicalPath: string);
+    constructor(physicalPath: string, virtualPath?: string);
     /** 获取当前文件夹的子文件夹 */
     directories(): {
         [name: string]: VirtualDirectory;
@@ -47,7 +47,7 @@ export declare class VirtualDirectory {
      * @returns 子文件夹的虚拟文件夹
      */
     private directory;
-    get virtualPath(): string | null;
+    get virtualPath(): string;
     get physicalPath(): string;
     private checkPhysicalPath;
     private checkVirtualPath;

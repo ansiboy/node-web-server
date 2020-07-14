@@ -2,23 +2,25 @@ import { RequestProcessor, RequestContext, ExecuteResult } from "../request-proc
 import { pathConcat } from "../path-concat";
 import { defaultFileProcessors } from "../file-processors";
 import { errors } from "../errors";
-import { FileProcessors } from "../file-processor";
+// import { FileProcessors } from "../file-processor";
 import { contentTypes } from "../content-types";
+import { FileProcessor } from "../file-processor";
 
 export type StaticFileProcessorConfig = {
-    fileProcessors: FileProcessors
+    fileProcessors: { [key: string]: FileProcessor }
 }
 
 export class StaticFileRequestProcessor implements RequestProcessor {
 
-    #fileProcessors: FileProcessors;
+    #fileProcessors: { [key: string]: FileProcessor };
 
-    constructor() {
-        this.#fileProcessors = Object.assign({}, defaultFileProcessors);
+    constructor(config?: StaticFileProcessorConfig) {
+        config = config || { fileProcessors: {} };
+        this.#fileProcessors = Object.assign(config.fileProcessors, defaultFileProcessors);
     }
 
     execute(args: RequestContext): ExecuteResult {
-
+    
         if (args.physicalPath == null)
             throw errors.pageNotFound(args.virtualPath);
 
@@ -28,8 +30,7 @@ export class StaticFileRequestProcessor implements RequestProcessor {
         }
 
         let arr = args.physicalPath.split(".");
-        console.assert(arr.length == 2);
-        ext = arr[1];
+        ext = arr[arr.length - 1];
 
         let fileProcessor = this.#fileProcessors[ext];
         if (fileProcessor == null)
@@ -37,7 +38,7 @@ export class StaticFileRequestProcessor implements RequestProcessor {
 
         let r = fileProcessor(args);
         let contentType = contentTypes[ext as keyof typeof contentTypes] || contentTypes.txt;
-        return { statusCode: r.statusCode, content: r.content, contentType: contentType };
+        return { statusCode: r.statusCode, content: r.content, contentType: r.contentType || contentType };
     }
 
     get fileProcessors() {

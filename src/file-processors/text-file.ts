@@ -6,10 +6,10 @@ import { contentTypes } from "../content-types";
 
 export let textFileProcessor: FileProcessor = function (args) {
     if (!args.physicalPath)
-        return { statusCode: StatusCode.NotFound, content: errorPages.NotFound };
+        return { statusCode: StatusCode.NotFound, content: errorPages.NotFound, contentType: contentTypes.txt };
 
     if (!fs.existsSync(args.physicalPath))
-        return { statusCode: 404, content: errorPages.NotFound };
+        return { statusCode: 404, content: errorPages.NotFound, contentType: contentTypes.txt };
 
     let data = fs.readFileSync(args.physicalPath);
 

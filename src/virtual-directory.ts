@@ -3,6 +3,9 @@ import path = require("path");
 import fs = require("fs");
 import { pathConcat } from "./path-concat";
 
+
+const RootVirtualPath = "/";
+
 /**
  * 虚拟文件夹
  */
@@ -10,9 +13,9 @@ export class VirtualDirectory {
     #physicalPath: string;
     #directories: { [name: string]: VirtualDirectory } = {};
     #files: { [name: string]: string } = {};
-    #virtualPath: string | null = null;
+    #virtualPath: string;
 
-    constructor(physicalPath: string) {
+    constructor(physicalPath: string, virtualPath: string = RootVirtualPath) {
 
         if (!physicalPath) throw errors.argumentNull("physicalPaths");
 
@@ -24,6 +27,7 @@ export class VirtualDirectory {
 
 
         this.#physicalPath = physicalPath;
+        this.#virtualPath = virtualPath;
     }
 
     /** 获取当前文件夹的子文件夹 */
@@ -33,11 +37,12 @@ export class VirtualDirectory {
         let names = fs.existsSync(this.physicalPath) ? fs.readdirSync(this.#physicalPath) : [];
         names.map(name => {
             let childPhysicalPath = pathConcat(this.#physicalPath, name);
+            let childVirtualPath = pathConcat(this.#virtualPath, name);
             if (!fs.statSync(childPhysicalPath).isDirectory())
                 return;
 
             if (childDirs[name] == null) {
-                childDirs[name] = new VirtualDirectory(childPhysicalPath);
+                childDirs[name] = new VirtualDirectory(childPhysicalPath, childVirtualPath);
             }
         })
 
@@ -72,7 +77,8 @@ export class VirtualDirectory {
         if (!physicalPath) throw errors.argumentNull("physicalPath");
         // this.checkPhysicalPath(physicalPath);
 
-        let dir = new VirtualDirectory(physicalPath);
+        let virtualPath = pathConcat(this.virtualPath, name);
+        let dir = new VirtualDirectory(physicalPath, virtualPath);
         this.#directories[name] = dir;
 
         return dir;
@@ -118,8 +124,8 @@ export class VirtualDirectory {
 
             let current = parent.directory(name);
             if (current == null) {
-                let directoryPhysicalPath = pathConcat(parent.physicalPath, name);
-                current = this.addDirectory(name, directoryPhysicalPath);
+                let directoryPhysicalPath = i == arr.length - 1 ? physicalPath : pathConcat(parent.physicalPath, name);
+                current = parent.addDirectory(name, directoryPhysicalPath);
             }
 
             parent = current;
@@ -133,8 +139,11 @@ export class VirtualDirectory {
      * @returns 文件夹的物理路径
      */
     findDirectory(virtualPath: string): VirtualDirectory | null {
-        if (!virtualPath) throw errors.argumentNull("path");
-        if (virtualPath == "/")
+        if (!virtualPath) throw errors.argumentNull("virtualPath");
+        if (virtualPath[0] != "/")
+            virtualPath = "/" + virtualPath;
+
+        if (virtualPath == RootVirtualPath)
             return this;
 
         this.checkVirtualPath(virtualPath);
@@ -186,7 +195,9 @@ export class VirtualDirectory {
 
         let physicalPath = pathConcat(this.#physicalPath, name);
         if (fs.existsSync(physicalPath)) {
-            return this.addDirectory(name, physicalPath);
+            let childVirtualPath = pathConcat(this.#virtualPath, name);
+            this.#directories[name] = new VirtualDirectory(physicalPath, childVirtualPath);
+            return this.#directories[name];
         }
 
         return null;

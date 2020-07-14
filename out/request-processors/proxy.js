@@ -1,49 +1,35 @@
 "use strict";
-var __classPrivateFieldSet = (this && this.__classPrivateFieldSet) || function (receiver, privateMap, value) {
-    if (!privateMap.has(receiver)) {
-        throw new TypeError("attempted to set private field on non-instance");
-    }
-    privateMap.set(receiver, value);
-    return value;
-};
-var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (receiver, privateMap) {
-    if (!privateMap.has(receiver)) {
-        throw new TypeError("attempted to get private field on non-instance");
-    }
-    return privateMap.get(receiver);
-};
-var _proxyTargets;
 Object.defineProperty(exports, "__esModule", { value: true });
 const http = require("http");
 const errors_1 = require("../errors");
 class ProxyRequestProcessor {
     constructor(config) {
-        _proxyTargets.set(this, void 0);
         config = config || {};
-        __classPrivateFieldSet(this, _proxyTargets, {});
+        this.#proxyTargets = {};
         if (config.proxyTargets) {
             for (let key in config.proxyTargets) {
                 if (typeof config.proxyTargets[key] == "string") {
-                    __classPrivateFieldGet(this, _proxyTargets)[key] = { targetUrl: config.proxyTargets[key] };
+                    this.#proxyTargets[key] = { targetUrl: config.proxyTargets[key] };
                 }
                 else {
-                    __classPrivateFieldGet(this, _proxyTargets)[key] = config.proxyTargets[key];
+                    this.#proxyTargets[key] = config.proxyTargets[key];
                 }
             }
         }
     }
+    #proxyTargets;
     get proxyTargets() {
-        return __classPrivateFieldGet(this, _proxyTargets);
+        return this.#proxyTargets;
     }
     execute(args) {
-        for (let key in __classPrivateFieldGet(this, _proxyTargets)) {
+        for (let key in this.#proxyTargets) {
             let regex = new RegExp(key);
             let reqUrl = args.virtualPath;
             let arr = regex.exec(reqUrl);
             if (arr == null || arr.length == 0) {
                 continue;
             }
-            let proxyItem = __classPrivateFieldGet(this, _proxyTargets)[key];
+            let proxyItem = this.#proxyTargets[key];
             let targetUrl = proxyItem.targetUrl;
             let regex1 = /\$(\d+)/g;
             if (regex1.test(targetUrl)) {
@@ -59,7 +45,6 @@ class ProxyRequestProcessor {
     }
 }
 exports.ProxyRequestProcessor = ProxyRequestProcessor;
-_proxyTargets = new WeakMap();
 function proxyRequest(targetUrl, req, res, headers, method) {
     return new Promise(function (resolve, reject) {
         headers = Object.assign({}, req.headers, headers || {});

@@ -1,4 +1,4 @@
-import { textFileProcessor } from "./static-file";
+import { textFileProcessor } from "./text-file";
 import { FileProcessor } from "../file-processor";
 
 export let defaultFileProcessors: { [key: string]: FileProcessor } = {

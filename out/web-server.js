@@ -1,27 +1,4 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __classPrivateFieldSet = (this && this.__classPrivateFieldSet) || function (receiver, privateMap, value) {
-    if (!privateMap.has(receiver)) {
-        throw new TypeError("attempted to set private field on non-instance");
-    }
-    privateMap.set(receiver, value);
-    return value;
-};
-var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (receiver, privateMap) {
-    if (!privateMap.has(receiver)) {
-        throw new TypeError("attempted to get private field on non-instance");
-    }
-    return privateMap.get(receiver);
-};
-var _root, _requestProcessors, _settings;
 Object.defineProperty(exports, "__esModule", { value: true });
 const http = require("http");
 const url = require("url");
@@ -33,59 +10,59 @@ const static_file_1 = require("./request-processors/static-file");
 const status_code_1 = require("./status-code");
 class WebServer {
     constructor(settings) {
-        _root.set(this, void 0);
-        _requestProcessors.set(this, void 0);
-        _settings.set(this, void 0);
         if (settings == null)
             throw errors_1.errors.argumentNull("settings");
         if (settings.root == null) {
-            __classPrivateFieldSet(this, _root, new virtual_directory_1.VirtualDirectory(__dirname));
+            this.#root = new virtual_directory_1.VirtualDirectory(__dirname);
         }
         else if (typeof settings.root == "string") {
-            __classPrivateFieldSet(this, _root, new virtual_directory_1.VirtualDirectory(settings.root));
+            this.#root = new virtual_directory_1.VirtualDirectory(settings.root);
         }
         else {
-            __classPrivateFieldSet(this, _root, settings.root);
+            this.#root = settings.root;
         }
-        __classPrivateFieldSet(this, _settings, settings);
+        this.#settings = settings;
         let s = this.start(settings);
         if (!settings.port) {
             let address = s.address();
             settings.port = address.port;
         }
-        let configs = __classPrivateFieldGet(this, _settings).requestProcessorConfigs || {};
-        let types = __classPrivateFieldGet(this, _settings).requestProcessorTypes || WebServer.defaultRequestProcessorTypes;
-        __classPrivateFieldSet(this, _requestProcessors, types.map((type) => {
+        let configs = this.#settings.requestProcessorConfigs || {};
+        let types = this.#settings.requestProcessorTypes || WebServer.defaultRequestProcessorTypes;
+        this.#requestProcessors = types.map((type) => {
             let name = type.name;
             let alias = name.endsWith("RequestProcessor") ? name.substring(0, name.length - "RequestProcessor".length) : name;
             let config = configs[name] || configs[alias] || {};
             let processor = new type(config);
             return processor;
-        }));
+        });
     }
+    #root;
+    #requestProcessors;
+    #settings;
     get root() {
-        return __classPrivateFieldGet(this, _root);
+        return this.#root;
     }
     get port() {
-        return __classPrivateFieldGet(this, _settings).port;
+        return this.#settings.port;
     }
     get requestProcessors() {
-        return __classPrivateFieldGet(this, _requestProcessors);
+        return this.#requestProcessors;
     }
     start(settings) {
-        let server = http.createServer((req, res) => __awaiter(this, void 0, void 0, function* () {
+        let server = http.createServer(async (req, res) => {
             let u = url.parse(req.url || "");
             let path = u.pathname || "";
             let physicalPath = null;
             if (path.indexOf(".") < 0) {
-                let dir = __classPrivateFieldGet(this, _root).findDirectory(path);
-                physicalPath = dir === null || dir === void 0 ? void 0 : dir.physicalPath;
+                let dir = this.#root.findDirectory(path);
+                physicalPath = dir?.physicalPath;
             }
             else {
-                physicalPath = __classPrivateFieldGet(this, _root).findFile(path);
+                physicalPath = this.#root.findFile(path);
             }
-            for (let i = 0; i < __classPrivateFieldGet(this, _requestProcessors).length; i++) {
-                let processor = __classPrivateFieldGet(this, _requestProcessors)[i];
+            for (let i = 0; i < this.#requestProcessors.length; i++) {
+                let processor = this.#requestProcessors[i];
                 try {
                     let r = null;
                     let requestContext = { virtualPath: path, physicalPath, req, res };
@@ -93,7 +70,7 @@ class WebServer {
                     if (p == null)
                         continue;
                     if (p.then != null) {
-                        r = yield p;
+                        r = await p;
                     }
                     else {
                         r = p;
@@ -121,26 +98,24 @@ class WebServer {
             }
             // 404
             this.outputError(errors_1.errors.pageNotFound(path), res);
-        }));
+        });
         return server.listen(settings.port, settings.bindIP);
     }
-    outputContent(content, requestContext, contentTransforms) {
-        return __awaiter(this, void 0, void 0, function* () {
-            for (let i = 0; i < contentTransforms.length; i++) {
-                let transform = contentTransforms[i];
-                console.assert(transform != null);
-                let r = contentTransforms[i](content);
-                if (r == null)
-                    throw errors_1.errors.contentTransformResultNull();
-                if (r.then != null)
-                    content = yield r;
-                else
-                    content = r;
-            }
-            let res = requestContext.res;
-            res.write(content);
-            res.end();
-        });
+    async outputContent(content, requestContext, contentTransforms) {
+        for (let i = 0; i < contentTransforms.length; i++) {
+            let transform = contentTransforms[i];
+            console.assert(transform != null);
+            let r = contentTransforms[i](content);
+            if (r == null)
+                throw errors_1.errors.contentTransformResultNull();
+            if (r.then != null)
+                content = await r;
+            else
+                content = r;
+        }
+        let res = requestContext.res;
+        res.write(content);
+        res.end();
     }
     outputError(err, res) {
         if (err == null) {
@@ -169,5 +144,4 @@ class WebServer {
     }
 }
 exports.WebServer = WebServer;
-_root = new WeakMap(), _requestProcessors = new WeakMap(), _settings = new WeakMap();
 WebServer.defaultRequestProcessorTypes = [proxy_1.ProxyRequestProcessor, static_file_1.StaticFileRequestProcessor];

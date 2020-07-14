@@ -1,51 +1,42 @@
 "use strict";
-var __classPrivateFieldSet = (this && this.__classPrivateFieldSet) || function (receiver, privateMap, value) {
-    if (!privateMap.has(receiver)) {
-        throw new TypeError("attempted to set private field on non-instance");
-    }
-    privateMap.set(receiver, value);
-    return value;
-};
-var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (receiver, privateMap) {
-    if (!privateMap.has(receiver)) {
-        throw new TypeError("attempted to get private field on non-instance");
-    }
-    return privateMap.get(receiver);
-};
-var _physicalPath, _directories, _files, _virtualPath;
 Object.defineProperty(exports, "__esModule", { value: true });
 const errors_1 = require("./errors");
 const path = require("path");
 const fs = require("fs");
 const path_concat_1 = require("./path-concat");
+const RootVirtualPath = "/";
 /**
  * 虚拟文件夹
  */
 class VirtualDirectory {
-    constructor(physicalPath) {
-        _physicalPath.set(this, void 0);
-        _directories.set(this, {});
-        _files.set(this, {});
-        _virtualPath.set(this, null);
+    constructor(physicalPath, virtualPath = RootVirtualPath) {
+        this.#directories = {};
+        this.#files = {};
         if (!physicalPath)
             throw errors_1.errors.argumentNull("physicalPaths");
         // if (!fs.existsSync(physicalPath))
         //     throw errors.physicalPathNotExists(physicalPath);
         if (fs.existsSync(physicalPath) && !fs.statSync(physicalPath).isDirectory())
             throw errors_1.errors.pathNotDirectory(physicalPath);
-        __classPrivateFieldSet(this, _physicalPath, physicalPath);
+        this.#physicalPath = physicalPath;
+        this.#virtualPath = virtualPath;
     }
+    #physicalPath;
+    #directories;
+    #files;
+    #virtualPath;
     /** 获取当前文件夹的子文件夹 */
     directories() {
-        let childDirs = __classPrivateFieldGet(this, _directories);
-        this.checkPhysicalPath(__classPrivateFieldGet(this, _physicalPath));
-        let names = fs.existsSync(this.physicalPath) ? fs.readdirSync(__classPrivateFieldGet(this, _physicalPath)) : [];
+        let childDirs = this.#directories;
+        this.checkPhysicalPath(this.#physicalPath);
+        let names = fs.existsSync(this.physicalPath) ? fs.readdirSync(this.#physicalPath) : [];
         names.map(name => {
-            let childPhysicalPath = path_concat_1.pathConcat(__classPrivateFieldGet(this, _physicalPath), name);
+            let childPhysicalPath = path_concat_1.pathConcat(this.#physicalPath, name);
+            let childVirtualPath = path_concat_1.pathConcat(this.#virtualPath, name);
             if (!fs.statSync(childPhysicalPath).isDirectory())
                 return;
             if (childDirs[name] == null) {
-                childDirs[name] = new VirtualDirectory(childPhysicalPath);
+                childDirs[name] = new VirtualDirectory(childPhysicalPath, childVirtualPath);
             }
         });
         return childDirs;
@@ -55,14 +46,14 @@ class VirtualDirectory {
         let filePhysicalPaths = {};
         // if (!fs.existsSync(this.#physicalPath))
         //     throw errors.physicalPathNotExists(this.#physicalPath);
-        let names = fs.existsSync(__classPrivateFieldGet(this, _physicalPath)) ? fs.readdirSync(__classPrivateFieldGet(this, _physicalPath)) : [];
+        let names = fs.existsSync(this.#physicalPath) ? fs.readdirSync(this.#physicalPath) : [];
         names.forEach(name => {
-            let childPhysicalPath = path_concat_1.pathConcat(__classPrivateFieldGet(this, _physicalPath), name);
+            let childPhysicalPath = path_concat_1.pathConcat(this.#physicalPath, name);
             if (fs.statSync(childPhysicalPath).isFile()) {
                 filePhysicalPaths[name] = childPhysicalPath;
             }
         });
-        Object.assign(filePhysicalPaths, __classPrivateFieldGet(this, _files));
+        Object.assign(filePhysicalPaths, this.#files);
         return filePhysicalPaths;
     }
     /**
@@ -76,8 +67,9 @@ class VirtualDirectory {
         if (!physicalPath)
             throw errors_1.errors.argumentNull("physicalPath");
         // this.checkPhysicalPath(physicalPath);
-        let dir = new VirtualDirectory(physicalPath);
-        __classPrivateFieldGet(this, _directories)[name] = dir;
+        let virtualPath = path_concat_1.pathConcat(this.virtualPath, name);
+        let dir = new VirtualDirectory(physicalPath, virtualPath);
+        this.#directories[name] = dir;
         return dir;
     }
     /**
@@ -91,7 +83,7 @@ class VirtualDirectory {
         if (!physicalPath)
             throw errors_1.errors.argumentNull("physicalPath");
         this.checkPhysicalPath(physicalPath);
-        __classPrivateFieldGet(this, _files)[name] = physicalPath;
+        this.#files[name] = physicalPath;
     }
     /** 添加虚拟路径
      * @param virtualPath 要添加的虚拟路径
@@ -116,8 +108,8 @@ class VirtualDirectory {
             }
             let current = parent.directory(name);
             if (current == null) {
-                let directoryPhysicalPath = path_concat_1.pathConcat(parent.physicalPath, name);
-                current = this.addDirectory(name, directoryPhysicalPath);
+                let directoryPhysicalPath = i == arr.length - 1 ? physicalPath : path_concat_1.pathConcat(parent.physicalPath, name);
+                current = parent.addDirectory(name, directoryPhysicalPath);
             }
             parent = current;
         }
@@ -129,8 +121,10 @@ class VirtualDirectory {
      */
     findDirectory(virtualPath) {
         if (!virtualPath)
-            throw errors_1.errors.argumentNull("path");
-        if (virtualPath == "/")
+            throw errors_1.errors.argumentNull("virtualPath");
+        if (virtualPath[0] != "/")
+            virtualPath = "/" + virtualPath;
+        if (virtualPath == RootVirtualPath)
             return this;
         this.checkVirtualPath(virtualPath);
         let names = virtualPath.split("/"); //.filter(o => o);
@@ -166,21 +160,23 @@ class VirtualDirectory {
      * @returns 子文件夹的虚拟文件夹
      */
     directory(name) {
-        if (__classPrivateFieldGet(this, _directories)[name])
-            return __classPrivateFieldGet(this, _directories)[name];
-        if (__classPrivateFieldGet(this, _directories)[name])
-            return __classPrivateFieldGet(this, _directories)[name];
-        let physicalPath = path_concat_1.pathConcat(__classPrivateFieldGet(this, _physicalPath), name);
+        if (this.#directories[name])
+            return this.#directories[name];
+        if (this.#directories[name])
+            return this.#directories[name];
+        let physicalPath = path_concat_1.pathConcat(this.#physicalPath, name);
         if (fs.existsSync(physicalPath)) {
-            return this.addDirectory(name, physicalPath);
+            let childVirtualPath = path_concat_1.pathConcat(this.#virtualPath, name);
+            this.#directories[name] = new VirtualDirectory(physicalPath, childVirtualPath);
+            return this.#directories[name];
         }
         return null;
     }
     get virtualPath() {
-        return __classPrivateFieldGet(this, _virtualPath);
+        return this.#virtualPath;
     }
     get physicalPath() {
-        return __classPrivateFieldGet(this, _physicalPath);
+        return this.#physicalPath;
     }
     checkPhysicalPath(physicalPath) {
         if (!path.isAbsolute(physicalPath))
@@ -203,4 +199,3 @@ class VirtualDirectory {
     }
 }
 exports.VirtualDirectory = VirtualDirectory;
-_physicalPath = new WeakMap(), _directories = new WeakMap(), _files = new WeakMap(), _virtualPath = new WeakMap();

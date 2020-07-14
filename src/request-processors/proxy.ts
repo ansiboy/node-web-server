@@ -1,4 +1,4 @@
-import { RequestProcessor, Content, RequestContext, ExecuteResult } from "../request-processor";
+import { RequestProcessor, RequestContext, ExecuteResult } from "../request-processor";
 import http = require('http');
 import { errors } from "../errors";
 
@@ -63,8 +63,6 @@ export class ProxyRequestProcessor implements RequestProcessor {
 
         return null;
     }
-
-
 }
 
 

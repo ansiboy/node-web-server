@@ -10,3 +10,5 @@ var static_file_1 = require("./request-processors/static-file");
 exports.StaticFileRequestProcessor = static_file_1.StaticFileRequestProcessor;
 var path_concat_1 = require("./path-concat");
 exports.pathConcat = path_concat_1.pathConcat;
+var text_file_1 = require("./file-processors/text-file");
+exports.textFileProcessor = text_file_1.textFileProcessor;

@@ -28,10 +28,17 @@ describe("virtual directory", function () {
         assert.notEqual(dir, null);
         assert.equal(dir, root);
     });
-    it("add path", function () {
+    it("add path file", function () {
         let p1 = path_concat_1.pathConcat(websitePath, "css/bootstrap.css");
         root.addPath("/content/bootstrap.css", p1);
         let p2 = root.findFile("/content/bootstrap.css");
         assert.equal(p2, p1);
+    });
+    it("add path directory", function () {
+        let p1 = path_concat_1.pathConcat(websitePath, "css");
+        root.addPath("/content/css", p1);
+        let p2 = root.findDirectory("/content/css");
+        assert.notEqual(p2, null);
+        assert.equal(p2 === null || p2 === void 0 ? void 0 : p2.physicalPath, p1);
     });
 });
