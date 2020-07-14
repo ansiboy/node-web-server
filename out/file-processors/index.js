@@ -6,4 +6,5 @@ exports.defaultFileProcessors = {
     "html": text_file_1.textFileProcessor,
     "js": text_file_1.textFileProcessor,
     "css": text_file_1.textFileProcessor,
+    "json": text_file_1.textFileProcessor,
 };
