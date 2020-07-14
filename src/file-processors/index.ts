@@ -6,4 +6,5 @@ export let defaultFileProcessors: { [key: string]: FileProcessor } = {
     "html": textFileProcessor,
     "js": textFileProcessor,
     "css": textFileProcessor,
+    "json": textFileProcessor,
 }
