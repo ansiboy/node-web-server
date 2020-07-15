@@ -8,7 +8,7 @@ export declare type StaticFileProcessorConfig = {
 export declare class StaticFileRequestProcessor implements RequestProcessor {
     #private;
     constructor(config?: StaticFileProcessorConfig);
-    execute(args: RequestContext): ExecuteResult;
+    execute(args: RequestContext): Promise<ExecuteResult>;
     get fileProcessors(): {
         [key: string]: FileProcessor;
     };

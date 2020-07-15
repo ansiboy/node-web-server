@@ -16,5 +16,5 @@ export declare type ExecuteResult = {
     };
 };
 export interface RequestProcessor {
-    execute(args: RequestContext): ExecuteResult | Promise<ExecuteResult> | null;
+    execute(args: RequestContext): ExecuteResult | Promise<ExecuteResult | null> | null;
 }

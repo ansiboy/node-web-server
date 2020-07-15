@@ -16,11 +16,11 @@ export class StaticFileRequestProcessor implements RequestProcessor {
 
     constructor(config?: StaticFileProcessorConfig) {
         config = config || { fileProcessors: {} };
-        this.#fileProcessors = Object.assign(config.fileProcessors, defaultFileProcessors);
+        this.#fileProcessors = Object.assign(config.fileProcessors || {}, defaultFileProcessors);
     }
 
-    execute(args: RequestContext): ExecuteResult {
-    
+    async execute(args: RequestContext): Promise<ExecuteResult> {
+
         if (args.physicalPath == null)
             throw errors.pageNotFound(args.virtualPath);
 
@@ -36,7 +36,12 @@ export class StaticFileRequestProcessor implements RequestProcessor {
         if (fileProcessor == null)
             throw errors.fileTypeNotSupport(ext);
 
-        let r = fileProcessor(args);
+        let p = fileProcessor(args) as Promise<ExecuteResult>;
+        if (p.then == null) {
+            p = Promise.resolve(p);
+        }
+
+        let r = await p;
         let contentType = contentTypes[ext as keyof typeof contentTypes] || contentTypes.txt;
         return { statusCode: r.statusCode, content: r.content, contentType: r.contentType || contentType };
     }

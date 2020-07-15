@@ -6,4 +6,5 @@ export { ProxyRequestProcessor, ProxyConfig } from "./request-processors/proxy";
 export { StaticFileRequestProcessor, StaticFileProcessorConfig } from "./request-processors/static-file";
 export { pathConcat } from "./path-concat";
 export { textFileProcessor } from "./file-processors/text-file";
-export { FileProcessor } from "./file-processor";
+export { FileProcessor, FileProcessorResult } from "./file-processor";
+export { StatusCode } from "./status-code";

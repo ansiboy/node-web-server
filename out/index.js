@@ -12,3 +12,5 @@ var path_concat_1 = require("./path-concat");
 exports.pathConcat = path_concat_1.pathConcat;
 var text_file_1 = require("./file-processors/text-file");
 exports.textFileProcessor = text_file_1.textFileProcessor;
+var status_code_1 = require("./status-code");
+exports.StatusCode = status_code_1.StatusCode;

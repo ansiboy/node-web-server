@@ -16,6 +16,7 @@ export class WebServer {
     #root: VirtualDirectory;
     #requestProcessors: RequestProcessor[];
     #settings: Settings;
+    #source: http.Server;
 
     static defaultRequestProcessorTypes: { new(config?: any): RequestProcessor }[] = [ProxyRequestProcessor, StaticFileRequestProcessor];
 
@@ -31,10 +32,11 @@ export class WebServer {
             this.#root = settings.root;
         }
 
+
         this.#settings = settings;
-        let s = this.start(settings);
+        this.#source = this.start(settings);
         if (!settings.port) {
-            let address = s.address() as AddressInfo;
+            let address = this.#source.address() as AddressInfo;
             settings.port = address.port;
         }
 
@@ -59,6 +61,10 @@ export class WebServer {
 
     get requestProcessors() {
         return this.#requestProcessors;
+    }
+
+    get source() {
+        return this.#source;
     }
 
     private start(settings: Settings) {

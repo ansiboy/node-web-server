@@ -22,9 +22,9 @@ class WebServer {
             this.#root = settings.root;
         }
         this.#settings = settings;
-        let s = this.start(settings);
+        this.#source = this.start(settings);
         if (!settings.port) {
-            let address = s.address();
+            let address = this.#source.address();
             settings.port = address.port;
         }
         let configs = this.#settings.requestProcessorConfigs || {};
@@ -40,6 +40,7 @@ class WebServer {
     #root;
     #requestProcessors;
     #settings;
+    #source;
     get root() {
         return this.#root;
     }
@@ -48,6 +49,9 @@ class WebServer {
     }
     get requestProcessors() {
         return this.#requestProcessors;
+    }
+    get source() {
+        return this.#source;
     }
     start(settings) {
         let server = http.createServer(async (req, res) => {

@@ -8,10 +8,10 @@ const content_types_1 = require("../content-types");
 class StaticFileRequestProcessor {
     constructor(config) {
         config = config || { fileProcessors: {} };
-        this.#fileProcessors = Object.assign(config.fileProcessors, file_processors_1.defaultFileProcessors);
+        this.#fileProcessors = Object.assign(config.fileProcessors || {}, file_processors_1.defaultFileProcessors);
     }
     #fileProcessors;
-    execute(args) {
+    async execute(args) {
         if (args.physicalPath == null)
             throw errors_1.errors.pageNotFound(args.virtualPath);
         let ext = "";
@@ -23,7 +23,11 @@ class StaticFileRequestProcessor {
         let fileProcessor = this.#fileProcessors[ext];
         if (fileProcessor == null)
             throw errors_1.errors.fileTypeNotSupport(ext);
-        let r = fileProcessor(args);
+        let p = fileProcessor(args);
+        if (p.then == null) {
+            p = Promise.resolve(p);
+        }
+        let r = await p;
         let contentType = content_types_1.contentTypes[ext] || content_types_1.contentTypes.txt;
         return { statusCode: r.statusCode, content: r.content, contentType: r.contentType || contentType };
     }
