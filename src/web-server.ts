@@ -26,15 +26,15 @@ export class WebServer {
 
     constructor(settings: Settings) {
         if (settings == null) throw errors.argumentNull("settings");
-        // if (settings.websitePhysicalPath == null) {
-        this.#websiteDirectory = new VirtualDirectory(settings.websitePhysicalPath || __dirname);
-        // }
-        // else if (typeof settings.websitePhysicalPath == "string") {
-        //     this.#root = new VirtualDirectory(settings.websitePhysicalPath);
-        // }
-        // else {
-        //     this.#root = settings.websitePhysicalPath;
-        // }
+        if (settings.websiteDirectory == null) {
+            this.#websiteDirectory = new VirtualDirectory(__dirname);
+        }
+        else if (typeof settings.websiteDirectory == "string") {
+            this.#websiteDirectory = new VirtualDirectory(settings.websiteDirectory);
+        }
+        else {
+            this.#websiteDirectory = settings.websiteDirectory;
+        }
 
 
         this.#settings = settings;

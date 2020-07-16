@@ -8,9 +8,8 @@ exports.websitePhysicalPath = path_concat_1.pathConcat(__dirname, "website");
 function createWebServer(settings) {
     // let settings: Settings = { root: new VirtualDirectory(pathConcat(__dirname, "website")) };
     settings = settings || {};
-    settings = Object.assign(settings, {
-        root: exports.websitePhysicalPath
-    });
+    let mysettings = { websiteDirectory: exports.websitePhysicalPath };
+    settings = Object.assign(settings, mysettings);
     let w = new out_1.WebServer(settings);
     console.log(`Web server port is ${settings.port}.`);
     return w;

@@ -33,7 +33,7 @@ describe("proxy-processor", function () {
         let url = `http://127.0.0.1:${webserver.port}/AdminWeiXin/index.html`;
         await browser.visit(url);
 
-        let filePhysicalPath = station.root.findFile("index.html");
+        let filePhysicalPath = station.websiteDirectory.findFile("index.html");
         let text = readFile(filePhysicalPath);
         assert.equal(browser.source, text);
     })

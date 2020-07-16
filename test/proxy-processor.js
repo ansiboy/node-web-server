@@ -42,7 +42,7 @@ describe("proxy-processor", function () {
             let browser = common_1.createBrowser();
             let url = `http://127.0.0.1:${webserver.port}/AdminWeiXin/index.html`;
             yield browser.visit(url);
-            let filePhysicalPath = station.root.findFile("index.html");
+            let filePhysicalPath = station.websiteDirectory.findFile("index.html");
             let text = common_1.readFile(filePhysicalPath);
             assert.equal(browser.source, text);
         });

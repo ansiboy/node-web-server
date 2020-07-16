@@ -24,11 +24,11 @@ export declare class VirtualDirectory {
      * @param physicalPath 该文件名对应的物理路径
      */
     private addFile;
-    /** 添加虚拟路径
+    /** 设置虚拟路径
      * @param virtualPath 要添加的虚拟路径
      * @param physicalPath 虚拟路径所对应的物理路径
      */
-    addPath(virtualPath: string, physicalPath: string): void;
+    setPath(virtualPath: string, physicalPath: string): void;
     /**
      * 获取文件夹的物理路径
      * @param virtualPath 文件夹的虚拟路径

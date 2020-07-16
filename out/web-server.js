@@ -13,15 +13,15 @@ class WebServer {
     constructor(settings) {
         if (settings == null)
             throw errors_1.errors.argumentNull("settings");
-        // if (settings.websitePhysicalPath == null) {
-        this.#websiteDirectory = new virtual_directory_1.VirtualDirectory(settings.websitePhysicalPath || __dirname);
-        // }
-        // else if (typeof settings.websitePhysicalPath == "string") {
-        //     this.#root = new VirtualDirectory(settings.websitePhysicalPath);
-        // }
-        // else {
-        //     this.#root = settings.websitePhysicalPath;
-        // }
+        if (settings.websiteDirectory == null) {
+            this.#websiteDirectory = new virtual_directory_1.VirtualDirectory(__dirname);
+        }
+        else if (typeof settings.websiteDirectory == "string") {
+            this.#websiteDirectory = new virtual_directory_1.VirtualDirectory(settings.websiteDirectory);
+        }
+        else {
+            this.#websiteDirectory = settings.websiteDirectory;
+        }
         this.#settings = settings;
         this.#source = this.start(settings);
         if (!settings.port) {

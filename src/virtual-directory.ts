@@ -97,11 +97,11 @@ export class VirtualDirectory {
         this.#files[name] = physicalPath;
     }
 
-    /** 添加虚拟路径
+    /** 设置虚拟路径
      * @param virtualPath 要添加的虚拟路径
      * @param physicalPath 虚拟路径所对应的物理路径
      */
-    addPath(virtualPath: string, physicalPath: string) {
+    setPath(virtualPath: string, physicalPath: string) {
         if (!physicalPath) throw errors.argumentNull("physicalPath");
 
         this.checkVirtualPath(virtualPath);
@@ -109,28 +109,31 @@ export class VirtualDirectory {
 
         let arr = virtualPath.split("/").filter(o => o);
 
-        let parent: VirtualDirectory = this;
+        let current: VirtualDirectory = this;
         for (let i = 0; i < arr.length; i++) {
             let name = arr[i];
 
             let isFileName = i == arr.length - 1 && arr[arr.length - 1].indexOf(".") > 0;
             if (isFileName) {
-                let file = parent.files()[name];
+                let file = current.files()[name];
                 if (file == null) {
-                    parent.addFile(name, physicalPath);
+                    current.addFile(name, physicalPath);
                 }
                 break;
             }
 
-            let current = parent.directory(name);
-            if (current == null) {
-                let directoryPhysicalPath = i == arr.length - 1 ? physicalPath : pathConcat(parent.physicalPath, name);
-                current = parent.addDirectory(name, directoryPhysicalPath);
+            let child = current.directory(name);
+            if (child == null) {
+                let directoryPhysicalPath = i == arr.length - 1 ? physicalPath : pathConcat(current.physicalPath, name);
+                child = current.addDirectory(name, directoryPhysicalPath);
             }
 
-            parent = current;
-
+            current = child;
+            if (i == arr.length - 1) {
+                current.#physicalPath = physicalPath;
+            }
         }
+
     }
 
     /**
