@@ -18,6 +18,7 @@ export class WebServer {
     #requestProcessors: RequestProcessor[];
     #settings: Settings;
     #source: http.Server;
+    #contentTransforms: ContentTransform[]
 
     static defaultRequestProcessorTypes: { new(config?: any): RequestProcessor }[] = [
         ProxyRequestProcessor, CGIRequestProcessor, StaticFileRequestProcessor
@@ -52,6 +53,7 @@ export class WebServer {
             let processor = new type(config);
             return processor;
         });
+        this.#contentTransforms = settings.contentTransforms || [];
     }
 
     get root() {
@@ -68,6 +70,10 @@ export class WebServer {
 
     get source() {
         return this.#source;
+    }
+
+    get contentTransforms() {
+        return this.#contentTransforms;
     }
 
     private start(settings: Settings) {
@@ -113,7 +119,7 @@ export class WebServer {
                             }
                         }
 
-                        this.outputContent(r.content, requestContext, settings.contentTransforms || []);
+                        this.outputContent(r.content, requestContext, this.#contentTransforms);
                         return;
                     }
                 }

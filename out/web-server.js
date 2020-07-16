@@ -37,11 +37,13 @@ class WebServer {
             let processor = new type(config);
             return processor;
         });
+        this.#contentTransforms = settings.contentTransforms || [];
     }
     #root;
     #requestProcessors;
     #settings;
     #source;
+    #contentTransforms;
     get root() {
         return this.#root;
     }
@@ -53,6 +55,9 @@ class WebServer {
     }
     get source() {
         return this.#source;
+    }
+    get contentTransforms() {
+        return this.#contentTransforms;
     }
     start(settings) {
         let server = http.createServer(async (req, res) => {
@@ -92,7 +97,7 @@ class WebServer {
                                 res.setHeader(key, r.headers[key]);
                             }
                         }
-                        this.outputContent(r.content, requestContext, settings.contentTransforms || []);
+                        this.outputContent(r.content, requestContext, this.#contentTransforms);
                         return;
                     }
                 }

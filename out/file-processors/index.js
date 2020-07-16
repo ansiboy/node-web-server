@@ -7,4 +7,6 @@ exports.defaultFileProcessors = {
     "js": text_file_1.textFileProcessor,
     "css": text_file_1.textFileProcessor,
     "json": text_file_1.textFileProcessor,
+    "woff": text_file_1.textFileProcessor,
+    "ttf": text_file_1.textFileProcessor,
 };

@@ -4,4 +4,6 @@ export declare const contentTypes: {
     html: string;
     js: string;
     css: string;
+    woff: string;
+    ttf: string;
 };
