@@ -19,11 +19,17 @@ describe("content-transform", function () {
     it("sync content transform", function () {
         return __awaiter(this, void 0, void 0, function* () {
             let w = common_1.createWebServer({
-                contentTransforms: [
-                    (c) => {
-                        let text = typeof c == "string" ? c : c.toString();
+                requestResultTransforms: [
+                    (r, c) => {
+                        // let text = typeof c == "string" ? c : c.toString();
+                        // text = text + remarkText;
+                        // return text;
+                        let text = typeof r.content == "string" ? r.content : r.content.toString();
                         text = text + remarkText;
-                        return text;
+                        r.content = Buffer.from(text);
+                        // if (r.headers)
+                        //     r.headers["Content-Length"] = r.content.length.toString();
+                        return r;
                     }
                 ]
             });
@@ -37,11 +43,17 @@ describe("content-transform", function () {
     it("async content transform", function () {
         return __awaiter(this, void 0, void 0, function* () {
             let w = common_1.createWebServer({
-                contentTransforms: [
-                    (c) => __awaiter(this, void 0, void 0, function* () {
-                        let text = typeof c == "string" ? c : c.toString();
+                requestResultTransforms: [
+                    (r, c) => __awaiter(this, void 0, void 0, function* () {
+                        // let text = typeof c == "string" ? c : c.toString();
+                        // text = text + remarkText;
+                        // return text;
+                        let text = typeof r.content == "string" ? r.content : r.content.toString();
                         text = text + remarkText;
-                        return text;
+                        r.content = Buffer.from(text);
+                        // if (r.headers)
+                        //     r.headers["Content-Length"] = r.content.length.toString();
+                        return r;
                     })
                 ]
             });
@@ -55,16 +67,22 @@ describe("content-transform", function () {
     it("multi content transform", function () {
         return __awaiter(this, void 0, void 0, function* () {
             let w = common_1.createWebServer({
-                contentTransforms: [
-                    (c) => __awaiter(this, void 0, void 0, function* () {
-                        let text = typeof c == "string" ? c : c.toString();
+                requestResultTransforms: [
+                    (r, c) => __awaiter(this, void 0, void 0, function* () {
+                        let text = typeof r.content == "string" ? r.content : r.content.toString();
                         text = text + remarkText;
-                        return text;
+                        r.content = Buffer.from(text);
+                        // if (r.headers)
+                        //     r.headers["Content-Length"] = r.content.length.toString();
+                        return r;
                     }),
-                    (c) => {
-                        let text = typeof c == "string" ? c : c.toString();
+                    (r, c) => {
+                        let text = typeof r.content == "string" ? r.content : r.content.toString();
                         text = text + remarkText1;
-                        return text;
+                        r.content = Buffer.from(text);
+                        // if (r.headers)
+                        //     r.headers["Content-Length"] = r.content.length.toString();
+                        return r;
                     }
                 ]
             });

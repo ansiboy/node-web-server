@@ -37,13 +37,13 @@ class WebServer {
             let processor = new type(config);
             return processor;
         });
-        this.#contentTransforms = settings.contentTransforms || [];
+        this.#requestResultTransforms = settings.requestResultTransforms || [];
     }
     #websiteDirectory;
     #requestProcessors;
     #settings;
     #source;
-    #contentTransforms;
+    #requestResultTransforms;
     get websiteDirectory() {
         return this.#websiteDirectory;
     }
@@ -57,7 +57,7 @@ class WebServer {
         return this.#source;
     }
     get contentTransforms() {
-        return this.#contentTransforms;
+        return this.#requestResultTransforms;
     }
     start(settings) {
         let server = http.createServer(async (req, res) => {
@@ -86,18 +86,19 @@ class WebServer {
                         r = p;
                     }
                     if (r != null) {
+                        r = await this.resultTransform(r, requestContext, this.#requestResultTransforms);
                         if (r.statusCode) {
                             res.statusCode = r.statusCode;
-                        }
-                        if (r.contentType) {
-                            res.setHeader("content-type", r.contentType);
                         }
                         if (r.headers) {
                             for (let key in r.headers) {
                                 res.setHeader(key, r.headers[key]);
                             }
+                            if (r.content instanceof Buffer) {
+                                res.setHeader("Content-Length", r.content.length.toString());
+                            }
                         }
-                        this.outputContent(r.content, requestContext, this.#contentTransforms);
+                        this.outputContent(r.content, requestContext);
                         return;
                     }
                 }
@@ -111,18 +112,21 @@ class WebServer {
         });
         return server.listen(settings.port, settings.bindIP);
     }
-    async outputContent(content, requestContext, contentTransforms) {
-        for (let i = 0; i < contentTransforms.length; i++) {
-            let transform = contentTransforms[i];
+    async resultTransform(result, requestContext, requestResultTransforms) {
+        for (let i = 0; i < requestResultTransforms.length; i++) {
+            let transform = requestResultTransforms[i];
             console.assert(transform != null);
-            let r = contentTransforms[i](content, requestContext);
+            let r = requestResultTransforms[i](result, requestContext);
             if (r == null)
                 throw errors_1.errors.contentTransformResultNull();
             if (r.then != null)
-                content = await r;
+                result = await r;
             else
-                content = r;
+                result = r;
         }
+        return result;
+    }
+    async outputContent(content, requestContext) {
         let res = requestContext.res;
         res.write(content);
         res.end();

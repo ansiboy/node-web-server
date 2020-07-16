@@ -1,9 +1,5 @@
-export declare type FileProcessorResult = {
-    statusCode?: number;
-    content: string;
-    contentType?: string;
-};
+import { RequestResult } from "./request-processor";
 export declare type FileProcessor = (args: {
     virtualPath: string;
     physicalPath?: string | null;
-}) => FileProcessorResult | Promise<FileProcessorResult>;
+}) => RequestResult | Promise<RequestResult>;

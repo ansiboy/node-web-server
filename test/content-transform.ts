@@ -12,11 +12,18 @@ describe("content-transform", function () {
     it("sync content transform", async function () {
 
         let w = createWebServer({
-            contentTransforms: [
-                (c) => {
-                    let text = typeof c == "string" ? c : c.toString();
+            requestResultTransforms: [
+                (r, c) => {
+                    // let text = typeof c == "string" ? c : c.toString();
+                    // text = text + remarkText;
+                    // return text;
+                    let text = typeof r.content == "string" ? r.content : r.content.toString();
                     text = text + remarkText;
-                    return text;
+                    r.content = Buffer.from(text);
+                    // if (r.headers)
+                    //     r.headers["Content-Length"] = r.content.length.toString();
+
+                    return r;
                 }
             ]
         });
@@ -30,11 +37,18 @@ describe("content-transform", function () {
 
     it("async content transform", async function () {
         let w = createWebServer({
-            contentTransforms: [
-                async (c) => {
-                    let text = typeof c == "string" ? c : c.toString();
+            requestResultTransforms: [
+                async (r, c) => {
+                    // let text = typeof c == "string" ? c : c.toString();
+                    // text = text + remarkText;
+                    // return text;
+                    let text = typeof r.content == "string" ? r.content : r.content.toString();
                     text = text + remarkText;
-                    return text;
+                    r.content = Buffer.from(text);
+                    // if (r.headers)
+                    //     r.headers["Content-Length"] = r.content.length.toString();
+
+                    return r;
                 }
             ]
         });
@@ -48,16 +62,24 @@ describe("content-transform", function () {
 
     it("multi content transform", async function () {
         let w = createWebServer({
-            contentTransforms: [
-                async (c) => {
-                    let text = typeof c == "string" ? c : c.toString();
+            requestResultTransforms: [
+                async (r, c) => {
+                    let text = typeof r.content == "string" ? r.content : r.content.toString();
                     text = text + remarkText;
-                    return text;
+                    r.content = Buffer.from(text);
+                    // if (r.headers)
+                    //     r.headers["Content-Length"] = r.content.length.toString();
+
+                    return r;
                 },
-                (c) => {
-                    let text = typeof c == "string" ? c : c.toString();
+                (r, c) => {
+                    let text = typeof r.content == "string" ? r.content : r.content.toString();
                     text = text + remarkText1;
-                    return text;
+                    r.content = Buffer.from(text);
+                    // if (r.headers)
+                    //     r.headers["Content-Length"] = r.content.length.toString();
+
+                    return r;
                 }
             ]
         });

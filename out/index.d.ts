@@ -1,12 +1,12 @@
 export { Settings } from "./settings";
 export { WebServer } from "./web-server";
 export { VirtualDirectory } from "./virtual-directory";
-export { RequestProcessor, RequestContext, ExecuteResult, Content } from "./request-processor";
+export { RequestProcessor, RequestContext, RequestResult, Content } from "./request-processor";
 export { ProxyRequestProcessor, ProxyConfig, ProxyItem } from "./request-processors/proxy";
 export { StaticFileRequestProcessor, StaticFileProcessorConfig } from "./request-processors/static-file";
 export { pathConcat } from "./path-concat";
 export { textFileProcessor } from "./file-processors/text-file";
-export { FileProcessor, FileProcessorResult } from "./file-processor";
+export { FileProcessor } from "./file-processor";
 export { StatusCode } from "./status-code";
-export { ContentTransform } from "./content-transform";
+export { RequestResultTransform } from "./content-transform";
 export { CGIFunction, CGIRequestProcessor } from "./request-processors/cgi";

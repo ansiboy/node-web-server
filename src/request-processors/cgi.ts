@@ -1,9 +1,9 @@
 import * as http from "http";
-import { RequestProcessor, RequestContext, ExecuteResult } from "../request-processor";
+import { RequestProcessor, RequestContext, RequestResult } from "../request-processor";
 import * as fs from "fs";
 import { errors } from "../errors";
 
-export type CGIFunction = (args: RequestContext) => ExecuteResult | Promise<ExecuteResult>;
+export type CGIFunction = (args: RequestContext) => RequestResult | Promise<RequestResult>;
 
 const cgiPath = "/cgi-bin";
 

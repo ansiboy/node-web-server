@@ -3,7 +3,7 @@ import { Settings } from "./settings";
 import http = require("http");
 import { VirtualDirectory } from "./virtual-directory";
 import { RequestProcessor } from "./request-processor";
-import { ContentTransform } from "./content-transform";
+import { RequestResultTransform } from "./content-transform";
 export declare class WebServer {
     #private;
     static defaultRequestProcessorTypes: {
@@ -14,8 +14,9 @@ export declare class WebServer {
     get port(): number;
     get requestProcessors(): RequestProcessor[];
     get source(): http.Server;
-    get contentTransforms(): ContentTransform[];
+    get contentTransforms(): RequestResultTransform[];
     private start;
+    private resultTransform;
     private outputContent;
     private outputError;
     private errorOutputObject;

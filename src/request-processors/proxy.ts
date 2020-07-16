@@ -1,4 +1,4 @@
-import { RequestProcessor, RequestContext, ExecuteResult } from "../request-processor";
+import { RequestProcessor, RequestContext, RequestResult } from "../request-processor";
 import http = require('http');
 import { errors } from "../errors";
 
@@ -79,8 +79,8 @@ export class ProxyRequestProcessor implements RequestProcessor {
 
 
 export function proxyRequest(targetUrl: string, req: http.IncomingMessage, res: http.ServerResponse,
-    headers: http.IncomingMessage["headers"], method?: string): Promise<ExecuteResult> {
-    return new Promise<ExecuteResult>(function (resolve, reject) {
+    headers: http.IncomingMessage["headers"], method?: string): Promise<RequestResult> {
+    return new Promise<RequestResult>(function (resolve, reject) {
         headers = Object.assign({}, req.headers, headers || {});
         // headers = Object.assign(req.headers, headers);
         //=====================================================

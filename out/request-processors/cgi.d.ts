@@ -1,5 +1,5 @@
-import { RequestProcessor, RequestContext, ExecuteResult } from "../request-processor";
-export declare type CGIFunction = (args: RequestContext) => ExecuteResult | Promise<ExecuteResult>;
+import { RequestProcessor, RequestContext, RequestResult } from "../request-processor";
+export declare type CGIFunction = (args: RequestContext) => RequestResult | Promise<RequestResult>;
 export declare class CGIRequestProcessor implements RequestProcessor {
-    execute(args: RequestContext): ExecuteResult | Promise<ExecuteResult> | null;
+    execute(args: RequestContext): RequestResult | Promise<RequestResult> | null;
 }

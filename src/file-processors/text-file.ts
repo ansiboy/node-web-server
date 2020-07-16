@@ -3,16 +3,33 @@ import { errorPages } from "../error-pages";
 import * as fs from "fs";
 import { StatusCode } from "../status-code";
 import { contentTypes } from "../content-types";
+import { RequestResult } from "../request-processor";
 
-export let textFileProcessor: FileProcessor = function (args) {
-    if (!args.physicalPath)
-        return { statusCode: StatusCode.NotFound, content: errorPages.NotFound, contentType: contentTypes.txt };
+export let textFileProcessor = createFileProcessor();
 
-    if (!fs.existsSync(args.physicalPath))
-        return { statusCode: 404, content: errorPages.NotFound, contentType: contentTypes.txt };
+function createFileProcessor(): FileProcessor {
+    let fileProcessor: FileProcessor = function (args): RequestResult {
+        if (!args.physicalPath)
+            return { statusCode: StatusCode.NotFound, content: Buffer.from(errorPages.NotFound) };
 
-    let data = fs.readFileSync(args.physicalPath);
+        if (!fs.existsSync(args.physicalPath))
+            return { statusCode: 404, content: Buffer.from(errorPages.NotFound) };
 
-    return { statusCode: StatusCode.OK, content: data.toString() };
+        let arr = args.physicalPath.split(".");
+        let ext = arr[arr.length - 1];
+        let contentType = contentTypes[ext as keyof typeof contentTypes] || contentTypes.txt;
+        let data = fs.readFileSync(args.physicalPath);
+        let stat = fs.statSync(args.physicalPath);
+        let mtime: number = stat.mtime.valueOf();
+        let headers: RequestResult["headers"] = {
+            "Content-Type": contentType,
+            "Etag": JSON.stringify([stat.ino, stat.size, mtime].join('-')),
+            "Last-Modified": stat.mtime.toDateString(),
+        };
 
+        return { statusCode: StatusCode.OK, content: data, headers };
+    }
+
+    return fileProcessor;
 }
+

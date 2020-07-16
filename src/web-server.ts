@@ -4,9 +4,9 @@ import { AddressInfo } from "net";
 import url = require("url");
 import { errors } from "./errors";
 import { VirtualDirectory } from "./virtual-directory";
-import { RequestProcessor, ExecuteResult, Content, RequestContext } from "./request-processor";
+import { RequestProcessor, RequestResult, Content, RequestContext } from "./request-processor";
 import { contentTypes } from "./content-types";
-import { ContentTransform } from "./content-transform";
+import { RequestResultTransform } from "./content-transform";
 import { ProxyRequestProcessor } from "./request-processors/proxy";
 import { StaticFileRequestProcessor } from "./request-processors/static-file";
 import { StatusCode } from "./status-code";
@@ -18,7 +18,7 @@ export class WebServer {
     #requestProcessors: RequestProcessor[];
     #settings: Settings;
     #source: http.Server;
-    #contentTransforms: ContentTransform[]
+    #requestResultTransforms: RequestResultTransform[]
 
     static defaultRequestProcessorTypes: { new(config?: any): RequestProcessor }[] = [
         ProxyRequestProcessor, CGIRequestProcessor, StaticFileRequestProcessor
@@ -53,7 +53,7 @@ export class WebServer {
             let processor = new type(config);
             return processor;
         });
-        this.#contentTransforms = settings.contentTransforms || [];
+        this.#requestResultTransforms = settings.requestResultTransforms || [];
     }
 
     get websiteDirectory() {
@@ -73,7 +73,7 @@ export class WebServer {
     }
 
     get contentTransforms() {
-        return this.#contentTransforms;
+        return this.#requestResultTransforms;
     }
 
     private start(settings: Settings) {
@@ -93,7 +93,7 @@ export class WebServer {
             for (let i = 0; i < this.#requestProcessors.length; i++) {
                 let processor = this.#requestProcessors[i];
                 try {
-                    let r: ExecuteResult | null = null;
+                    let r: RequestResult | null = null;
                     let requestContext = { virtualPath: path, physicalPath, req, res };
                     let p = processor.execute(requestContext);
                     if (p == null)
@@ -103,23 +103,28 @@ export class WebServer {
                         r = await p;
                     }
                     else {
-                        r = p as ExecuteResult;
+                        r = p as RequestResult;
                     }
 
                     if (r != null) {
+                        r = await this.resultTransform(r, requestContext, this.#requestResultTransforms);
                         if (r.statusCode) {
                             res.statusCode = r.statusCode;
-                        }
-                        if (r.contentType) {
-                            res.setHeader("content-type", r.contentType);
                         }
                         if (r.headers) {
                             for (let key in r.headers) {
                                 res.setHeader(key, r.headers[key]);
                             }
+
+                            if (r.content instanceof Buffer) {
+                                res.setHeader("Content-Length", r.content.length.toString());
+                            }
                         }
 
-                        this.outputContent(r.content, requestContext, this.#contentTransforms);
+
+
+
+                        this.outputContent(r.content, requestContext);
                         return;
                     }
                 }
@@ -136,20 +141,24 @@ export class WebServer {
         return server.listen(settings.port, settings.bindIP);
     }
 
-    private async outputContent(content: Content, requestContext: RequestContext, contentTransforms: ContentTransform[]) {
-        for (let i = 0; i < contentTransforms.length; i++) {
-            let transform = contentTransforms[i];
+    private async resultTransform(result: RequestResult, requestContext: RequestContext, requestResultTransforms: RequestResultTransform[]) {
+        for (let i = 0; i < requestResultTransforms.length; i++) {
+            let transform = requestResultTransforms[i];
             console.assert(transform != null);
-            let r = contentTransforms[i](content, requestContext);
+            let r = requestResultTransforms[i](result, requestContext);
             if (r == null)
                 throw errors.contentTransformResultNull();
 
             if ((r as Promise<any>).then != null)
-                content = await r;
+                result = await r;
             else
-                content = r as Content;
+                result = r as RequestResult;
         }
 
+        return result;
+    }
+
+    private async outputContent(content: Content, requestContext: RequestContext) {
         let res = requestContext.res;
         res.write(content);
         res.end();

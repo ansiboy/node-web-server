@@ -1,6 +1,6 @@
 import { VirtualDirectory } from "./virtual-directory";
 import { RequestProcessor } from "./request-processor";
-import { ContentTransform } from "./content-transform";
+import { RequestResultTransform } from "./content-transform";
 
 export interface Settings {
     port?: number,
@@ -9,5 +9,5 @@ export interface Settings {
     requestProcessorTypes?: { new(config?: any): RequestProcessor }[],
     requestProcessorConfigs?: { [key: string]: any },
     websiteDirectory?: string | VirtualDirectory,
-    contentTransforms?: ContentTransform[]
+    requestResultTransforms?: RequestResultTransform[]
 }

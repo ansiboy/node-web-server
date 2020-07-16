@@ -6,11 +6,12 @@ export type RequestContext = {
     res: http.ServerResponse, req: http.IncomingMessage
 }
 
-export type ExecuteResult = {
-    statusCode?: number, contentType?: string, content: Content,
+export type RequestResult = {
+    statusCode?: number,
+    content: Content,
     headers?: { [key: string]: string }
 }
 
 export interface RequestProcessor {
-    execute(args: RequestContext): ExecuteResult | Promise<ExecuteResult | null> | null;
+    execute(args: RequestContext): RequestResult | Promise<RequestResult | null> | null;
 }

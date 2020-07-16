@@ -1,9 +1,8 @@
-import { RequestProcessor, RequestContext, ExecuteResult } from "../request-processor";
+import { RequestProcessor, RequestContext, RequestResult } from "../request-processor";
 import { pathConcat } from "../path-concat";
 import { defaultFileProcessors } from "../file-processors";
 import { errors } from "../errors";
 // import { FileProcessors } from "../file-processor";
-import { contentTypes } from "../content-types";
 import { FileProcessor } from "../file-processor";
 
 export type StaticFileProcessorConfig = {
@@ -19,7 +18,7 @@ export class StaticFileRequestProcessor implements RequestProcessor {
         this.#fileProcessors = Object.assign(config.fileProcessors || {}, defaultFileProcessors);
     }
 
-    async execute(args: RequestContext): Promise<ExecuteResult> {
+    async execute(args: RequestContext): Promise<RequestResult> {
 
         if (args.physicalPath == null)
             throw errors.pageNotFound(args.virtualPath);
@@ -36,14 +35,15 @@ export class StaticFileRequestProcessor implements RequestProcessor {
         if (fileProcessor == null)
             throw errors.fileTypeNotSupport(ext);
 
-        let p = fileProcessor(args) as Promise<ExecuteResult>;
+        let p = fileProcessor(args) as Promise<RequestResult>;
         if (p.then == null) {
             p = Promise.resolve(p);
         }
 
         let r = await p;
-        let contentType = contentTypes[ext as keyof typeof contentTypes] || contentTypes.txt;
-        return { statusCode: r.statusCode, content: r.content, contentType: r.contentType || contentType };
+        return {
+            statusCode: r.statusCode, content: r.content, headers: r.headers
+        };
     }
 
     get fileProcessors() {

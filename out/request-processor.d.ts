@@ -7,14 +7,13 @@ export declare type RequestContext = {
     res: http.ServerResponse;
     req: http.IncomingMessage;
 };
-export declare type ExecuteResult = {
+export declare type RequestResult = {
     statusCode?: number;
-    contentType?: string;
     content: Content;
     headers?: {
         [key: string]: string;
     };
 };
 export interface RequestProcessor {
-    execute(args: RequestContext): ExecuteResult | Promise<ExecuteResult | null> | null;
+    execute(args: RequestContext): RequestResult | Promise<RequestResult | null> | null;
 }
