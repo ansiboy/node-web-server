@@ -10,7 +10,7 @@ export declare class WebServer {
         new (config?: any): RequestProcessor;
     }[];
     constructor(settings: Settings);
-    get root(): VirtualDirectory;
+    get websiteDirectory(): VirtualDirectory;
     get port(): number;
     get requestProcessors(): RequestProcessor[];
     get source(): http.Server;

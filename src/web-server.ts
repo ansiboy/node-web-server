@@ -14,7 +14,7 @@ import { CGIRequestProcessor } from "./request-processors/cgi";
 
 export class WebServer {
 
-    #root: VirtualDirectory;
+    #websiteDirectory: VirtualDirectory;
     #requestProcessors: RequestProcessor[];
     #settings: Settings;
     #source: http.Server;
@@ -26,15 +26,15 @@ export class WebServer {
 
     constructor(settings: Settings) {
         if (settings == null) throw errors.argumentNull("settings");
-        if (settings.root == null) {
-            this.#root = new VirtualDirectory(__dirname);
-        }
-        else if (typeof settings.root == "string") {
-            this.#root = new VirtualDirectory(settings.root);
-        }
-        else {
-            this.#root = settings.root;
-        }
+        // if (settings.websitePhysicalPath == null) {
+        this.#websiteDirectory = new VirtualDirectory(settings.websitePhysicalPath || __dirname);
+        // }
+        // else if (typeof settings.websitePhysicalPath == "string") {
+        //     this.#root = new VirtualDirectory(settings.websitePhysicalPath);
+        // }
+        // else {
+        //     this.#root = settings.websitePhysicalPath;
+        // }
 
 
         this.#settings = settings;
@@ -56,8 +56,8 @@ export class WebServer {
         this.#contentTransforms = settings.contentTransforms || [];
     }
 
-    get root() {
-        return this.#root;
+    get websiteDirectory() {
+        return this.#websiteDirectory;
     }
 
     get port() {
@@ -83,11 +83,11 @@ export class WebServer {
             let path = u.pathname || "";
             let physicalPath: string | null | undefined = null;
             if (path.indexOf(".") < 0) {
-                let dir = this.#root.findDirectory(path);
+                let dir = this.#websiteDirectory.findDirectory(path);
                 physicalPath = dir?.physicalPath;
             }
             else {
-                physicalPath = this.#root.findFile(path);
+                physicalPath = this.#websiteDirectory.findFile(path);
             }
 
             for (let i = 0; i < this.#requestProcessors.length; i++) {

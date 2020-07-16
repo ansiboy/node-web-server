@@ -8,6 +8,6 @@ export interface Settings {
     // requestProcessors?: RequestProcessor[],
     requestProcessorTypes?: { new(config?: any): RequestProcessor }[],
     requestProcessorConfigs?: { [key: string]: any },
-    root?: string | VirtualDirectory,
+    websitePhysicalPath?: string,
     contentTransforms?: ContentTransform[]
 }

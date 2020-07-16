@@ -13,15 +13,15 @@ class WebServer {
     constructor(settings) {
         if (settings == null)
             throw errors_1.errors.argumentNull("settings");
-        if (settings.root == null) {
-            this.#root = new virtual_directory_1.VirtualDirectory(__dirname);
-        }
-        else if (typeof settings.root == "string") {
-            this.#root = new virtual_directory_1.VirtualDirectory(settings.root);
-        }
-        else {
-            this.#root = settings.root;
-        }
+        // if (settings.websitePhysicalPath == null) {
+        this.#websiteDirectory = new virtual_directory_1.VirtualDirectory(settings.websitePhysicalPath || __dirname);
+        // }
+        // else if (typeof settings.websitePhysicalPath == "string") {
+        //     this.#root = new VirtualDirectory(settings.websitePhysicalPath);
+        // }
+        // else {
+        //     this.#root = settings.websitePhysicalPath;
+        // }
         this.#settings = settings;
         this.#source = this.start(settings);
         if (!settings.port) {
@@ -39,13 +39,13 @@ class WebServer {
         });
         this.#contentTransforms = settings.contentTransforms || [];
     }
-    #root;
+    #websiteDirectory;
     #requestProcessors;
     #settings;
     #source;
     #contentTransforms;
-    get root() {
-        return this.#root;
+    get websiteDirectory() {
+        return this.#websiteDirectory;
     }
     get port() {
         return this.#settings.port;
@@ -65,11 +65,11 @@ class WebServer {
             let path = u.pathname || "";
             let physicalPath = null;
             if (path.indexOf(".") < 0) {
-                let dir = this.#root.findDirectory(path);
+                let dir = this.#websiteDirectory.findDirectory(path);
                 physicalPath = dir?.physicalPath;
             }
             else {
-                physicalPath = this.#root.findFile(path);
+                physicalPath = this.#websiteDirectory.findFile(path);
             }
             for (let i = 0; i < this.#requestProcessors.length; i++) {
                 let processor = this.#requestProcessors[i];
