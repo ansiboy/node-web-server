@@ -8,3 +8,5 @@ export { pathConcat } from "./path-concat";
 export { textFileProcessor } from "./file-processors/text-file";
 export { FileProcessor, FileProcessorResult } from "./file-processor";
 export { StatusCode } from "./status-code";
+export { ContentTransform } from "./content-transform";
+export { CGIFunction, CGIRequestProcessor } from "./request-processors/cgi";

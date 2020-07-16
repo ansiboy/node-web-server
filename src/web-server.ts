@@ -10,6 +10,7 @@ import { ContentTransform } from "./content-transform";
 import { ProxyRequestProcessor } from "./request-processors/proxy";
 import { StaticFileRequestProcessor } from "./request-processors/static-file";
 import { StatusCode } from "./status-code";
+import { CGIRequestProcessor } from "./request-processors/cgi";
 
 export class WebServer {
 
@@ -18,7 +19,9 @@ export class WebServer {
     #settings: Settings;
     #source: http.Server;
 
-    static defaultRequestProcessorTypes: { new(config?: any): RequestProcessor }[] = [ProxyRequestProcessor, StaticFileRequestProcessor];
+    static defaultRequestProcessorTypes: { new(config?: any): RequestProcessor }[] = [
+        ProxyRequestProcessor, CGIRequestProcessor, StaticFileRequestProcessor
+    ];
 
     constructor(settings: Settings) {
         if (settings == null) throw errors.argumentNull("settings");
@@ -131,7 +134,7 @@ export class WebServer {
         for (let i = 0; i < contentTransforms.length; i++) {
             let transform = contentTransforms[i];
             console.assert(transform != null);
-            let r = contentTransforms[i](content);
+            let r = contentTransforms[i](content, requestContext);
             if (r == null)
                 throw errors.contentTransformResultNull();
 

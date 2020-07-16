@@ -4,7 +4,7 @@ import { errors } from "../errors";
 
 export interface ProxyItem {
     targetUrl: string,
-    // headers?: { [name: string]: string } | (() => { [name: string]: string } | Promise<{ [name: string]: string }>),
+    headers?: { [name: string]: string } | ((requestContext: RequestContext) => { [name: string]: string } | Promise<{ [name: string]: string }>),
     // response?: (proxResponse: http.IncomingMessage, req: http.IncomingMessage, res: http.ServerResponse) => void,
 }
 
@@ -36,8 +36,7 @@ export class ProxyRequestProcessor implements RequestProcessor {
         return this.#proxyTargets;
     }
 
-    execute(args: RequestContext): Promise<ExecuteResult> | null {
-
+    async execute(args: RequestContext) {
         for (let key in this.#proxyTargets) {
             let regex = new RegExp(key)
             let reqUrl = args.virtualPath;
@@ -48,6 +47,19 @@ export class ProxyRequestProcessor implements RequestProcessor {
 
             let proxyItem = this.#proxyTargets[key];
             let targetUrl = proxyItem.targetUrl;
+            let headers: http.IncomingMessage["headers"] = {};
+            if (proxyItem.headers != null && typeof proxyItem.headers == "object") {
+                headers = proxyItem.headers;
+            }
+            else if (proxyItem.headers != null && typeof proxyItem.headers == "function") {
+                let r = proxyItem.headers(args);
+                if (r instanceof Promise) {
+                    headers = await r;
+                }
+                else {
+                    headers = r;
+                }
+            }
 
             let regex1 = /\$(\d+)/g;
             if (regex1.test(targetUrl)) {
@@ -58,7 +70,7 @@ export class ProxyRequestProcessor implements RequestProcessor {
                 })
             }
 
-            return proxyRequest(targetUrl, args.req, args.res, {}, args.req.method);
+            return proxyRequest(targetUrl, args.req, args.res, headers, args.req.method);
         }
 
         return null;
