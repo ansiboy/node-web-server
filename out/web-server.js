@@ -8,6 +8,7 @@ const content_types_1 = require("./content-types");
 const proxy_1 = require("./request-processors/proxy");
 const static_file_1 = require("./request-processors/static-file");
 const status_code_1 = require("./status-code");
+const cgi_1 = require("./request-processors/cgi");
 class WebServer {
     constructor(settings) {
         if (settings == null)
@@ -109,7 +110,7 @@ class WebServer {
         for (let i = 0; i < contentTransforms.length; i++) {
             let transform = contentTransforms[i];
             console.assert(transform != null);
-            let r = contentTransforms[i](content);
+            let r = contentTransforms[i](content, requestContext);
             if (r == null)
                 throw errors_1.errors.contentTransformResultNull();
             if (r.then != null)
@@ -148,4 +149,6 @@ class WebServer {
     }
 }
 exports.WebServer = WebServer;
-WebServer.defaultRequestProcessorTypes = [proxy_1.ProxyRequestProcessor, static_file_1.StaticFileRequestProcessor];
+WebServer.defaultRequestProcessorTypes = [
+    proxy_1.ProxyRequestProcessor, cgi_1.CGIRequestProcessor, static_file_1.StaticFileRequestProcessor
+];

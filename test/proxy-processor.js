@@ -13,23 +13,38 @@ const assert = require("assert");
 const common_1 = require("./common");
 const out_1 = require("../out");
 describe("proxy-processor", function () {
-    let station = common_1.createWebserver();
+    let token = "abcde";
+    let station = common_1.createWebServer();
     let requestProcessorConfigs = {};
     let proxyConfig = {
         proxyTargets: {
-            "/AdminWeiXin/(\\S+)": { targetUrl: `http://127.0.0.1:${station.port}/$1` }
+            "/AdminWeiXin/(\\S+)": {
+                targetUrl: `http://127.0.0.1:${station.port}/$1`,
+                headers: function () {
+                    return { token };
+                }
+            }
         }
     };
     requestProcessorConfigs[out_1.ProxyRequestProcessor.name] = proxyConfig;
-    let webserver = common_1.createWebserver({ requestProcessorConfigs });
+    let webserver = common_1.createWebServer({ requestProcessorConfigs });
     it("request", function () {
         return __awaiter(this, void 0, void 0, function* () {
             let browser = common_1.createBrowser();
-            let url = `http://127.0.0.1:${webserver.port}/index.html`;
+            let url = `http://127.0.0.1:${webserver.port}/AdminWeiXin/index.html`;
             yield browser.visit(url);
             let filePhysicalPath = station.root.findFile("index.html");
             let text = common_1.readFile(filePhysicalPath);
             assert.equal(browser.source, text);
+        });
+    });
+    it("headers", function () {
+        return __awaiter(this, void 0, void 0, function* () {
+            let browser = common_1.createBrowser();
+            let url = `http://127.0.0.1:${webserver.port}/AdminWeiXin/cgi-bin/headers-output.js`;
+            yield browser.visit(url);
+            let obj = JSON.parse(browser.source);
+            assert.equal(obj.token, token);
         });
     });
 });

@@ -21,7 +21,7 @@ class ProxyRequestProcessor {
     get proxyTargets() {
         return this.#proxyTargets;
     }
-    execute(args) {
+    async execute(args) {
         for (let key in this.#proxyTargets) {
             let regex = new RegExp(key);
             let reqUrl = args.virtualPath;
@@ -31,6 +31,19 @@ class ProxyRequestProcessor {
             }
             let proxyItem = this.#proxyTargets[key];
             let targetUrl = proxyItem.targetUrl;
+            let headers = {};
+            if (proxyItem.headers != null && typeof proxyItem.headers == "object") {
+                headers = proxyItem.headers;
+            }
+            else if (proxyItem.headers != null && typeof proxyItem.headers == "function") {
+                let r = proxyItem.headers(args);
+                if (r instanceof Promise) {
+                    headers = await r;
+                }
+                else {
+                    headers = r;
+                }
+            }
             let regex1 = /\$(\d+)/g;
             if (regex1.test(targetUrl)) {
                 targetUrl = targetUrl.replace(regex1, (match, number) => {
@@ -39,7 +52,7 @@ class ProxyRequestProcessor {
                     return typeof arr[number] != 'undefined' ? arr[number] : match;
                 });
             }
-            return proxyRequest(targetUrl, args.req, args.res, {}, args.req.method);
+            return proxyRequest(targetUrl, args.req, args.res, headers, args.req.method);
         }
         return null;
     }

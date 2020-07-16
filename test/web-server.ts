@@ -4,12 +4,12 @@ import Browser = require('zombie');
 import { pathConcat } from "../out/path-concat";
 import * as fs from "fs";
 import { contentTypes } from "../out/content-types";
-import { createWebserver } from "./common";
+import { createWebServer } from "./common";
 import { StatusCode } from "../out/status-code";
 
 describe("web-server", function () {
 
-    let w = createWebserver();
+    let w = createWebServer();
     console.log(`Web server port is ${w.port}.`);
     const browser = new Browser();
 

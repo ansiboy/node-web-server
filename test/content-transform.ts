@@ -1,4 +1,4 @@
-import { createWebserver, createBrowser, websitePhysicalPath, readFile } from "./common"
+import { createWebServer, createBrowser, websitePhysicalPath, readFile } from "./common"
 
 import * as assert from "assert";
 import { pathConcat } from "../out/path-concat";
@@ -11,7 +11,7 @@ describe("content-transform", function () {
 
     it("sync content transform", async function () {
 
-        let w = createWebserver({
+        let w = createWebServer({
             contentTransforms: [
                 (c) => {
                     let text = typeof c == "string" ? c : c.toString();
@@ -29,7 +29,7 @@ describe("content-transform", function () {
     })
 
     it("async content transform", async function () {
-        let w = createWebserver({
+        let w = createWebServer({
             contentTransforms: [
                 async (c) => {
                     let text = typeof c == "string" ? c : c.toString();
@@ -47,7 +47,7 @@ describe("content-transform", function () {
     })
 
     it("multi content transform", async function () {
-        let w = createWebserver({
+        let w = createWebServer({
             contentTransforms: [
                 async (c) => {
                     let text = typeof c == "string" ? c : c.toString();

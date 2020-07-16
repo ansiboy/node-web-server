@@ -3,6 +3,13 @@ import { RequestProcessor, RequestContext, ExecuteResult } from "../request-proc
 import http = require('http');
 export interface ProxyItem {
     targetUrl: string;
+    headers?: {
+        [name: string]: string;
+    } | ((requestContext: RequestContext) => {
+        [name: string]: string;
+    } | Promise<{
+        [name: string]: string;
+    }>);
 }
 export interface ProxyConfig {
     proxyTargets: {
@@ -15,6 +22,6 @@ export declare class ProxyRequestProcessor implements RequestProcessor {
     get proxyTargets(): {
         [key: string]: ProxyItem;
     };
-    execute(args: RequestContext): Promise<ExecuteResult> | null;
+    execute(args: RequestContext): Promise<ExecuteResult | null>;
 }
 export declare function proxyRequest(targetUrl: string, req: http.IncomingMessage, res: http.ServerResponse, headers: http.IncomingMessage["headers"], method?: string): Promise<ExecuteResult>;

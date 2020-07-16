@@ -18,7 +18,7 @@ const content_types_1 = require("../out/content-types");
 const common_1 = require("./common");
 const status_code_1 = require("../out/status-code");
 describe("web-server", function () {
-    let w = common_1.createWebserver();
+    let w = common_1.createWebServer();
     console.log(`Web server port is ${w.port}.`);
     const browser = new Browser();
     it("start auto port", function () {

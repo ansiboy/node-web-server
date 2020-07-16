@@ -18,7 +18,7 @@ describe("content-transform", function () {
     let remarkText1 = "\r\n// Hello Node Web Server";
     it("sync content transform", function () {
         return __awaiter(this, void 0, void 0, function* () {
-            let w = common_1.createWebserver({
+            let w = common_1.createWebServer({
                 contentTransforms: [
                     (c) => {
                         let text = typeof c == "string" ? c : c.toString();
@@ -36,7 +36,7 @@ describe("content-transform", function () {
     });
     it("async content transform", function () {
         return __awaiter(this, void 0, void 0, function* () {
-            let w = common_1.createWebserver({
+            let w = common_1.createWebServer({
                 contentTransforms: [
                     (c) => __awaiter(this, void 0, void 0, function* () {
                         let text = typeof c == "string" ? c : c.toString();
@@ -54,7 +54,7 @@ describe("content-transform", function () {
     });
     it("multi content transform", function () {
         return __awaiter(this, void 0, void 0, function* () {
-            let w = common_1.createWebserver({
+            let w = common_1.createWebServer({
                 contentTransforms: [
                     (c) => __awaiter(this, void 0, void 0, function* () {
                         let text = typeof c == "string" ? c : c.toString();

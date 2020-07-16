@@ -5,7 +5,7 @@ import Browser = require('zombie');
 import * as fs from "fs";
 
 export let websitePhysicalPath = pathConcat(__dirname, "website");
-export function createWebserver(settings?: Settings) {
+export function createWebServer(settings?: Settings) {
     // let settings: Settings = { root: new VirtualDirectory(pathConcat(__dirname, "website")) };
     settings = settings || {};
     settings = Object.assign(settings, {

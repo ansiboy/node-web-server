@@ -14,3 +14,5 @@ var text_file_1 = require("./file-processors/text-file");
 exports.textFileProcessor = text_file_1.textFileProcessor;
 var status_code_1 = require("./status-code");
 exports.StatusCode = status_code_1.StatusCode;
+var cgi_1 = require("./request-processors/cgi");
+exports.CGIRequestProcessor = cgi_1.CGIRequestProcessor;

@@ -5,7 +5,7 @@ const path_concat_1 = require("../out/path-concat");
 const Browser = require("zombie");
 const fs = require("fs");
 exports.websitePhysicalPath = path_concat_1.pathConcat(__dirname, "website");
-function createWebserver(settings) {
+function createWebServer(settings) {
     // let settings: Settings = { root: new VirtualDirectory(pathConcat(__dirname, "website")) };
     settings = settings || {};
     settings = Object.assign(settings, {
@@ -15,7 +15,7 @@ function createWebserver(settings) {
     console.log(`Web server port is ${settings.port}.`);
     return w;
 }
-exports.createWebserver = createWebserver;
+exports.createWebServer = createWebServer;
 function createBrowser() {
     return new Browser();
 }

@@ -1,2 +1,2 @@
-import { Content } from "./request-processor";
-export declare type ContentTransform = (content: Content) => Content | Promise<Content>;
+import { Content, RequestContext } from "./request-processor";
+export declare type ContentTransform = (content: Content, context: RequestContext) => Content | Promise<Content>;
