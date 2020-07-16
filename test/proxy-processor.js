@@ -23,7 +23,16 @@ describe("proxy-processor", function () {
                 headers: function () {
                     return { token };
                 }
-            }
+            },
+            // 用于测试异步 headers
+            "/Proxy1/(\\S+)": {
+                targetUrl: `http://127.0.0.1:${station.port}/$1`,
+                headers: function () {
+                    return __awaiter(this, void 0, void 0, function* () {
+                        return { token };
+                    });
+                }
+            },
         }
     };
     requestProcessorConfigs[out_1.ProxyRequestProcessor.name] = proxyConfig;
@@ -38,10 +47,19 @@ describe("proxy-processor", function () {
             assert.equal(browser.source, text);
         });
     });
-    it("headers", function () {
+    it("sync headers", function () {
         return __awaiter(this, void 0, void 0, function* () {
             let browser = common_1.createBrowser();
             let url = `http://127.0.0.1:${webserver.port}/AdminWeiXin/cgi-bin/headers-output.js`;
+            yield browser.visit(url);
+            let obj = JSON.parse(browser.source);
+            assert.equal(obj.token, token);
+        });
+    });
+    it("async headers", function () {
+        return __awaiter(this, void 0, void 0, function* () {
+            let browser = common_1.createBrowser();
+            let url = `http://127.0.0.1:${webserver.port}/Proxy1/cgi-bin/headers-output.js`;
             yield browser.visit(url);
             let obj = JSON.parse(browser.source);
             assert.equal(obj.token, token);
