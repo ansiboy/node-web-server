@@ -20,4 +20,6 @@ export declare class WebServer {
     private outputContent;
     private outputError;
     private errorOutputObject;
+    getLogger(categoryName: string): import("log4js").Logger;
+    get logLevel(): import("./logger").LogLevel;
 }

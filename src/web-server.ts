@@ -11,6 +11,7 @@ import { ProxyRequestProcessor } from "./request-processors/proxy";
 import { StaticFileRequestProcessor } from "./request-processors/static-file";
 import { StatusCode } from "./status-code";
 import { CGIRequestProcessor } from "./request-processors/cgi";
+import { getLogger } from "./logger";
 
 export class WebServer {
 
@@ -94,7 +95,10 @@ export class WebServer {
                 let processor = this.#requestProcessors[i];
                 try {
                     let r: RequestResult | null = null;
-                    let requestContext = { virtualPath: path, physicalPath, req, res };
+                    let requestContext: RequestContext = {
+                        virtualPath: path, physicalPath,
+                        req, res, logLevel: this.logLevel
+                    };
                     let p = processor.execute(requestContext);
                     if (p == null)
                         continue;
@@ -120,9 +124,6 @@ export class WebServer {
                                 res.setHeader("Content-Length", r.content.length.toString());
                             }
                         }
-
-
-
 
                         this.outputContent(r.content, requestContext);
                         return;
@@ -197,5 +198,12 @@ export class WebServer {
         return outputObject
     }
 
+    getLogger(categoryName: string) {
+        return getLogger(categoryName, this.logLevel);
+    }
+
+    get logLevel() {
+        return this.#settings.logLevel || "all";
+    }
 
 }

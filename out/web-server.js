@@ -9,6 +9,7 @@ const proxy_1 = require("./request-processors/proxy");
 const static_file_1 = require("./request-processors/static-file");
 const status_code_1 = require("./status-code");
 const cgi_1 = require("./request-processors/cgi");
+const logger_1 = require("./logger");
 class WebServer {
     constructor(settings) {
         if (settings == null)
@@ -75,7 +76,10 @@ class WebServer {
                 let processor = this.#requestProcessors[i];
                 try {
                     let r = null;
-                    let requestContext = { virtualPath: path, physicalPath, req, res };
+                    let requestContext = {
+                        virtualPath: path, physicalPath,
+                        req, res, logLevel: this.logLevel
+                    };
                     let p = processor.execute(requestContext);
                     if (p == null)
                         continue;
@@ -155,6 +159,12 @@ class WebServer {
             outputObject['innerError'] = this.errorOutputObject(err.innerError);
         }
         return outputObject;
+    }
+    getLogger(categoryName) {
+        return logger_1.getLogger(categoryName, this.logLevel);
+    }
+    get logLevel() {
+        return this.#settings.logLevel || "all";
     }
 }
 exports.WebServer = WebServer;

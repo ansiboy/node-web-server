@@ -26,6 +26,10 @@ class StaticFileRequestProcessor {
             p = Promise.resolve(p);
         }
         let r = await p;
+        let headers = r.headers || {};
+        if (args.logLevel == "all") {
+            Object.assign(headers, { "physical-path": args.physicalPath || "" });
+        }
         return {
             statusCode: r.statusCode, content: r.content, headers: r.headers
         };

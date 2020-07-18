@@ -1,9 +1,11 @@
 import * as http from "http";
+import { LogLevel } from "./logger";
 export type Content = string | Buffer;
 
 export type RequestContext = {
     virtualPath: string, physicalPath?: string | null,
-    res: http.ServerResponse, req: http.IncomingMessage
+    res: http.ServerResponse, req: http.IncomingMessage,
+    logLevel: LogLevel
 }
 
 export type RequestResult = {

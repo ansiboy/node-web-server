@@ -1,4 +1,5 @@
 export declare let errors: {
+    arugmentNull(argumentName: string): Error;
     filePathNotExtention(virtualPath: string): Error;
     vitualPathRequirePhysicalPath(virtualPath: string, physicalPath: string): Error;
     notPhysicalPath(physicalPath: string): Error;

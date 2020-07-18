@@ -2,7 +2,6 @@ import { RequestProcessor, RequestContext, RequestResult } from "../request-proc
 import { pathConcat } from "../path-concat";
 import { defaultFileProcessors } from "../file-processors";
 import { errors } from "../errors";
-// import { FileProcessors } from "../file-processor";
 import { FileProcessor } from "../file-processor";
 
 export type StaticFileProcessorConfig = {
@@ -41,6 +40,10 @@ export class StaticFileRequestProcessor implements RequestProcessor {
         }
 
         let r = await p;
+        let headers = r.headers || {};
+        if (args.logLevel == "all") {
+            Object.assign(headers, { "physical-path": args.physicalPath || "" })
+        }
         return {
             statusCode: r.statusCode, content: r.content, headers: r.headers
         };

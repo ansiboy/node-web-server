@@ -2,6 +2,13 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const status_code_1 = require("./status-code");
 exports.errors = {
+    arugmentNull(argumentName) {
+        let msg = `Argument ${argumentName} can not be null or empty.`;
+        let error = new Error(msg);
+        let name = "argumentNull";
+        error.name = name;
+        return error;
+    },
     filePathNotExtention(virtualPath) {
         let msg = `File path has not a extention name.`;
         let error = new Error(msg);

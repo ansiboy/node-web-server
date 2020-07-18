@@ -1,6 +1,13 @@
 import { StatusCode } from "./status-code";
 
 export let errors = {
+    arugmentNull(argumentName: string) {
+        let msg = `Argument ${argumentName} can not be null or empty.`;
+        let error = new Error(msg);
+        let name: keyof typeof errors = "argumentNull";
+        error.name = name;
+        return error;
+    },
     filePathNotExtention(virtualPath: string) {
         let msg = `File path has not a extention name.`;
         let error = new Error(msg);
