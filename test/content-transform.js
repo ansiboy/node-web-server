@@ -11,6 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const common_1 = require("./common");
 const assert = require("assert");
+const stream = require("stream");
 const path_concat_1 = require("../out/path-concat");
 describe("content-transform", function () {
     let remarkText = "\r\n// Hello Word";
@@ -20,17 +21,31 @@ describe("content-transform", function () {
         return __awaiter(this, void 0, void 0, function* () {
             let w = common_1.createWebServer({
                 requestResultTransforms: [
-                    (r, c) => {
-                        // let text = typeof c == "string" ? c : c.toString();
-                        // text = text + remarkText;
-                        // return text;
-                        let text = typeof r.content == "string" ? r.content : r.content.toString();
+                    (r, c) => __awaiter(this, void 0, void 0, function* () {
+                        let text = yield new Promise((resolve, reject) => {
+                            if (r.content instanceof stream.Readable) {
+                                let buffer = Buffer.from([]);
+                                r.content.on("data", (data) => {
+                                    buffer = Buffer.concat([buffer, data]);
+                                });
+                                r.content.on("end", function () {
+                                    resolve(buffer.toString());
+                                });
+                                r.content.on("error", function (err) {
+                                    reject(err);
+                                });
+                            }
+                            else if (typeof r.content == "string") {
+                                resolve(r.content);
+                            }
+                            else {
+                                resolve(r.content.toString());
+                            }
+                        });
                         text = text + remarkText;
-                        r.content = Buffer.from(text);
-                        // if (r.headers)
-                        //     r.headers["Content-Length"] = r.content.length.toString();
+                        r.content = text;
                         return r;
-                    }
+                    })
                 ]
             });
             let b = common_1.createBrowser();
@@ -45,10 +60,26 @@ describe("content-transform", function () {
             let w = common_1.createWebServer({
                 requestResultTransforms: [
                     (r, c) => __awaiter(this, void 0, void 0, function* () {
-                        // let text = typeof c == "string" ? c : c.toString();
-                        // text = text + remarkText;
-                        // return text;
-                        let text = typeof r.content == "string" ? r.content : r.content.toString();
+                        let text = yield new Promise((resolve, reject) => {
+                            if (r.content instanceof stream.Readable) {
+                                let buffer = Buffer.from([]);
+                                r.content.on("data", (data) => {
+                                    buffer = Buffer.concat([buffer, data]);
+                                });
+                                r.content.on("end", function () {
+                                    resolve(buffer.toString());
+                                });
+                                r.content.on("error", function (err) {
+                                    reject(err);
+                                });
+                            }
+                            else if (typeof r.content == "string") {
+                                resolve(r.content);
+                            }
+                            else {
+                                resolve(r.content.toString());
+                            }
+                        });
                         text = text + remarkText;
                         r.content = Buffer.from(text);
                         // if (r.headers)
@@ -69,21 +100,59 @@ describe("content-transform", function () {
             let w = common_1.createWebServer({
                 requestResultTransforms: [
                     (r, c) => __awaiter(this, void 0, void 0, function* () {
-                        let text = typeof r.content == "string" ? r.content : r.content.toString();
+                        let text = yield new Promise((resolve, reject) => {
+                            if (r.content instanceof stream.Readable) {
+                                let buffer = Buffer.from([]);
+                                r.content.on("data", (data) => {
+                                    buffer = Buffer.concat([buffer, data]);
+                                });
+                                r.content.on("end", function () {
+                                    resolve(buffer.toString());
+                                });
+                                r.content.on("error", function (err) {
+                                    reject(err);
+                                });
+                            }
+                            else if (typeof r.content == "string") {
+                                resolve(r.content);
+                            }
+                            else {
+                                resolve(r.content.toString());
+                            }
+                        });
                         text = text + remarkText;
                         r.content = Buffer.from(text);
                         // if (r.headers)
                         //     r.headers["Content-Length"] = r.content.length.toString();
                         return r;
                     }),
-                    (r, c) => {
-                        let text = typeof r.content == "string" ? r.content : r.content.toString();
+                    (r, c) => __awaiter(this, void 0, void 0, function* () {
+                        let text = yield new Promise((resolve, reject) => {
+                            if (r.content instanceof stream.Readable) {
+                                let buffer = Buffer.from([]);
+                                r.content.on("data", (data) => {
+                                    buffer = Buffer.concat([buffer, data]);
+                                });
+                                r.content.on("end", function () {
+                                    resolve(buffer.toString());
+                                });
+                                r.content.on("error", function (err) {
+                                    reject(err);
+                                });
+                            }
+                            else if (typeof r.content == "string") {
+                                resolve(r.content);
+                            }
+                            else {
+                                resolve(r.content.toString());
+                            }
+                        });
                         text = text + remarkText1;
                         r.content = Buffer.from(text);
                         // if (r.headers)
                         //     r.headers["Content-Length"] = r.content.length.toString();
                         return r;
-                    }
+                    })
                 ]
             });
             let b = common_1.createBrowser();

@@ -1,6 +1,8 @@
 import * as http from "http";
 import { LogLevel } from "./logger";
-export type Content = string | Buffer;
+import * as stream from "stream";
+
+export type Content = string | Buffer | stream.Readable;
 
 export type RequestContext = {
     virtualPath: string, physicalPath?: string | null,

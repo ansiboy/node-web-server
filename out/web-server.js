@@ -10,6 +10,7 @@ const static_file_1 = require("./request-processors/static-file");
 const status_code_1 = require("./status-code");
 const cgi_1 = require("./request-processors/cgi");
 const logger_1 = require("./logger");
+const stream = require("stream");
 class WebServer {
     constructor(settings) {
         if (settings == null)
@@ -132,8 +133,13 @@ class WebServer {
     }
     async outputContent(content, requestContext) {
         let res = requestContext.res;
-        res.write(content);
-        res.end();
+        if (content instanceof stream.Readable) {
+            content.pipe(res);
+        }
+        else {
+            res.write(content);
+            res.end();
+        }
     }
     outputError(err, res) {
         if (err == null) {

@@ -12,6 +12,7 @@ import { StaticFileRequestProcessor } from "./request-processors/static-file";
 import { StatusCode } from "./status-code";
 import { CGIRequestProcessor } from "./request-processors/cgi";
 import { getLogger } from "./logger";
+import * as stream from "stream";
 
 export class WebServer {
 
@@ -161,10 +162,14 @@ export class WebServer {
 
     private async outputContent(content: Content, requestContext: RequestContext) {
         let res = requestContext.res;
-        res.write(content);
-        res.end();
+        if (content instanceof stream.Readable) {
+            content.pipe(res)
+        }
+        else {
+            res.write(content);
+            res.end();
+        }
     }
-
 
     private outputError(err: Error, res: http.ServerResponse) {
         if (err == null) {

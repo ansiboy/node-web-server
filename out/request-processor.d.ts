@@ -1,7 +1,8 @@
 /// <reference types="node" />
 import * as http from "http";
 import { LogLevel } from "./logger";
-export declare type Content = string | Buffer;
+import * as stream from "stream";
+export declare type Content = string | Buffer | stream.Readable;
 export declare type RequestContext = {
     virtualPath: string;
     physicalPath?: string | null;

@@ -78,17 +78,22 @@ function proxyRequest(targetUrl, req, res, headers, method) {
             }
             res.statusCode = response.statusCode || 200;
             res.statusMessage = response.statusMessage || '';
-            let b = Buffer.from([]);
-            response.on("data", (data) => {
-                b = Buffer.concat([b, data]);
-            });
-            response.on("end", () => {
-                resolve({ content: b });
-            });
+            // let b = Buffer.from([]);
+            // response.on("data", (data) => {
+            //     b = Buffer.concat([b, data]);
+            // });
+            // response.on("end", () => {
+            //     resolve({ content: b });
+            // });
+            // response.on("error", err => reject(err));
+            // response.on("close", () => {
+            //     reject(errors.connectionClose())
+            // });
+            response.pipe(res);
+            response.on("end", () => resolve());
             response.on("error", err => reject(err));
-            response.on("close", () => {
-                reject(errors_1.errors.connectionClose());
-            });
+            response.on("close", () => reject(errors_1.errors.connectionClose()));
+            resolve({ content: response });
         });
         if (!req.readable) {
             reject(errors_1.errors.requestNotReadable());
@@ -96,6 +101,8 @@ function proxyRequest(targetUrl, req, res, headers, method) {
         req.on('data', (data) => {
             clientRequest.write(data);
         }).on('end', () => {
+            clientRequest.end();
+        }).on("close", () => {
             clientRequest.end();
         }).on('error', (err) => {
             clientRequest.end();

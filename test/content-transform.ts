@@ -1,7 +1,9 @@
 import { createWebServer, createBrowser, websitePhysicalPath, readFile } from "./common"
 
 import * as assert from "assert";
+import * as stream from "stream";
 import { pathConcat } from "../out/path-concat";
+import { RequestResult } from "../out";
 
 describe("content-transform", function () {
 
@@ -13,15 +15,30 @@ describe("content-transform", function () {
 
         let w = createWebServer({
             requestResultTransforms: [
-                (r, c) => {
-                    // let text = typeof c == "string" ? c : c.toString();
-                    // text = text + remarkText;
-                    // return text;
-                    let text = typeof r.content == "string" ? r.content : r.content.toString();
+                async (r, c) => {
+                    let text = await new Promise<string>((resolve, reject) => {
+                        if (r.content instanceof stream.Readable) {
+                            let buffer = Buffer.from([]);
+                            r.content.on("data", (data) => {
+                                buffer = Buffer.concat([buffer, data])
+                            })
+                            r.content.on("end", function () {
+                                resolve(buffer.toString())
+                            })
+                            r.content.on("error", function (err) {
+                                reject(err);
+                            })
+                        }
+                        else if (typeof r.content == "string") {
+                            resolve(r.content)
+                        }
+                        else {
+                            resolve(r.content.toString());
+                        }
+                    })
+
                     text = text + remarkText;
-                    r.content = Buffer.from(text);
-                    // if (r.headers)
-                    //     r.headers["Content-Length"] = r.content.length.toString();
+                    r.content = text;
 
                     return r;
                 }
@@ -39,10 +56,27 @@ describe("content-transform", function () {
         let w = createWebServer({
             requestResultTransforms: [
                 async (r, c) => {
-                    // let text = typeof c == "string" ? c : c.toString();
-                    // text = text + remarkText;
-                    // return text;
-                    let text = typeof r.content == "string" ? r.content : r.content.toString();
+                    let text = await new Promise<string>((resolve, reject) => {
+                        if (r.content instanceof stream.Readable) {
+                            let buffer = Buffer.from([]);
+                            r.content.on("data", (data) => {
+                                buffer = Buffer.concat([buffer, data])
+                            })
+                            r.content.on("end", function () {
+                                resolve(buffer.toString())
+                            })
+                            r.content.on("error", function (err) {
+                                reject(err);
+                            })
+                        }
+                        else if (typeof r.content == "string") {
+                            resolve(r.content)
+                        }
+                        else {
+                            resolve(r.content.toString());
+                        }
+                    })
+
                     text = text + remarkText;
                     r.content = Buffer.from(text);
                     // if (r.headers)
@@ -64,7 +98,27 @@ describe("content-transform", function () {
         let w = createWebServer({
             requestResultTransforms: [
                 async (r, c) => {
-                    let text = typeof r.content == "string" ? r.content : r.content.toString();
+                    let text = await new Promise<string>((resolve, reject) => {
+                        if (r.content instanceof stream.Readable) {
+                            let buffer = Buffer.from([]);
+                            r.content.on("data", (data) => {
+                                buffer = Buffer.concat([buffer, data])
+                            })
+                            r.content.on("end", function () {
+                                resolve(buffer.toString())
+                            })
+                            r.content.on("error", function (err) {
+                                reject(err);
+                            })
+                        }
+                        else if (typeof r.content == "string") {
+                            resolve(r.content)
+                        }
+                        else {
+                            resolve(r.content.toString());
+                        }
+                    })
+
                     text = text + remarkText;
                     r.content = Buffer.from(text);
                     // if (r.headers)
@@ -72,8 +126,28 @@ describe("content-transform", function () {
 
                     return r;
                 },
-                (r, c) => {
-                    let text = typeof r.content == "string" ? r.content : r.content.toString();
+                async (r, c) => {
+                    let text = await new Promise<string>((resolve, reject) => {
+                        if (r.content instanceof stream.Readable) {
+                            let buffer = Buffer.from([]);
+                            r.content.on("data", (data) => {
+                                buffer = Buffer.concat([buffer, data])
+                            })
+                            r.content.on("end", function () {
+                                resolve(buffer.toString())
+                            })
+                            r.content.on("error", function (err) {
+                                reject(err);
+                            })
+                        }
+                        else if (typeof r.content == "string") {
+                            resolve(r.content)
+                        }
+                        else {
+                            resolve(r.content.toString());
+                        }
+                    })
+
                     text = text + remarkText1;
                     r.content = Buffer.from(text);
                     // if (r.headers)

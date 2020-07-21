@@ -5,7 +5,6 @@ import { errors } from "../errors";
 export interface ProxyItem {
     targetUrl: string,
     headers?: { [name: string]: string } | ((requestContext: RequestContext) => { [name: string]: string } | Promise<{ [name: string]: string }>),
-    // response?: (proxResponse: http.IncomingMessage, req: http.IncomingMessage, res: http.ServerResponse) => void,
 }
 
 export interface ProxyConfig {
@@ -103,19 +102,26 @@ export function proxyRequest(targetUrl: string, req: http.IncomingMessage, res: 
                 res.statusCode = response.statusCode || 200;
                 res.statusMessage = response.statusMessage || '';
 
-                let b = Buffer.from([]);
+                // let b = Buffer.from([]);
 
-                response.on("data", (data) => {
-                    b = Buffer.concat([b, data]);
-                });
+                // response.on("data", (data) => {
+                //     b = Buffer.concat([b, data]);
+                // });
 
-                response.on("end", () => {
-                    resolve({ content: b });
-                });
+                // response.on("end", () => {
+                //     resolve({ content: b });
+                // });
+                // response.on("error", err => reject(err));
+                // response.on("close", () => {
+                //     reject(errors.connectionClose())
+                // });
+
+                response.pipe(res);
+                response.on("end", () => resolve());
                 response.on("error", err => reject(err));
-                response.on("close", () => {
-                    reject(errors.connectionClose())
-                });
+                response.on("close", () => reject(errors.connectionClose()));
+
+                resolve({ content: response });
             }
         );
 
@@ -127,6 +133,8 @@ export function proxyRequest(targetUrl: string, req: http.IncomingMessage, res: 
         req.on('data', (data) => {
             clientRequest.write(data);
         }).on('end', () => {
+            clientRequest.end();
+        }).on("close", () => {
             clientRequest.end();
         }).on('error', (err) => {
             clientRequest.end();
