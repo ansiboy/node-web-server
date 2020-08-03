@@ -13,13 +13,13 @@ describe("web-server", function () {
     console.log(`Web server port is ${w.port}.`);
     const browser = new Browser();
 
-    it("start auto port", async function () {
+    it("start auto port", function () {
         let settings: Settings = {};
         new WebServer(settings);
         assert.notEqual(settings.port, null);
     })
 
-    it("port setting", async function () {
+    it("port setting", function () {
         let settings = { port: 1024 };
         new WebServer(settings);
         assert.equal(settings.port, 1024);

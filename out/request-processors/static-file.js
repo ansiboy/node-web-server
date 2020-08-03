@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const path_concat_1 = require("../path-concat");
 const file_processors_1 = require("../file-processors");
 const errors_1 = require("../errors");
+const path = require("path");
 class StaticFileRequestProcessor {
     constructor(config) {
         config = config || { fileProcessors: {} };
@@ -16,8 +17,7 @@ class StaticFileRequestProcessor {
         if (args.physicalPath.indexOf(".") < 0) {
             args.physicalPath = path_concat_1.pathConcat(args.physicalPath, "index.html");
         }
-        let arr = args.physicalPath.split(".");
-        ext = arr[arr.length - 1];
+        ext = path.extname(args.physicalPath);
         let fileProcessor = this.#fileProcessors[ext];
         if (fileProcessor == null)
             throw errors_1.errors.fileTypeNotSupport(ext);

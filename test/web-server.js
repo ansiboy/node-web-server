@@ -22,18 +22,14 @@ describe("web-server", function () {
     console.log(`Web server port is ${w.port}.`);
     const browser = new Browser();
     it("start auto port", function () {
-        return __awaiter(this, void 0, void 0, function* () {
-            let settings = {};
-            new out_1.WebServer(settings);
-            assert.notEqual(settings.port, null);
-        });
+        let settings = {};
+        new out_1.WebServer(settings);
+        assert.notEqual(settings.port, null);
     });
     it("port setting", function () {
-        return __awaiter(this, void 0, void 0, function* () {
-            let settings = { port: 1024 };
-            new out_1.WebServer(settings);
-            assert.equal(settings.port, 1024);
-        });
+        let settings = { port: 1024 };
+        new out_1.WebServer(settings);
+        assert.equal(settings.port, 1024);
     });
     it("file index.html", function () {
         return __awaiter(this, void 0, void 0, function* () {
