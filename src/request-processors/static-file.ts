@@ -3,6 +3,7 @@ import { pathConcat } from "../path-concat";
 import { defaultFileProcessors } from "../file-processors";
 import { errors } from "../errors";
 import { FileProcessor } from "../file-processor";
+import * as path from "path";
 
 export type StaticFileProcessorConfig = {
     fileProcessors: { [key: string]: FileProcessor }
@@ -27,8 +28,7 @@ export class StaticFileRequestProcessor implements RequestProcessor {
             args.physicalPath = pathConcat(args.physicalPath, "index.html");
         }
 
-        let arr = args.physicalPath.split(".");
-        ext = arr[arr.length - 1];
+        ext = path.extname(args.physicalPath);
 
         let fileProcessor = this.#fileProcessors[ext];
         if (fileProcessor == null)
