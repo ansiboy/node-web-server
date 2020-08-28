@@ -13,10 +13,18 @@ describe("web-server", function () {
     console.log(`Web server port is ${w.port}.`);
     const browser = new Browser();
 
+    it("null settings", function () {
+        let settings: Settings = {};
+        var webserver = new WebServer(settings);
+        assert.notEqual(settings.port, null);
+        webserver.port;
+    })
+
     it("start auto port", function () {
         let settings: Settings = {};
-        new WebServer(settings);
+        var webserver = new WebServer(settings);
         assert.notEqual(settings.port, null);
+        webserver.port;
     })
 
     it("port setting", function () {
@@ -29,21 +37,21 @@ describe("web-server", function () {
         await browser.visit(`http://127.0.0.1:${w.port}/index.html`);
         let buffer: Buffer = fs.readFileSync(pathConcat(__dirname, "website/index.html"));
         let source: string = buffer.toString();
-        assert.equal(browser.source, source.toString());
+        assert.equal(browser.source, source);
     })
 
     it("default index.html", async function () {
         await browser.visit(`http://127.0.0.1:${w.port}`);
         let buffer: Buffer = fs.readFileSync(pathConcat(__dirname, "website/index.html"));
         let source: string = buffer.toString();
-        assert.equal(browser.source, source.toString());
+        assert.equal(browser.source, source);
     })
 
     it("default index.js", async function () {
         await browser.visit(`http://127.0.0.1:${w.port}/index.js?a=5`);
         let buffer: Buffer = fs.readFileSync(pathConcat(__dirname, "website/index.js"));
         let source: string = buffer.toString();
-        assert.equal(browser.source, source.toString());
+        assert.equal(browser.source, source);
     })
 
     it("javascript content type", async function () {
@@ -60,4 +68,15 @@ describe("web-server", function () {
         // assert.equal(browser.response.headers.get("content-type"), contentTypes.js);
     })
 
+    it("sample website", async function () {
+        let w = new WebServer();
+        let url = `http://127.0.0.1:${w.port}`;
+        browser.visit(url).then(r => {
+            let buffer: Buffer = fs.readFileSync(pathConcat(__dirname, "../sample-website/index.html"));
+            let source: string = buffer.toString();
+            assert.equal(browser.source, source);
+        }).catch(err => {
+            debugger
+        })
+    })
 })

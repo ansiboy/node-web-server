@@ -21,10 +21,17 @@ describe("web-server", function () {
     let w = common_1.createWebServer();
     console.log(`Web server port is ${w.port}.`);
     const browser = new Browser();
+    it("null settings", function () {
+        let settings = {};
+        var webserver = new out_1.WebServer(settings);
+        assert.notEqual(settings.port, null);
+        webserver.port;
+    });
     it("start auto port", function () {
         let settings = {};
-        new out_1.WebServer(settings);
+        var webserver = new out_1.WebServer(settings);
         assert.notEqual(settings.port, null);
+        webserver.port;
     });
     it("port setting", function () {
         let settings = { port: 1024 };
@@ -36,7 +43,7 @@ describe("web-server", function () {
             yield browser.visit(`http://127.0.0.1:${w.port}/index.html`);
             let buffer = fs.readFileSync(path_concat_1.pathConcat(__dirname, "website/index.html"));
             let source = buffer.toString();
-            assert.equal(browser.source, source.toString());
+            assert.equal(browser.source, source);
         });
     });
     it("default index.html", function () {
@@ -44,7 +51,7 @@ describe("web-server", function () {
             yield browser.visit(`http://127.0.0.1:${w.port}`);
             let buffer = fs.readFileSync(path_concat_1.pathConcat(__dirname, "website/index.html"));
             let source = buffer.toString();
-            assert.equal(browser.source, source.toString());
+            assert.equal(browser.source, source);
         });
     });
     it("default index.js", function () {
@@ -52,7 +59,7 @@ describe("web-server", function () {
             yield browser.visit(`http://127.0.0.1:${w.port}/index.js?a=5`);
             let buffer = fs.readFileSync(path_concat_1.pathConcat(__dirname, "website/index.js"));
             let source = buffer.toString();
-            assert.equal(browser.source, source.toString());
+            assert.equal(browser.source, source);
         });
     });
     it("javascript content type", function () {
@@ -69,6 +76,19 @@ describe("web-server", function () {
                 assert.equal(browser.status, status_code_1.StatusCode.UnsupportedMediaType);
             });
             // assert.equal(browser.response.headers.get("content-type"), contentTypes.js);
+        });
+    });
+    it("sample website", function () {
+        return __awaiter(this, void 0, void 0, function* () {
+            let w = new out_1.WebServer();
+            let url = `http://127.0.0.1:${w.port}`;
+            browser.visit(url).then(r => {
+                let buffer = fs.readFileSync(path_concat_1.pathConcat(__dirname, "../sample-website/index.html"));
+                let source = buffer.toString();
+                assert.equal(browser.source, source);
+            }).catch(err => {
+                debugger;
+            });
         });
     });
 });

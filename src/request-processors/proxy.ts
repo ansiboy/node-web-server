@@ -3,11 +3,14 @@ import http = require('http');
 import { errors } from "../errors";
 
 export interface ProxyItem {
+    /** 转发请求的目标地址 */
     targetUrl: string,
+    /** HTTP header 信息 */
     headers?: { [name: string]: string } | ((requestContext: RequestContext) => { [name: string]: string } | Promise<{ [name: string]: string }>),
 }
 
 export interface ProxyConfig {
+    /** 转发目标 */
     proxyTargets: { [key: string]: ProxyItem | string };
 }
 

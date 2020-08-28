@@ -11,12 +11,15 @@ const status_code_1 = require("./status-code");
 const cgi_1 = require("./request-processors/cgi");
 const logger_1 = require("./logger");
 const stream = require("stream");
+const path = require("path");
+const DefaultWebSitePath = "../sample-website";
 class WebServer {
     constructor(settings) {
+        settings = settings || {};
         if (settings == null)
             throw errors_1.errors.argumentNull("settings");
         if (settings.websiteDirectory == null) {
-            this.#websiteDirectory = new virtual_directory_1.VirtualDirectory(__dirname);
+            this.#websiteDirectory = new virtual_directory_1.VirtualDirectory(path.join(__dirname, DefaultWebSitePath));
         }
         else if (typeof settings.websiteDirectory == "string") {
             this.#websiteDirectory = new virtual_directory_1.VirtualDirectory(settings.websiteDirectory);
@@ -46,18 +49,22 @@ class WebServer {
     #settings;
     #source;
     #requestResultTransforms;
+    /** 网站文件夹 */
     get websiteDirectory() {
         return this.#websiteDirectory;
     }
+    /** 端口 */
     get port() {
         return this.#settings.port;
     }
+    /** 请求处理器实例 */
     get requestProcessors() {
         return this.#requestProcessors;
     }
     get source() {
         return this.#source;
     }
+    /** 内容转换器 */
     get contentTransforms() {
         return this.#requestResultTransforms;
     }
@@ -166,11 +173,16 @@ class WebServer {
         }
         return outputObject;
     }
+    /** 日志记录器 */
     getLogger(categoryName) {
         return logger_1.getLogger(categoryName, this.logLevel);
     }
+    /** 日志等级 */
     get logLevel() {
-        return this.#settings.logLevel || "all";
+        let logLevel = undefined;
+        if (this.#settings.log != null)
+            logLevel = this.#settings.log.level;
+        return logLevel || "all";
     }
 }
 exports.WebServer = WebServer;
