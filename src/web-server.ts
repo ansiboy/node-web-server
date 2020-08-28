@@ -1,7 +1,7 @@
 import { Settings } from "./settings";
 import http = require("http");
-import { AddressInfo } from "net";
 import url = require("url");
+import { AddressInfo } from "net";
 import { errors } from "./errors";
 import { VirtualDirectory } from "./virtual-directory";
 import { RequestProcessor, RequestResult, Content, RequestContext } from "./request-processor";
@@ -11,9 +11,11 @@ import { ProxyRequestProcessor } from "./request-processors/proxy";
 import { StaticFileRequestProcessor } from "./request-processors/static-file";
 import { StatusCode } from "./status-code";
 import { CGIRequestProcessor } from "./request-processors/cgi";
-import { getLogger } from "./logger";
+import { getLogger, LogLevel } from "./logger";
 import * as stream from "stream";
+import * as path from "path";
 
+const DefaultWebSitePath = "../sample-website";
 export class WebServer {
 
     #websiteDirectory: VirtualDirectory;
@@ -26,10 +28,11 @@ export class WebServer {
         ProxyRequestProcessor, CGIRequestProcessor, StaticFileRequestProcessor
     ];
 
-    constructor(settings: Settings) {
+    constructor(settings?: Settings) {
+        settings = settings || {};
         if (settings == null) throw errors.argumentNull("settings");
         if (settings.websiteDirectory == null) {
-            this.#websiteDirectory = new VirtualDirectory(__dirname);
+            this.#websiteDirectory = new VirtualDirectory(path.join(__dirname, DefaultWebSitePath));
         }
         else if (typeof settings.websiteDirectory == "string") {
             this.#websiteDirectory = new VirtualDirectory(settings.websiteDirectory);
@@ -58,14 +61,17 @@ export class WebServer {
         this.#requestResultTransforms = settings.requestResultTransforms || [];
     }
 
+    /** 网站文件夹 */
     get websiteDirectory() {
         return this.#websiteDirectory;
     }
 
+    /** 端口 */
     get port() {
         return this.#settings.port as number;
     }
 
+    /** 请求处理器实例 */
     get requestProcessors() {
         return this.#requestProcessors;
     }
@@ -74,6 +80,7 @@ export class WebServer {
         return this.#source;
     }
 
+    /** 内容转换器 */
     get contentTransforms() {
         return this.#requestResultTransforms;
     }
@@ -203,12 +210,18 @@ export class WebServer {
         return outputObject
     }
 
+    /** 日志记录器 */
     getLogger(categoryName: string) {
         return getLogger(categoryName, this.logLevel);
     }
 
+    /** 日志等级 */
     get logLevel() {
-        return this.#settings.logLevel || "all";
+        let logLevel: LogLevel | undefined = undefined;
+        if (this.#settings.log != null)
+            logLevel = this.#settings.log.level;
+
+        return logLevel || "all";
     }
 
 }
