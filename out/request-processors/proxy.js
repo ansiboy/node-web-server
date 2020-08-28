@@ -78,17 +78,6 @@ function proxyRequest(targetUrl, req, res, headers, method) {
             }
             res.statusCode = response.statusCode || 200;
             res.statusMessage = response.statusMessage || '';
-            // let b = Buffer.from([]);
-            // response.on("data", (data) => {
-            //     b = Buffer.concat([b, data]);
-            // });
-            // response.on("end", () => {
-            //     resolve({ content: b });
-            // });
-            // response.on("error", err => reject(err));
-            // response.on("close", () => {
-            //     reject(errors.connectionClose())
-            // });
             response.pipe(res);
             response.on("end", () => resolve());
             response.on("error", err => reject(err));
@@ -109,8 +98,6 @@ function proxyRequest(targetUrl, req, res, headers, method) {
             reject(err);
         });
         clientRequest.on("error", function (err) {
-            // let logger = getLogger(LOG_CATEGORY_NAME, serverContext.logLevel);
-            // logger.error(err);
             reject(err);
         });
     });
