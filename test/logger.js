@@ -11,6 +11,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const common_1 = require("./common");
 const assert = require("assert");
+const logger_1 = require("../out/logger");
+const out_1 = require("../out");
+const fs = require("fs");
 describe("logger", function () {
     it("default loglevel", function () {
         let server = common_1.createWebServer();
@@ -25,5 +28,14 @@ describe("logger", function () {
             let h = browser.response.headers.get("physical-path");
             assert.notEqual(h || "", "");
         });
+    });
+    it("logger", function () {
+        let logPath = out_1.pathConcat(__dirname, "log.txt");
+        if (fs.existsSync(logPath)) {
+            fs.unlinkSync(logPath);
+        }
+        let logger = logger_1.getLogger("test", "info", logPath);
+        logger.info("logger info test.");
+        assert.ok(fs.existsSync(logPath));
     });
 });

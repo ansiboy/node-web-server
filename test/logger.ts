@@ -1,6 +1,8 @@
 import { createWebServer, createBrowser } from "./common"
 import * as assert from "assert";
-import { LogLevel } from "../out/logger";
+import { LogLevel, getLogger } from "../out/logger";
+import { pathConcat } from "../out";
+import * as fs from "fs";
 
 describe("logger", function () {
     it("default loglevel", function () {
@@ -15,5 +17,17 @@ describe("logger", function () {
         await browser.visit(`http://127.0.0.1:${server.port}/index.html`);
         let h = browser.response.headers.get("physical-path");
         assert.notEqual(h || "", "");
+    })
+
+    it("logger", function () {
+        let logPath = pathConcat(__dirname, "log.txt");
+        if(fs.existsSync(logPath)){
+            fs.unlinkSync(logPath);
+        }
+        
+        let logger = getLogger("test", "info", logPath);
+        logger.info("logger info test.");
+
+        assert.ok(fs.existsSync(logPath));
     })
 })

@@ -11,6 +11,7 @@ export interface Settings {
     log?: {
         /** 日志等级 */
         level?: LogLevel;
+        filePath?: string;
     };
     /** 请求处理器类型 */
     requestProcessorTypes?: {

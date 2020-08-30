@@ -22,7 +22,12 @@ export class WebServer {
     #requestProcessors: RequestProcessor[];
     #settings: Settings;
     #source: http.Server;
-    #requestResultTransforms: RequestResultTransform[]
+    #requestResultTransforms: RequestResultTransform[];
+    #defaultLogSettings: NonNullable<Required<Settings["log"]>> = {
+        level: "all",
+        filePath: "log.txt",
+    };
+    #logSettings: NonNullable<Required<Settings["log"]>>;
 
     static defaultRequestProcessorTypes: { new(config?: any): RequestProcessor }[] = [
         ProxyRequestProcessor, CGIRequestProcessor, StaticFileRequestProcessor
@@ -43,6 +48,7 @@ export class WebServer {
 
 
         this.#settings = settings;
+        this.#logSettings = Object.assign(settings.log || {}, this.#defaultLogSettings);
         this.#source = this.start(settings);
         if (!settings.port) {
             let address = this.#source.address() as AddressInfo;
@@ -212,16 +218,13 @@ export class WebServer {
 
     /** 日志记录器 */
     getLogger(categoryName: string) {
-        return getLogger(categoryName, this.logLevel);
+        let logSetting = this.#settings.log || {};
+        return getLogger(categoryName, this.logLevel, logSetting.filePath);
     }
 
     /** 日志等级 */
     get logLevel() {
-        let logLevel: LogLevel | undefined = undefined;
-        if (this.#settings.log != null)
-            logLevel = this.#settings.log.level;
-
-        return logLevel || "all";
+        return this.#logSettings.level;
     }
 
 }

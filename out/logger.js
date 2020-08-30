@@ -7,34 +7,45 @@ let categories = {
         appenders: ['console'], level: 'debug',
     }
 };
+let layout = {
+    type: "pattern",
+    pattern: "[%d{yyyy-MM-dd hh:mm:ss}] [%p] {%x{projectName}} - %m%n%",
+    tokens: {
+        projectName
+    }
+};
 let appenders = {
     console: {
         type: "console",
-        layout: {
-            type: "pattern",
-            pattern: "%[[%d{yyyy-MM-dd hh:mm:ss}] [%p] %x{projectName} - %m%n%]",
-            tokens: {
-                projectName(logEvent) {
-                    let arr = logEvent.categoryName.split("-");
-                    console.assert(arr.length > 1, `Category name format is incorrect.Category name is ${logEvent.categoryName}`);
-                    arr.pop();
-                    let r = arr.join("-");
-                    return r;
-                }
-            }
-        }
+        layout
     }
 };
+function projectName(logEvent) {
+    let arr = logEvent.categoryName.split("-");
+    console.assert(arr.length > 1, `Category name format is incorrect.Category name is ${logEvent.categoryName}`);
+    arr.pop();
+    let r = arr.join("-");
+    return r;
+}
 log4js.configure({ appenders, categories });
-function getLogger(categoryName, logLevel) {
+function getLogger(categoryName, logLevel, filePath) {
     if (!categoryName)
         throw errors_1.errors.arugmentNull("categoryName");
     if (logLevel == null)
         logLevel = 'all';
     categoryName = `${categoryName}-${logLevel}`;
     if (categories[categoryName] == null) {
+        let appenderNames = ["console"];
+        if (filePath && appenders[filePath] == null) {
+            appenders[filePath] = {
+                type: "file",
+                filename: filePath,
+                layout
+            };
+            appenderNames.push(filePath);
+        }
         categories[categoryName] = {
-            appenders: ['console'], level: logLevel
+            appenders: appenderNames, level: logLevel
         };
         log4js.configure({ appenders, categories });
     }

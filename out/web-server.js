@@ -15,6 +15,10 @@ const path = require("path");
 const DefaultWebSitePath = "../sample-website";
 class WebServer {
     constructor(settings) {
+        this.#defaultLogSettings = {
+            level: "all",
+            filePath: "log.txt",
+        };
         settings = settings || {};
         if (settings == null)
             throw errors_1.errors.argumentNull("settings");
@@ -28,6 +32,7 @@ class WebServer {
             this.#websiteDirectory = settings.websiteDirectory;
         }
         this.#settings = settings;
+        this.#logSettings = Object.assign(settings.log || {}, this.#defaultLogSettings);
         this.#source = this.start(settings);
         if (!settings.port) {
             let address = this.#source.address();
@@ -49,6 +54,8 @@ class WebServer {
     #settings;
     #source;
     #requestResultTransforms;
+    #defaultLogSettings;
+    #logSettings;
     /** 网站文件夹 */
     get websiteDirectory() {
         return this.#websiteDirectory;
@@ -175,14 +182,12 @@ class WebServer {
     }
     /** 日志记录器 */
     getLogger(categoryName) {
-        return logger_1.getLogger(categoryName, this.logLevel);
+        let logSetting = this.#settings.log || {};
+        return logger_1.getLogger(categoryName, this.logLevel, logSetting.filePath);
     }
     /** 日志等级 */
     get logLevel() {
-        let logLevel = undefined;
-        if (this.#settings.log != null)
-            logLevel = this.#settings.log.level;
-        return logLevel || "all";
+        return this.#logSettings.level;
     }
 }
 exports.WebServer = WebServer;
