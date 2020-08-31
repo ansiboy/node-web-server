@@ -2,10 +2,12 @@
 import * as http from "http";
 import { LogLevel } from "./logger";
 import * as stream from "stream";
+import { VirtualDirectory } from "./virtual-directory";
 export declare type Content = string | Buffer | stream.Readable;
 export declare type RequestContext = {
     virtualPath: string;
-    physicalPath?: string | null;
+    /** 站点根目录 */
+    rootDirectory: VirtualDirectory;
     res: http.ServerResponse;
     req: http.IncomingMessage;
     logLevel: LogLevel;

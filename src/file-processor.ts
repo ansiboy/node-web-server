@@ -4,7 +4,7 @@
 import { RequestResult } from "./request-processor";
 
 // }e
-export type FileProcessor = (args: { virtualPath: string, physicalPath?: string | null }) => RequestResult | Promise<RequestResult>;
+export type FileProcessor = (args: { virtualPath: string, physicalPath: string }) => RequestResult | Promise<RequestResult>;
 
 type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>
 

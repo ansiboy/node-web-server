@@ -15,17 +15,21 @@ class CGIRequestProcessor {
     execute(args) {
         if (args.virtualPath.startsWith(cgiPath) == false)
             return null;
-        if (args.physicalPath == null || !fs.existsSync(args.physicalPath)) {
-            throw errors_1.errors.pageNotFound(args.physicalPath || args.virtualPath);
+        let physicalPath = args.rootDirectory.findFile(args.virtualPath);
+        if (physicalPath == null) {
+            throw errors_1.errors.pageNotFound(args.virtualPath);
         }
-        if (args.physicalPath.endsWith(".js") == false)
-            args.physicalPath = args.physicalPath + ".js";
-        let cgiModule = require(args.physicalPath);
+        if (!fs.existsSync(physicalPath)) {
+            throw errors_1.errors.physicalPathNotExists(physicalPath);
+        }
+        if (physicalPath.endsWith(".js") == false)
+            physicalPath = physicalPath + ".js";
+        let cgiModule = require(physicalPath);
         let func = cgiModule["default"];
         if (func == null)
-            throw noDefaultExport(args.physicalPath);
+            throw noDefaultExport(physicalPath);
         if (typeof func != "function")
-            throw defaultExportNotFunction(args.physicalPath);
+            throw defaultExportNotFunction(physicalPath);
         let r = func(args);
         return r;
     }

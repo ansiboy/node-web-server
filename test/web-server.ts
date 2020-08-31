@@ -79,4 +79,13 @@ describe("web-server", function () {
             debugger
         })
     })
+
+    it("virtual file", async function () {
+        let w = new WebServer();
+        w.websiteDirectory.setPath("/index2.html", pathConcat(__dirname, "website/content/virutal-file.html"));
+        await browser.visit(`http://127.0.0.1:${w.port}/index2.html`);
+        let buffer: Buffer = fs.readFileSync(pathConcat(__dirname, "website/content/index2.html"));
+        let source: string = buffer.toString();
+        assert.equal(browser.source, source);
+    })
 })

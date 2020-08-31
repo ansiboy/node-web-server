@@ -103,6 +103,10 @@ export class VirtualDirectory {
      */
     setPath(virtualPath: string, physicalPath: string) {
         if (!physicalPath) throw errors.argumentNull("physicalPath");
+        if (!virtualPath) throw errors.argumentNull("virtualPath");
+
+        if (virtualPath[0] != "/")
+            virtualPath = "/" + virtualPath;
 
         this.checkVirtualPath(virtualPath);
         this.checkPhysicalPath(physicalPath);

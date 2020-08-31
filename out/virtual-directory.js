@@ -92,6 +92,10 @@ class VirtualDirectory {
     setPath(virtualPath, physicalPath) {
         if (!physicalPath)
             throw errors_1.errors.argumentNull("physicalPath");
+        if (!virtualPath)
+            throw errors_1.errors.argumentNull("virtualPath");
+        if (virtualPath[0] != "/")
+            virtualPath = "/" + virtualPath;
         this.checkVirtualPath(virtualPath);
         this.checkPhysicalPath(physicalPath);
         let arr = virtualPath.split("/").filter(o => o);

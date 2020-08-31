@@ -9,9 +9,9 @@ function createFileProcessor() {
     let fileProcessor = function (args) {
         return new Promise((resolve, reject) => {
             if (!args.physicalPath)
-                return Promise.resolve({ statusCode: status_code_1.StatusCode.NotFound, content: Buffer.from(error_pages_1.errorPages.NotFound) });
+                return resolve({ statusCode: status_code_1.StatusCode.NotFound, content: Buffer.from(error_pages_1.errorPages.NotFound) });
             if (!fs.existsSync(args.physicalPath))
-                return Promise.resolve({ statusCode: 404, content: Buffer.from(error_pages_1.errorPages.NotFound) });
+                return resolve({ statusCode: 404, content: Buffer.from(error_pages_1.errorPages.NotFound) });
             let arr = args.physicalPath.split(".");
             let ext = arr[arr.length - 1];
             let contentType = content_types_1.contentTypes[ext] || content_types_1.contentTypes.txt;

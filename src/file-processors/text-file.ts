@@ -11,10 +11,10 @@ function createFileProcessor(): FileProcessor {
     let fileProcessor: FileProcessor = function (args): Promise<RequestResult> {
         return new Promise<RequestResult>((resolve, reject) => {
             if (!args.physicalPath)
-                return Promise.resolve({ statusCode: StatusCode.NotFound, content: Buffer.from(errorPages.NotFound) });
+                return resolve({ statusCode: StatusCode.NotFound, content: Buffer.from(errorPages.NotFound) });
 
             if (!fs.existsSync(args.physicalPath))
-                return Promise.resolve({ statusCode: 404, content: Buffer.from(errorPages.NotFound) });
+                return resolve({ statusCode: 404, content: Buffer.from(errorPages.NotFound) });
 
             let arr = args.physicalPath.split(".");
             let ext = arr[arr.length - 1];

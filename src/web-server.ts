@@ -96,21 +96,21 @@ export class WebServer {
             let u = url.parse(req.url || "");
 
             let path = u.pathname || "";
-            let physicalPath: string | null | undefined = null;
-            if (path.indexOf(".") < 0) {
-                let dir = this.#websiteDirectory.findDirectory(path);
-                physicalPath = dir?.physicalPath;
-            }
-            else {
-                physicalPath = this.#websiteDirectory.findFile(path);
-            }
+            // let physicalPath: string | null | undefined = null;
+            // if (path.indexOf(".") < 0) {
+            //     let dir = this.#websiteDirectory.findDirectory(path);
+            //     physicalPath = dir?.physicalPath;
+            // }
+            // else {
+            //     physicalPath = this.#websiteDirectory.findFile(path);
+            // }
 
             for (let i = 0; i < this.#requestProcessors.length; i++) {
                 let processor = this.#requestProcessors[i];
                 try {
                     let r: RequestResult | null = null;
                     let requestContext: RequestContext = {
-                        virtualPath: path, physicalPath,
+                        virtualPath: path, rootDirectory: this.#websiteDirectory,
                         req, res, logLevel: this.logLevel
                     };
                     let p = processor.execute(requestContext);
