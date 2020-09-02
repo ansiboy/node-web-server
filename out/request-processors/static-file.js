@@ -1,13 +1,31 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const path_concat_1 = require("../path-concat");
-const file_processors_1 = require("../file-processors");
+// import { defaultFileProcessors } from "../file-processors";
 const errors_1 = require("../errors");
 const path = require("path");
+const text_file_1 = require("../file-processors/text-file");
+exports.defaultFileProcessors = {
+    ".txt": text_file_1.staticFileProcessor,
+    ".html": text_file_1.staticFileProcessor,
+    ".js": text_file_1.staticFileProcessor,
+    ".css": text_file_1.staticFileProcessor,
+    ".json": text_file_1.staticFileProcessor,
+    ".woff": text_file_1.staticFileProcessor,
+    ".woff2": text_file_1.staticFileProcessor,
+    ".ttf": text_file_1.staticFileProcessor,
+};
 class StaticFileRequestProcessor {
     constructor(config) {
-        config = config || { fileProcessors: {} };
-        this.#fileProcessors = Object.assign(config.fileProcessors || {}, file_processors_1.defaultFileProcessors);
+        config = config || {};
+        this.#fileProcessors = Object.assign({}, config.fileProcessors || {}, exports.defaultFileProcessors);
+        if (config.staticFileExtentions) {
+            for (let i = 0; i < config.staticFileExtentions.length; i++) {
+                if (config.staticFileExtentions[i][0] != ".")
+                    config.staticFileExtentions[i] = "." + config.staticFileExtentions[i];
+                this.#fileProcessors[config.staticFileExtentions[i]] = text_file_1.staticFileProcessor;
+            }
+        }
     }
     #fileProcessors;
     async execute(args) {

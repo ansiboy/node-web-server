@@ -200,9 +200,5 @@ class VirtualDirectory {
         if (virtualPath[virtualPath.length - 1] == "/")
             throw errors_1.errors.virtualPathEndsWithSlash(virtualPath);
     }
-    checkFilePath(virtualPath) {
-        if (virtualPath.indexOf(".") < 0)
-            throw errors_1.errors.filePathNotExtention(virtualPath);
-    }
 }
 exports.VirtualDirectory = VirtualDirectory;

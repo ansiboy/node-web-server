@@ -1,21 +1,44 @@
 import { RequestProcessor, RequestContext, RequestResult } from "../request-processor";
 import { pathConcat } from "../path-concat";
-import { defaultFileProcessors } from "../file-processors";
+// import { defaultFileProcessors } from "../file-processors";
 import { errors } from "../errors";
 import { FileProcessor } from "../file-processor";
 import * as path from "path";
+import { staticFileProcessor } from "../file-processors/text-file";
 
-export type StaticFileProcessorConfig = {
-    fileProcessors: { [key: string]: FileProcessor }
+export type StaticFileRequestProcessorConfig = {
+    fileProcessors?: { [key: string]: FileProcessor },
+    // 设置静态文件扩展名
+    staticFileExtentions?: string[],
+}
+
+export let defaultFileProcessors: { [key: string]: FileProcessor } = {
+    ".txt": staticFileProcessor,
+    ".html": staticFileProcessor,
+    ".js": staticFileProcessor,
+    ".css": staticFileProcessor,
+    ".json": staticFileProcessor,
+    ".woff": staticFileProcessor,
+    ".woff2": staticFileProcessor,
+    ".ttf": staticFileProcessor,
 }
 
 export class StaticFileRequestProcessor implements RequestProcessor {
 
     #fileProcessors: { [key: string]: FileProcessor };
 
-    constructor(config?: StaticFileProcessorConfig) {
-        config = config || { fileProcessors: {} };
-        this.#fileProcessors = Object.assign(config.fileProcessors || {}, defaultFileProcessors);
+    constructor(config?: StaticFileRequestProcessorConfig) {
+        config = config || {};
+
+        this.#fileProcessors = Object.assign({}, config.fileProcessors || {}, defaultFileProcessors);
+        if (config.staticFileExtentions) {
+            for (let i = 0; i < config.staticFileExtentions.length; i++) {
+                if (config.staticFileExtentions[i][0] != ".")
+                    config.staticFileExtentions[i] = "." + config.staticFileExtentions[i];
+                    
+                this.#fileProcessors[config.staticFileExtentions[i]] = staticFileProcessor;
+            }
+        }
     }
 
     async execute(args: RequestContext): Promise<RequestResult> {

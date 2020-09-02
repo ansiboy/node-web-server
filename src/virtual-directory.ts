@@ -239,9 +239,9 @@ export class VirtualDirectory {
             throw errors.virtualPathEndsWithSlash(virtualPath);
     }
 
-    private checkFilePath(virtualPath: string) {
-        if (virtualPath.indexOf(".") < 0)
-            throw errors.filePathNotExtention(virtualPath);
-    }
+    // private checkFilePath(virtualPath: string) {
+    //     if (virtualPath.indexOf(".") < 0)
+    //         throw errors.filePathNotExtention(virtualPath);
+    // }
 
 }

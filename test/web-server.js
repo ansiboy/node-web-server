@@ -96,7 +96,7 @@ describe("web-server", function () {
             let w = new out_1.WebServer();
             w.websiteDirectory.setPath("/index2.html", path_concat_1.pathConcat(__dirname, "website/content/virutal-file.html"));
             yield browser.visit(`http://127.0.0.1:${w.port}/index2.html`);
-            let buffer = fs.readFileSync(path_concat_1.pathConcat(__dirname, "website/content/virutal-file.html"));
+            let buffer = fs.readFileSync(path_concat_1.pathConcat(__dirname, "website/content/index2.html"));
             let source = buffer.toString();
             assert.equal(browser.source, source);
         });

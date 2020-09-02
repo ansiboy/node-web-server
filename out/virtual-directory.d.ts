@@ -51,5 +51,4 @@ export declare class VirtualDirectory {
     get physicalPath(): string;
     private checkPhysicalPath;
     private checkVirtualPath;
-    private checkFilePath;
 }

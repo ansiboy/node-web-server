@@ -10,7 +10,7 @@ exports.errors = {
         return error;
     },
     filePathNotExtention(virtualPath) {
-        let msg = `File path has not a extention name.`;
+        let msg = `File path '${virtualPath}' has not a extention name.`;
         let error = new Error(msg);
         let name = "filePathNotExtention";
         error.name = name;

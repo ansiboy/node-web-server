@@ -49,7 +49,7 @@ export class WebServer {
 
         this.#settings = settings;
         this.#logSettings = Object.assign(settings.log || {}, this.#defaultLogSettings);
-        this.#source = this.start(settings);
+        this.#source = this.start();
         if (!settings.port) {
             let address = this.#source.address() as AddressInfo;
             settings.port = address.port;
@@ -91,19 +91,12 @@ export class WebServer {
         return this.#requestResultTransforms;
     }
 
-    private start(settings: Settings) {
+    private start() {
+        let settings: Settings = this.#settings;
         let server = http.createServer(async (req, res) => {
             let u = url.parse(req.url || "");
 
             let path = u.pathname || "";
-            // let physicalPath: string | null | undefined = null;
-            // if (path.indexOf(".") < 0) {
-            //     let dir = this.#websiteDirectory.findDirectory(path);
-            //     physicalPath = dir?.physicalPath;
-            // }
-            // else {
-            //     physicalPath = this.#websiteDirectory.findFile(path);
-            // }
 
             for (let i = 0; i < this.#requestProcessors.length; i++) {
                 let processor = this.#requestProcessors[i];
