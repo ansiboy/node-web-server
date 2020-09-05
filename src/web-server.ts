@@ -50,10 +50,10 @@ export class WebServer {
         this.#settings = settings;
         this.#logSettings = Object.assign(settings.log || {}, this.#defaultLogSettings);
         this.#source = this.start();
-        if (!settings.port) {
-            let address = this.#source.address() as AddressInfo;
-            settings.port = address.port;
-        }
+        // if (!settings.port) {
+        //     let address = this.#source.address() as AddressInfo;
+        //     settings.port = address.port;
+        // }
 
         let configs = this.#settings.requestProcessorConfigs || {};
         let types = this.#settings.requestProcessorTypes || WebServer.defaultRequestProcessorTypes;
@@ -74,6 +74,11 @@ export class WebServer {
 
     /** 端口 */
     get port() {
+        if (this.#settings.port == null) {
+            let address = this.#source.address() as AddressInfo;
+            // TODO: address is null
+            return address.port;
+        }
         return this.#settings.port as number;
     }
 

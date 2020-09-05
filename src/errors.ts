@@ -143,7 +143,7 @@ export let errors = {
     },
     fileTypeNotSupport(ext: string) {
         let msg = `File extention ${ext} is not supported.`;
-        let name: keyof typeof errors = "filePathNotExtention";
+        let name: keyof typeof errors = "fileTypeNotSupport";
         let error = new Error(msg);
         error.name = name;
         error.statusCode = StatusCode.UnsupportedMediaType;

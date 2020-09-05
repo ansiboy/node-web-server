@@ -30,25 +30,25 @@ export class StaticFileRequestProcessor implements RequestProcessor {
     constructor(config?: StaticFileRequestProcessorConfig) {
         config = config || {};
 
-        this.#fileProcessors = Object.assign({}, config.fileProcessors || {}, defaultFileProcessors);
+        this.#fileProcessors = Object.assign({}, defaultFileProcessors, config.fileProcessors || {});
         if (config.staticFileExtentions) {
             for (let i = 0; i < config.staticFileExtentions.length; i++) {
                 if (config.staticFileExtentions[i][0] != ".")
                     config.staticFileExtentions[i] = "." + config.staticFileExtentions[i];
-                    
+
                 this.#fileProcessors[config.staticFileExtentions[i]] = staticFileProcessor;
             }
         }
     }
 
-    async execute(args: RequestContext): Promise<RequestResult> {
+    async execute(ctx: RequestContext): Promise<RequestResult> {
 
-        let virtualPath = args.virtualPath;
+        let virtualPath = ctx.virtualPath;
         if (virtualPath.indexOf(".") < 0) {
             virtualPath = pathConcat(virtualPath, "index.html");
         }
 
-        let physicalPath = args.rootDirectory.findFile(virtualPath);
+        let physicalPath = ctx.rootDirectory.findFile(virtualPath);
         if (physicalPath == null)
             throw errors.pageNotFound(virtualPath);
 
@@ -63,14 +63,14 @@ export class StaticFileRequestProcessor implements RequestProcessor {
         if (fileProcessor == null)
             throw errors.fileTypeNotSupport(ext);
 
-        let p = fileProcessor({ virtualPath: virtualPath, physicalPath: physicalPath }) as Promise<RequestResult>;
+        let p = fileProcessor({ virtualPath: virtualPath, physicalPath: physicalPath }, ctx) as Promise<RequestResult>;
         if (p.then == null) {
             p = Promise.resolve(p);
         }
 
         let r = await p;
         let headers = r.headers || {};
-        if (args.logLevel == "all") {
+        if (ctx.logLevel == "all") {
             Object.assign(headers, { "physical-path": physicalPath || "" })
         }
         return {

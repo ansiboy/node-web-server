@@ -20,5 +20,5 @@ export type RequestResult = {
 }
 
 export interface RequestProcessor {
-    execute(args: RequestContext): RequestResult | Promise<RequestResult | null> | null;
+    execute(ctx: RequestContext): RequestResult | Promise<RequestResult | null> | null;
 }
