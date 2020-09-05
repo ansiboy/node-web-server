@@ -1,5 +1,5 @@
-import { RequestResult } from "./request-processor";
+import { RequestResult, RequestContext } from "./request-processor";
 export declare type FileProcessor = (args: {
     virtualPath: string;
     physicalPath: string;
-}) => RequestResult | Promise<RequestResult>;
+}, ctx: RequestContext) => RequestResult | Promise<RequestResult>;

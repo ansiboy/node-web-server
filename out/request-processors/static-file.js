@@ -18,7 +18,7 @@ exports.defaultFileProcessors = {
 class StaticFileRequestProcessor {
     constructor(config) {
         config = config || {};
-        this.#fileProcessors = Object.assign({}, config.fileProcessors || {}, exports.defaultFileProcessors);
+        this.#fileProcessors = Object.assign({}, exports.defaultFileProcessors, config.fileProcessors || {});
         if (config.staticFileExtentions) {
             for (let i = 0; i < config.staticFileExtentions.length; i++) {
                 if (config.staticFileExtentions[i][0] != ".")
@@ -28,12 +28,12 @@ class StaticFileRequestProcessor {
         }
     }
     #fileProcessors;
-    async execute(args) {
-        let virtualPath = args.virtualPath;
+    async execute(ctx) {
+        let virtualPath = ctx.virtualPath;
         if (virtualPath.indexOf(".") < 0) {
             virtualPath = path_concat_1.pathConcat(virtualPath, "index.html");
         }
-        let physicalPath = args.rootDirectory.findFile(virtualPath);
+        let physicalPath = ctx.rootDirectory.findFile(virtualPath);
         if (physicalPath == null)
             throw errors_1.errors.pageNotFound(virtualPath);
         let ext = "";
@@ -44,13 +44,13 @@ class StaticFileRequestProcessor {
         let fileProcessor = this.#fileProcessors[ext];
         if (fileProcessor == null)
             throw errors_1.errors.fileTypeNotSupport(ext);
-        let p = fileProcessor({ virtualPath: virtualPath, physicalPath: physicalPath });
+        let p = fileProcessor({ virtualPath: virtualPath, physicalPath: physicalPath }, ctx);
         if (p.then == null) {
             p = Promise.resolve(p);
         }
         let r = await p;
         let headers = r.headers || {};
-        if (args.logLevel == "all") {
+        if (ctx.logLevel == "all") {
             Object.assign(headers, { "physical-path": physicalPath || "" });
         }
         return {

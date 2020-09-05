@@ -14,17 +14,15 @@ describe("web-server", function () {
     const browser = new Browser();
 
     it("null settings", function () {
-        let settings: Settings = {};
-        var webserver = new WebServer(settings);
-        assert.notEqual(settings.port, null);
+        var webserver = new WebServer();
+        assert.notEqual(webserver.port, null);
         webserver.port;
     })
 
     it("start auto port", function () {
         let settings: Settings = {};
         var webserver = new WebServer(settings);
-        assert.notEqual(settings.port, null);
-        webserver.port;
+        assert.notEqual(webserver.port, null);
     })
 
     it("port setting", function () {
@@ -82,9 +80,9 @@ describe("web-server", function () {
 
     it("virtual file", async function () {
         let w = new WebServer();
-        w.websiteDirectory.setPath("/index2.html", pathConcat(__dirname, "website/content/virutal-file.html"));
+        w.websiteDirectory.setPath("index2.html", pathConcat(__dirname, "website/content/virutal-file.html"));
         await browser.visit(`http://127.0.0.1:${w.port}/index2.html`);
-        let buffer: Buffer = fs.readFileSync(pathConcat(__dirname, "website/content/index2.html"));
+        let buffer: Buffer = fs.readFileSync(pathConcat(__dirname, "website/content/virutal-file.html"));
         let source: string = buffer.toString();
         assert.equal(browser.source, source);
     })

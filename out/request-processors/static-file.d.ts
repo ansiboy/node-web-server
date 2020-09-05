@@ -12,7 +12,7 @@ export declare let defaultFileProcessors: {
 export declare class StaticFileRequestProcessor implements RequestProcessor {
     #private;
     constructor(config?: StaticFileRequestProcessorConfig);
-    execute(args: RequestContext): Promise<RequestResult>;
+    execute(ctx: RequestContext): Promise<RequestResult>;
     get fileProcessors(): {
         [key: string]: FileProcessor;
     };

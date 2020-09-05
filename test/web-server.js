@@ -22,16 +22,14 @@ describe("web-server", function () {
     console.log(`Web server port is ${w.port}.`);
     const browser = new Browser();
     it("null settings", function () {
-        let settings = {};
-        var webserver = new out_1.WebServer(settings);
-        assert.notEqual(settings.port, null);
+        var webserver = new out_1.WebServer();
+        assert.notEqual(webserver.port, null);
         webserver.port;
     });
     it("start auto port", function () {
         let settings = {};
         var webserver = new out_1.WebServer(settings);
-        assert.notEqual(settings.port, null);
-        webserver.port;
+        assert.notEqual(webserver.port, null);
     });
     it("port setting", function () {
         let settings = { port: 1024 };
@@ -94,9 +92,9 @@ describe("web-server", function () {
     it("virtual file", function () {
         return __awaiter(this, void 0, void 0, function* () {
             let w = new out_1.WebServer();
-            w.websiteDirectory.setPath("/index2.html", path_concat_1.pathConcat(__dirname, "website/content/virutal-file.html"));
+            w.websiteDirectory.setPath("index2.html", path_concat_1.pathConcat(__dirname, "website/content/virutal-file.html"));
             yield browser.visit(`http://127.0.0.1:${w.port}/index2.html`);
-            let buffer = fs.readFileSync(path_concat_1.pathConcat(__dirname, "website/content/index2.html"));
+            let buffer = fs.readFileSync(path_concat_1.pathConcat(__dirname, "website/content/virutal-file.html"));
             let source = buffer.toString();
             assert.equal(browser.source, source);
         });

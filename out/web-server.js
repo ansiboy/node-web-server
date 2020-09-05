@@ -34,10 +34,10 @@ class WebServer {
         this.#settings = settings;
         this.#logSettings = Object.assign(settings.log || {}, this.#defaultLogSettings);
         this.#source = this.start();
-        if (!settings.port) {
-            let address = this.#source.address();
-            settings.port = address.port;
-        }
+        // if (!settings.port) {
+        //     let address = this.#source.address() as AddressInfo;
+        //     settings.port = address.port;
+        // }
         let configs = this.#settings.requestProcessorConfigs || {};
         let types = this.#settings.requestProcessorTypes || WebServer.defaultRequestProcessorTypes;
         this.#requestProcessors = types.map((type) => {
@@ -62,6 +62,11 @@ class WebServer {
     }
     /** 端口 */
     get port() {
+        if (this.#settings.port == null) {
+            let address = this.#source.address();
+            // TODO: address is null
+            return address.port;
+        }
         return this.#settings.port;
     }
     /** 请求处理器实例 */

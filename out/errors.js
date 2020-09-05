@@ -144,7 +144,7 @@ exports.errors = {
     },
     fileTypeNotSupport(ext) {
         let msg = `File extention ${ext} is not supported.`;
-        let name = "filePathNotExtention";
+        let name = "fileTypeNotSupport";
         let error = new Error(msg);
         error.name = name;
         error.statusCode = status_code_1.StatusCode.UnsupportedMediaType;
