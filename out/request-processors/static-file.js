@@ -11,10 +11,11 @@ exports.defaultFileProcessors = {
     ".js": text_file_1.staticFileProcessor,
     ".css": text_file_1.staticFileProcessor,
     ".json": text_file_1.staticFileProcessor,
-    ".woff": text_file_1.staticFileProcessor,
-    ".woff2": text_file_1.staticFileProcessor,
-    ".ttf": text_file_1.staticFileProcessor,
+    ".jpg": text_file_1.staticFileProcessor,
 };
+// ".woff": staticFileProcessor,
+// ".woff2": staticFileProcessor,
+// ".ttf": staticFileProcessor,
 class StaticFileRequestProcessor {
     constructor(config) {
         config = config || {};

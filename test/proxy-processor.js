@@ -50,7 +50,7 @@ describe("proxy-processor", function () {
     it("sync headers", function () {
         return __awaiter(this, void 0, void 0, function* () {
             let browser = common_1.createBrowser();
-            let url = `http://127.0.0.1:${webserver.port}/AdminWeiXin/cgi-bin/headers-output.js`;
+            let url = `http://127.0.0.1:${webserver.port}/AdminWeiXin/dynamic/headers-output.js`;
             yield browser.visit(url);
             let obj = JSON.parse(browser.source);
             assert.equal(obj.token, token);
@@ -59,7 +59,7 @@ describe("proxy-processor", function () {
     it("async headers", function () {
         return __awaiter(this, void 0, void 0, function* () {
             let browser = common_1.createBrowser();
-            let url = `http://127.0.0.1:${webserver.port}/Proxy1/cgi-bin/headers-output.js`;
+            let url = `http://127.0.0.1:${webserver.port}/Proxy1/dynamic/headers-output.js`;
             yield browser.visit(url);
             let obj = JSON.parse(browser.source);
             assert.equal(obj.token, token);

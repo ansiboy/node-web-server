@@ -174,7 +174,7 @@ export class VirtualDirectory {
      * @param virtualPath 文件的虚拟路径
      * @returns 文件的物理路径
      */
-    findFile(virtualPath: string) {
+    findFile(virtualPath: string): string | null {
         let arr = virtualPath.split("/");
         let fileName = arr.pop();
         if (fileName == null)

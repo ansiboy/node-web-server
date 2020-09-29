@@ -190,5 +190,5 @@ class WebServer {
 }
 exports.WebServer = WebServer;
 WebServer.defaultRequestProcessorTypes = [
-    proxy_1.ProxyRequestProcessor, cgi_1.CGIRequestProcessor, static_file_1.StaticFileRequestProcessor
+    proxy_1.ProxyRequestProcessor, cgi_1.DynamicRequestProcessor, static_file_1.StaticFileRequestProcessor
 ];

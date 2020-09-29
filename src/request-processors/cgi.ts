@@ -3,9 +3,9 @@ import { RequestProcessor, RequestContext, RequestResult } from "../request-proc
 import * as fs from "fs";
 import { errors } from "../errors";
 
-export type CGIFunction = (args: RequestContext) => RequestResult | Promise<RequestResult>;
+export type DynamicScriptFunction = (args: RequestContext) => RequestResult | Promise<RequestResult>;
 
-const cgiPath = "/cgi-bin";
+const defaultDynamicPath = "/dynamic";
 
 let noDefaultExport = (name: string) => {
     let error: Error = { message: `Module "${name}" has not a default export.`, name: "noDefaultExport" };
@@ -17,10 +17,25 @@ let defaultExportNotFunction = (name: string) => {
     return error;
 }
 
-export class CGIRequestProcessor implements RequestProcessor {
+export type DynamicRequestProcessorConfig = {
+    // 动态脚本路径
+    path?: string
+};
+
+export class DynamicRequestProcessor implements RequestProcessor {
+
+    #dynamicScriptPath: string;
+
+    constructor(config?: DynamicRequestProcessorConfig) {
+        config = config || {};
+
+        this.#dynamicScriptPath = config.path || defaultDynamicPath;
+        if (!this.#dynamicScriptPath.startsWith("/"))
+            this.#dynamicScriptPath = "/" + this.#dynamicScriptPath;
+    }
 
     execute(args: RequestContext) {
-        if (args.virtualPath.startsWith(cgiPath) == false)
+        if (args.virtualPath.startsWith(this.#dynamicScriptPath) == false)
             return null;
 
         let physicalPath = args.rootDirectory.findFile(args.virtualPath);
@@ -36,7 +51,7 @@ export class CGIRequestProcessor implements RequestProcessor {
             physicalPath = physicalPath + ".js";
 
         let cgiModule = require(physicalPath);
-        let func: CGIFunction = cgiModule["default"];
+        let func: DynamicScriptFunction = cgiModule["default"];
 
         if (func == null)
             throw noDefaultExport(physicalPath);

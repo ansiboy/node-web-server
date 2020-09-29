@@ -9,5 +9,5 @@ export { staticFileProcessor } from "./file-processors/text-file";
 export { FileProcessor } from "./file-processor";
 export { StatusCode } from "./status-code";
 export { RequestResultTransform } from "./content-transform";
-export { CGIFunction, CGIRequestProcessor } from "./request-processors/cgi";
+export { DynamicScriptFunction, DynamicRequestProcessor } from "./request-processors/cgi";
 export { LogLevel, getLogger } from "./logger";

@@ -18,10 +18,12 @@ export let defaultFileProcessors: { [key: string]: FileProcessor } = {
     ".js": staticFileProcessor,
     ".css": staticFileProcessor,
     ".json": staticFileProcessor,
-    ".woff": staticFileProcessor,
-    ".woff2": staticFileProcessor,
-    ".ttf": staticFileProcessor,
+    ".jpg": staticFileProcessor,
 }
+
+    // ".woff": staticFileProcessor,
+    // ".woff2": staticFileProcessor,
+    // ".ttf": staticFileProcessor,
 
 export class StaticFileRequestProcessor implements RequestProcessor {
 

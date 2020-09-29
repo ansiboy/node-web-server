@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const fs = require("fs");
 const errors_1 = require("../errors");
-const cgiPath = "/cgi-bin";
+const defaultDynamicPath = "/dynamic";
 let noDefaultExport = (name) => {
     let error = { message: `Module "${name}" has not a default export.`, name: "noDefaultExport" };
     return error;
@@ -11,9 +11,16 @@ let defaultExportNotFunction = (name) => {
     let error = { message: `Default export of module '${name}' is not a function.`, name: "defaultExportNotFunction" };
     return error;
 };
-class CGIRequestProcessor {
+class DynamicRequestProcessor {
+    constructor(config) {
+        config = config || {};
+        this.#dynamicScriptPath = config.path || defaultDynamicPath;
+        if (!this.#dynamicScriptPath.startsWith("/"))
+            this.#dynamicScriptPath = "/" + this.#dynamicScriptPath;
+    }
+    #dynamicScriptPath;
     execute(args) {
-        if (args.virtualPath.startsWith(cgiPath) == false)
+        if (args.virtualPath.startsWith(this.#dynamicScriptPath) == false)
             return null;
         let physicalPath = args.rootDirectory.findFile(args.virtualPath);
         if (physicalPath == null) {
@@ -34,4 +41,4 @@ class CGIRequestProcessor {
         return r;
     }
 }
-exports.CGIRequestProcessor = CGIRequestProcessor;
+exports.DynamicRequestProcessor = DynamicRequestProcessor;

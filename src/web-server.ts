@@ -10,7 +10,7 @@ import { RequestResultTransform } from "./content-transform";
 import { ProxyRequestProcessor } from "./request-processors/proxy";
 import { StaticFileRequestProcessor } from "./request-processors/static-file";
 import { StatusCode } from "./status-code";
-import { CGIRequestProcessor } from "./request-processors/cgi";
+import { DynamicRequestProcessor } from "./request-processors/cgi";
 import { getLogger, LogLevel } from "./logger";
 import * as stream from "stream";
 import * as path from "path";
@@ -30,7 +30,7 @@ export class WebServer {
     #logSettings: NonNullable<Required<Settings["log"]>>;
 
     static defaultRequestProcessorTypes: { new(config?: any): RequestProcessor }[] = [
-        ProxyRequestProcessor, CGIRequestProcessor, StaticFileRequestProcessor
+        ProxyRequestProcessor, DynamicRequestProcessor, StaticFileRequestProcessor
     ];
 
     constructor(settings?: Settings) {

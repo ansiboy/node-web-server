@@ -15,6 +15,6 @@ exports.staticFileProcessor = text_file_1.staticFileProcessor;
 var status_code_1 = require("./status-code");
 exports.StatusCode = status_code_1.StatusCode;
 var cgi_1 = require("./request-processors/cgi");
-exports.CGIRequestProcessor = cgi_1.CGIRequestProcessor;
+exports.DynamicRequestProcessor = cgi_1.DynamicRequestProcessor;
 var logger_1 = require("./logger");
 exports.getLogger = logger_1.getLogger;

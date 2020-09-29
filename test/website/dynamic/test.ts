@@ -1,4 +1,4 @@
-import { CGIFunction, RequestResult } from "../../../out";
+import { RequestResult } from "../../../out";
 
 let func = () => {
     return { content: "hello world" } as RequestResult;

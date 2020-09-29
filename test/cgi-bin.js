@@ -10,14 +10,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const common_1 = require("./common");
-const test_1 = require("./website/cgi-bin/test");
+const test_1 = require("./website/dynamic/test");
 const assert = require("assert");
-describe("cgi-bin", function () {
+describe("dynamic", function () {
     it("test", function () {
         return __awaiter(this, void 0, void 0, function* () {
             let webServer = common_1.createWebServer();
             let browser = common_1.createBrowser();
-            let url = `http://127.0.0.1:${webServer.port}/cgi-bin/test.js`;
+            let url = `http://127.0.0.1:${webServer.port}/dynamic/test.js`;
             yield browser.visit(url);
             let r = test_1.default();
             assert.equal(browser.source, r.content);
