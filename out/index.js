@@ -18,3 +18,5 @@ var cgi_1 = require("./request-processors/cgi");
 exports.DynamicRequestProcessor = cgi_1.DynamicRequestProcessor;
 var logger_1 = require("./logger");
 exports.getLogger = logger_1.getLogger;
+var headers_1 = require("./request-processors/headers");
+exports.HeadersRequestProcessor = headers_1.HeadersRequestProcessor;

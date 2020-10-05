@@ -12,6 +12,7 @@ const cgi_1 = require("./request-processors/cgi");
 const logger_1 = require("./logger");
 const stream = require("stream");
 const path = require("path");
+const headers_1 = require("./request-processors/headers");
 const DefaultWebSitePath = "../sample-website";
 class WebServer {
     constructor(settings) {
@@ -190,5 +191,5 @@ class WebServer {
 }
 exports.WebServer = WebServer;
 WebServer.defaultRequestProcessorTypes = [
-    proxy_1.ProxyRequestProcessor, cgi_1.DynamicRequestProcessor, static_file_1.StaticFileRequestProcessor
+    headers_1.HeadersRequestProcessor, proxy_1.ProxyRequestProcessor, cgi_1.DynamicRequestProcessor, static_file_1.StaticFileRequestProcessor,
 ];

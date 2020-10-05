@@ -9,7 +9,7 @@ export interface ProxyItem {
     headers?: { [name: string]: string } | ((requestContext: RequestContext) => { [name: string]: string } | Promise<{ [name: string]: string }>),
 }
 
-export interface ProxyConfig {
+export interface ProxyRequestProcessorConfig {
     /** 转发目标 */
     proxyTargets: { [key: string]: ProxyItem | string };
 }
@@ -19,8 +19,8 @@ export class ProxyRequestProcessor implements RequestProcessor {
     #proxyTargets: { [key: string]: ProxyItem };
 
 
-    constructor(config: ProxyConfig) {
-        config = config || {} as ProxyConfig;
+    constructor(config: ProxyRequestProcessorConfig) {
+        config = config || {} as ProxyRequestProcessorConfig;
         this.#proxyTargets = {};
         if (config.proxyTargets) {
             for (let key in config.proxyTargets) {

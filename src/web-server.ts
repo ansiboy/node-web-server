@@ -14,6 +14,7 @@ import { DynamicRequestProcessor } from "./request-processors/cgi";
 import { getLogger, LogLevel } from "./logger";
 import * as stream from "stream";
 import * as path from "path";
+import { HeadersRequestProcessor } from "./request-processors/headers";
 
 const DefaultWebSitePath = "../sample-website";
 export class WebServer {
@@ -30,7 +31,7 @@ export class WebServer {
     #logSettings: NonNullable<Required<Settings["log"]>>;
 
     static defaultRequestProcessorTypes: { new(config?: any): RequestProcessor }[] = [
-        ProxyRequestProcessor, DynamicRequestProcessor, StaticFileRequestProcessor
+        HeadersRequestProcessor, ProxyRequestProcessor, DynamicRequestProcessor, StaticFileRequestProcessor,
     ];
 
     constructor(settings?: Settings) {

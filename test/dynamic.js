@@ -20,7 +20,23 @@ describe("dynamic", function () {
             let url = `http://127.0.0.1:${webServer.port}/dynamic/test.js`;
             yield browser.visit(url);
             let r = test_1.default();
-            assert.equal(browser.source, r.content);
+            assert.strictEqual(browser.source, r.content);
+        });
+    });
+    it("path", function () {
+        return __awaiter(this, void 0, void 0, function* () {
+            let webServer = common_1.createWebServer({
+                requestProcessorConfigs: {
+                    Dynamic: {
+                        path: "cgi-bin"
+                    }
+                }
+            });
+            let browser = common_1.createBrowser();
+            let url = `http://127.0.0.1:${webServer.port}/cgi-bin/test.js`;
+            yield browser.visit(url);
+            let r = test_1.default();
+            assert.strictEqual(browser.source, r.content);
         });
     });
 });

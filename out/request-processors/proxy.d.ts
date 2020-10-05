@@ -13,7 +13,7 @@ export interface ProxyItem {
         [name: string]: string;
     }>);
 }
-export interface ProxyConfig {
+export interface ProxyRequestProcessorConfig {
     /** 转发目标 */
     proxyTargets: {
         [key: string]: ProxyItem | string;
@@ -21,7 +21,7 @@ export interface ProxyConfig {
 }
 export declare class ProxyRequestProcessor implements RequestProcessor {
     #private;
-    constructor(config: ProxyConfig);
+    constructor(config: ProxyRequestProcessorConfig);
     get proxyTargets(): {
         [key: string]: ProxyItem;
     };

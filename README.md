@@ -39,19 +39,42 @@ let webserver = new WebServer(settings)
 console.log(`Web server port is ${webserver.port}.`)
 ```
 
-示例四：
+### 静态文件
 
-使用动态脚本文件
+node-web-server 默认支持以下扩展名的静态文件：
+
+.txt .html .js .css .json .jpg
+
+如果需要支持更多类型的静态文件，需要进行设置。比如说需要支持扩展名为 .jpg .gif 的图片
+
+```ts
+let settings: Settings = {
+  websiteDirectory: 'your website path',
+  requestProcessorConfigs: {
+    StaticFile: {
+      staticFileExtentions: ['.jpg', '.gif']
+    }
+  }
+}
+let webserver = new WebServer(settings)
+console.log(`Web server port is ${webserver.port}.`)
+```
+
+### 动态脚本
+
+node-web-server 支持使用 js 编写的动态脚本文件，动态脚本文件需要放在名为特定的文件夹，该文件夹默认为 **dynamic**，可以同通过配置修改该文件夹路径。
+
+**演示**
 
 - 创建网站文件夹
-- 在网站文件夹内创建 cgi-bin 文件夹
+- 在网站文件夹内创建 dynamic 文件夹
 - 创建 hello-world.js 文件
 
 文件夹如下：
 
 ```
 website
-|--cgi-bin
+|--dynamic
 |--|--hello-world.js
 |--index.js
 ```
@@ -74,11 +97,47 @@ exports.default = function (args) {
 }
 ```
 
+**备注**
+
+args 参数类型为 **RequestContext** 定义如下：
+
+```ts
+type RequestContext = {
+    /** 请求文件的虚拟路径 */
+    virtualPath: string;
+    /** 站点根目录 */
+    rootDirectory: VirtualDirectory;
+    /** 日志级别 */
+    logLevel: LogLevel;
+    res: http.ServerResponse;
+    req: http.IncomingMessage;
+}
+```
+
 在浏览器地址栏输入 http://127.0.0.1:8080/hello-world.js ，浏览器显示内容：
 
 ```
 Hello World
 ```
+
+修改动态文件夹路径，例如下面的示例中，把 cgi-bin 文件夹设置动态脚本文件夹。
+
+```ts
+const { WebServer } = require('maishu-node-web-server')
+let webserver = new WebServer({
+  port: 8080,
+  websiteDirectory: 'your website path',
+  requestProcessorConfigs: {
+      Dynamic: {
+          path: "cgi-bin"
+      }
+  }
+})
+```
+
+### 请求代理
+
+
 
 ## node-web-server 设置
 
