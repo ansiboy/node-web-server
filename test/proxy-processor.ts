@@ -1,6 +1,6 @@
 import * as assert from "assert";
 import { createWebServer, createBrowser, readFile } from "./common";
-import { ProxyRequestProcessor, ProxyConfig } from "../out";
+import { ProxyProcessor, ProxyConfig } from "../out";
 
 describe("proxy-processor", function () {
 
@@ -24,7 +24,7 @@ describe("proxy-processor", function () {
             },
         }
     }
-    requestProcessorConfigs[ProxyRequestProcessor.name] = proxyConfig;
+    requestProcessorConfigs[ProxyProcessor.name] = proxyConfig;
 
     let webserver = createWebServer({ requestProcessorConfigs });
 

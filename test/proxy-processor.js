@@ -35,7 +35,7 @@ describe("proxy-processor", function () {
             },
         }
     };
-    requestProcessorConfigs[out_1.ProxyRequestProcessor.name] = proxyConfig;
+    requestProcessorConfigs[out_1.ProxyProcessor.name] = proxyConfig;
     let webserver = common_1.createWebServer({ requestProcessorConfigs });
     it("request", function () {
         return __awaiter(this, void 0, void 0, function* () {

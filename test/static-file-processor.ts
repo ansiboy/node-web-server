@@ -1,12 +1,12 @@
 import { createWebServer } from "./common"
-import { StaticFileRequestProcessorConfig, pathConcat } from "../out"
+import { StaticFileConfig, pathConcat } from "../out"
 import Browser = require('zombie');
 import * as fs from "fs";
 import assert = require("assert");
 
 describe("StaticFileRequestProcessor class test", function () {
     it("config", async function () {
-        let config: StaticFileRequestProcessorConfig = {
+        let config: StaticFileConfig = {
             staticFileExtentions: [".less"]
         }
         let w = createWebServer({
