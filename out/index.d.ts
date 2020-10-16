@@ -9,5 +9,5 @@ export { DynamicScriptFunction, DynamicRequestProcessor } from "./request-proces
 export { LogLevel, getLogger } from "./logger";
 export { RequestProcessor, RequestContext, RequestResult, Content, } from "./request-processor";
 export { ProxyRequestProcessor as ProxyProcessor, ProxyRequestProcessorConfig as ProxyConfig, ProxyItem } from "./request-processors/proxy";
-export { StaticFileRequestProcessor as StaticFileProcessor, StaticFileRequestProcessorConfig as StaticFileConfig, staticFileRequestProcessor } from "./request-processors/static-file";
+export { StaticFileRequestProcessor as StaticFileProcessor, StaticFileRequestProcessorConfig as StaticFileConfig } from "./request-processors/static-file";
 export { HeadersRequestProcessor as HeadersProcessor, HeadersRequestProcessorConfig as HeadersConfig } from "./request-processors/headers";

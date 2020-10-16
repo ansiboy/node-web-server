@@ -86,4 +86,4 @@ export class StaticFileRequestProcessor implements RequestProcessor {
 
 }
 
-export let staticFileRequestProcessor = new StaticFileRequestProcessor();
+// export let staticFileRequestProcessor = new StaticFileRequestProcessor();

@@ -63,4 +63,4 @@ class StaticFileRequestProcessor {
     }
 }
 exports.StaticFileRequestProcessor = StaticFileRequestProcessor;
-exports.staticFileRequestProcessor = new StaticFileRequestProcessor();
+// export let staticFileRequestProcessor = new StaticFileRequestProcessor();

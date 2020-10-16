@@ -17,4 +17,3 @@ export declare class StaticFileRequestProcessor implements RequestProcessor {
         [key: string]: FileProcessor;
     };
 }
-export declare let staticFileRequestProcessor: StaticFileRequestProcessor;

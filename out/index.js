@@ -16,6 +16,5 @@ var proxy_1 = require("./request-processors/proxy");
 exports.ProxyProcessor = proxy_1.ProxyRequestProcessor;
 var static_file_1 = require("./request-processors/static-file");
 exports.StaticFileProcessor = static_file_1.StaticFileRequestProcessor;
-exports.staticFileRequestProcessor = static_file_1.staticFileRequestProcessor;
 var headers_1 = require("./request-processors/headers");
 exports.HeadersProcessor = headers_1.HeadersRequestProcessor;

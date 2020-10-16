@@ -7,10 +7,13 @@ const content_types_1 = require("../content-types");
 // export let staticFileProcessor = createFileProcessor();
 exports.staticFileProcessor = function (args) {
     return new Promise((resolve, reject) => {
-        if (!args.physicalPath)
+        if (!args.physicalPath) {
             return resolve({ statusCode: status_code_1.StatusCode.NotFound, content: Buffer.from(error_pages_1.errorPages.NotFound) });
-        if (!fs.existsSync(args.physicalPath))
-            return resolve({ statusCode: 404, content: Buffer.from(error_pages_1.errorPages.NotFound) });
+        }
+        if (!fs.existsSync(args.physicalPath)) {
+            let text = `Path ${args.physicalPath} is not exists.`;
+            return resolve({ statusCode: 404, content: Buffer.from(text) });
+        }
         let arr = args.physicalPath.split(".");
         let ext = arr[arr.length - 1];
         let contentType = content_types_1.contentTypes[ext] || content_types_1.contentTypes.txt;

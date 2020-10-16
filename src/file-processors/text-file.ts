@@ -9,11 +9,14 @@ import { RequestResult, RequestProcessor } from "../request-processor";
 
 export let staticFileProcessor: FileProcessor = function (args): Promise<RequestResult> {
     return new Promise<RequestResult>((resolve, reject) => {
-        if (!args.physicalPath)
+        if (!args.physicalPath) {
             return resolve({ statusCode: StatusCode.NotFound, content: Buffer.from(errorPages.NotFound) });
-
-        if (!fs.existsSync(args.physicalPath))
-            return resolve({ statusCode: 404, content: Buffer.from(errorPages.NotFound) });
+        }
+        
+        if (!fs.existsSync(args.physicalPath)) {
+            let text = `Path ${args.physicalPath} is not exists.`;
+            return resolve({ statusCode: 404, content: Buffer.from(text) });
+        }
 
         let arr = args.physicalPath.split(".");
         let ext = arr[arr.length - 1];
