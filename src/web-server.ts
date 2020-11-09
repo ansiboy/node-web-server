@@ -80,7 +80,7 @@ export class WebServer {
             // TODO: address is null
             return address.port;
         }
-        return this.#settings.port as number;
+        return this.#settings.port;
     }
 
     /** 请求处理器实例 */

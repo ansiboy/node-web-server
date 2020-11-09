@@ -1,4 +1,18 @@
 "use strict";
+var __classPrivateFieldSet = (this && this.__classPrivateFieldSet) || function (receiver, privateMap, value) {
+    if (!privateMap.has(receiver)) {
+        throw new TypeError("attempted to set private field on non-instance");
+    }
+    privateMap.set(receiver, value);
+    return value;
+};
+var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (receiver, privateMap) {
+    if (!privateMap.has(receiver)) {
+        throw new TypeError("attempted to get private field on non-instance");
+    }
+    return privateMap.get(receiver);
+};
+var _dynamicScriptPath;
 Object.defineProperty(exports, "__esModule", { value: true });
 const fs = require("fs");
 const errors_1 = require("../errors");
@@ -13,14 +27,14 @@ let defaultExportNotFunction = (name) => {
 };
 class DynamicRequestProcessor {
     constructor(config) {
+        _dynamicScriptPath.set(this, void 0);
         config = config || {};
-        this.#dynamicScriptPath = config.path || defaultDynamicPath;
-        if (!this.#dynamicScriptPath.startsWith("/"))
-            this.#dynamicScriptPath = "/" + this.#dynamicScriptPath;
+        __classPrivateFieldSet(this, _dynamicScriptPath, config.path || defaultDynamicPath);
+        if (!__classPrivateFieldGet(this, _dynamicScriptPath).startsWith("/"))
+            __classPrivateFieldSet(this, _dynamicScriptPath, "/" + __classPrivateFieldGet(this, _dynamicScriptPath));
     }
-    #dynamicScriptPath;
     execute(args) {
-        if (args.virtualPath.startsWith(this.#dynamicScriptPath) == false)
+        if (args.virtualPath.startsWith(__classPrivateFieldGet(this, _dynamicScriptPath)) == false)
             return null;
         let physicalPath = args.rootDirectory.findFile(args.virtualPath);
         if (physicalPath == null) {
@@ -42,3 +56,4 @@ class DynamicRequestProcessor {
     }
 }
 exports.DynamicRequestProcessor = DynamicRequestProcessor;
+_dynamicScriptPath = new WeakMap();

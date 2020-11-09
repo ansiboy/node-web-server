@@ -1,4 +1,27 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __classPrivateFieldSet = (this && this.__classPrivateFieldSet) || function (receiver, privateMap, value) {
+    if (!privateMap.has(receiver)) {
+        throw new TypeError("attempted to set private field on non-instance");
+    }
+    privateMap.set(receiver, value);
+    return value;
+};
+var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (receiver, privateMap) {
+    if (!privateMap.has(receiver)) {
+        throw new TypeError("attempted to get private field on non-instance");
+    }
+    return privateMap.get(receiver);
+};
+var _websiteDirectory, _requestProcessors, _settings, _source, _requestResultTransforms, _defaultLogSettings, _logSettings;
 Object.defineProperty(exports, "__esModule", { value: true });
 const http = require("http");
 const url = require("url");
@@ -16,95 +39,94 @@ const headers_1 = require("./request-processors/headers");
 const DefaultWebSitePath = "../sample-website";
 class WebServer {
     constructor(settings) {
-        this.#defaultLogSettings = {
+        _websiteDirectory.set(this, void 0);
+        _requestProcessors.set(this, void 0);
+        _settings.set(this, void 0);
+        _source.set(this, void 0);
+        _requestResultTransforms.set(this, void 0);
+        _defaultLogSettings.set(this, {
             level: "all",
             filePath: "log.txt",
-        };
+        });
+        _logSettings.set(this, void 0);
         settings = settings || {};
         if (settings == null)
             throw errors_1.errors.argumentNull("settings");
         if (settings.websiteDirectory == null) {
-            this.#websiteDirectory = new virtual_directory_1.VirtualDirectory(path.join(__dirname, DefaultWebSitePath));
+            __classPrivateFieldSet(this, _websiteDirectory, new virtual_directory_1.VirtualDirectory(path.join(__dirname, DefaultWebSitePath)));
         }
         else if (typeof settings.websiteDirectory == "string") {
-            this.#websiteDirectory = new virtual_directory_1.VirtualDirectory(settings.websiteDirectory);
+            __classPrivateFieldSet(this, _websiteDirectory, new virtual_directory_1.VirtualDirectory(settings.websiteDirectory));
         }
         else {
-            this.#websiteDirectory = settings.websiteDirectory;
+            __classPrivateFieldSet(this, _websiteDirectory, settings.websiteDirectory);
         }
-        this.#settings = settings;
-        this.#logSettings = Object.assign(settings.log || {}, this.#defaultLogSettings);
-        this.#source = this.start();
+        __classPrivateFieldSet(this, _settings, settings);
+        __classPrivateFieldSet(this, _logSettings, Object.assign(settings.log || {}, __classPrivateFieldGet(this, _defaultLogSettings)));
+        __classPrivateFieldSet(this, _source, this.start());
         // if (!settings.port) {
         //     let address = this.#source.address() as AddressInfo;
         //     settings.port = address.port;
         // }
-        let configs = this.#settings.requestProcessorConfigs || {};
-        let types = this.#settings.requestProcessorTypes || WebServer.defaultRequestProcessorTypes;
-        this.#requestProcessors = types.map((type) => {
+        let configs = __classPrivateFieldGet(this, _settings).requestProcessorConfigs || {};
+        let types = __classPrivateFieldGet(this, _settings).requestProcessorTypes || WebServer.defaultRequestProcessorTypes;
+        __classPrivateFieldSet(this, _requestProcessors, types.map((type) => {
             let name = type.name;
             let alias = name.endsWith("RequestProcessor") ? name.substring(0, name.length - "RequestProcessor".length) : name;
             let config = configs[name] || configs[alias] || {};
             let processor = new type(config);
             return processor;
-        });
-        this.#requestResultTransforms = settings.requestResultTransforms || [];
+        }));
+        __classPrivateFieldSet(this, _requestResultTransforms, settings.requestResultTransforms || []);
     }
-    #websiteDirectory;
-    #requestProcessors;
-    #settings;
-    #source;
-    #requestResultTransforms;
-    #defaultLogSettings;
-    #logSettings;
     /** 网站文件夹 */
     get websiteDirectory() {
-        return this.#websiteDirectory;
+        return __classPrivateFieldGet(this, _websiteDirectory);
     }
     /** 端口 */
     get port() {
-        if (this.#settings.port == null) {
-            let address = this.#source.address();
+        if (__classPrivateFieldGet(this, _settings).port == null) {
+            let address = __classPrivateFieldGet(this, _source).address();
             // TODO: address is null
             return address.port;
         }
-        return this.#settings.port;
+        return __classPrivateFieldGet(this, _settings).port;
     }
     /** 请求处理器实例 */
     get requestProcessors() {
-        return this.#requestProcessors;
+        return __classPrivateFieldGet(this, _requestProcessors);
     }
     get source() {
-        return this.#source;
+        return __classPrivateFieldGet(this, _source);
     }
     /** 内容转换器 */
     get contentTransforms() {
-        return this.#requestResultTransforms;
+        return __classPrivateFieldGet(this, _requestResultTransforms);
     }
     start() {
-        let settings = this.#settings;
-        let server = http.createServer(async (req, res) => {
+        let settings = __classPrivateFieldGet(this, _settings);
+        let server = http.createServer((req, res) => __awaiter(this, void 0, void 0, function* () {
             let u = url.parse(req.url || "");
             let path = u.pathname || "";
-            for (let i = 0; i < this.#requestProcessors.length; i++) {
-                let processor = this.#requestProcessors[i];
+            for (let i = 0; i < __classPrivateFieldGet(this, _requestProcessors).length; i++) {
+                let processor = __classPrivateFieldGet(this, _requestProcessors)[i];
                 try {
                     let r = null;
                     let requestContext = {
-                        virtualPath: path, rootDirectory: this.#websiteDirectory,
+                        virtualPath: path, rootDirectory: __classPrivateFieldGet(this, _websiteDirectory),
                         req, res, logLevel: this.logLevel
                     };
                     let p = processor.execute(requestContext);
                     if (p == null)
                         continue;
                     if (p.then != null) {
-                        r = await p;
+                        r = yield p;
                     }
                     else {
                         r = p;
                     }
                     if (r != null) {
-                        r = await this.resultTransform(r, requestContext, this.#requestResultTransforms);
+                        r = yield this.resultTransform(r, requestContext, __classPrivateFieldGet(this, _requestResultTransforms));
                         if (r.statusCode) {
                             res.statusCode = r.statusCode;
                         }
@@ -127,32 +149,36 @@ class WebServer {
             }
             // 404
             this.outputError(errors_1.errors.pageNotFound(path), res);
-        });
+        }));
         return server.listen(settings.port, settings.bindIP);
     }
-    async resultTransform(result, requestContext, requestResultTransforms) {
-        for (let i = 0; i < requestResultTransforms.length; i++) {
-            let transform = requestResultTransforms[i];
-            console.assert(transform != null);
-            let r = requestResultTransforms[i](result, requestContext);
-            if (r == null)
-                throw errors_1.errors.contentTransformResultNull();
-            if (r.then != null)
-                result = await r;
-            else
-                result = r;
-        }
-        return result;
+    resultTransform(result, requestContext, requestResultTransforms) {
+        return __awaiter(this, void 0, void 0, function* () {
+            for (let i = 0; i < requestResultTransforms.length; i++) {
+                let transform = requestResultTransforms[i];
+                console.assert(transform != null);
+                let r = requestResultTransforms[i](result, requestContext);
+                if (r == null)
+                    throw errors_1.errors.contentTransformResultNull();
+                if (r.then != null)
+                    result = yield r;
+                else
+                    result = r;
+            }
+            return result;
+        });
     }
-    async outputContent(content, requestContext) {
-        let res = requestContext.res;
-        if (content instanceof stream.Readable) {
-            content.pipe(res);
-        }
-        else {
-            res.write(content);
-            res.end();
-        }
+    outputContent(content, requestContext) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let res = requestContext.res;
+            if (content instanceof stream.Readable) {
+                content.pipe(res);
+            }
+            else {
+                res.write(content);
+                res.end();
+            }
+        });
     }
     outputError(err, res) {
         if (err == null) {
@@ -181,15 +207,16 @@ class WebServer {
     }
     /** 日志记录器 */
     getLogger(categoryName) {
-        let logSetting = this.#settings.log || {};
+        let logSetting = __classPrivateFieldGet(this, _settings).log || {};
         return logger_1.getLogger(categoryName, this.logLevel, logSetting.filePath);
     }
     /** 日志等级 */
     get logLevel() {
-        return this.#logSettings.level;
+        return __classPrivateFieldGet(this, _logSettings).level;
     }
 }
 exports.WebServer = WebServer;
+_websiteDirectory = new WeakMap(), _requestProcessors = new WeakMap(), _settings = new WeakMap(), _source = new WeakMap(), _requestResultTransforms = new WeakMap(), _defaultLogSettings = new WeakMap(), _logSettings = new WeakMap();
 WebServer.defaultRequestProcessorTypes = [
     headers_1.HeadersRequestProcessor, proxy_1.ProxyRequestProcessor, cgi_1.DynamicRequestProcessor, static_file_1.StaticFileRequestProcessor,
 ];

@@ -93,7 +93,12 @@ hello-world.js 文件内容：
 
 ```js
 exports.default = function (args) {
-  content: 'Hello World'
+  return {
+    content: 'Hello World',
+    headers: {
+      'Content-Type': 'text/plain'
+    }
+  }
 }
 ```
 
@@ -103,18 +108,18 @@ args 参数类型为 **RequestContext** 定义如下：
 
 ```ts
 type RequestContext = {
-    /** 请求文件的虚拟路径 */
-    virtualPath: string;
-    /** 站点根目录 */
-    rootDirectory: VirtualDirectory;
-    /** 日志级别 */
-    logLevel: LogLevel;
-    res: http.ServerResponse;
-    req: http.IncomingMessage;
+  /** 请求文件的虚拟路径 */
+  virtualPath: string
+  /** 站点根目录 */
+  rootDirectory: VirtualDirectory
+  /** 日志级别 */
+  logLevel: LogLevel
+  res: http.ServerResponse
+  req: http.IncomingMessage
 }
 ```
 
-在浏览器地址栏输入 http://127.0.0.1:8080/hello-world.js ，浏览器显示内容：
+在浏览器地址栏输入 http://127.0.0.1:8080/dynamic/hello-world.js ，浏览器显示内容：
 
 ```
 Hello World
@@ -128,145 +133,146 @@ let webserver = new WebServer({
   port: 8080,
   websiteDirectory: 'your website path',
   requestProcessorConfigs: {
-      Dynamic: {
-          path: "cgi-bin"
-      }
+    Dynamic: {
+      path: 'cgi-bin'
+    }
   }
 })
 ```
 
 ### 请求代理
 
+Node Web Server 内置请求的转发，即可以把接收到的请求，转发到指定的服务器。
 
+下面的示例中，Node Web Server 把接收到的，路径为 "/AdminWeiXin/Index.html" 的请求，转发到地址 "http://127.0.0.1:8085/Index.html" 。
 
-## node-web-server 设置
-
-**设置**
-
-```ts
-export interface Settings {
-  /** 服务端口 */
-  port?: number
-  /** 绑定的 IP 地址，客户端只能通过绑定的 IP 进行连接，为空即所有可用 IP */
-  bindIP?: string
-  /** 日志 */
-  log?: {
-    /** 日志等级 */
-    level?: LogLevel
-  }
-  /** 请求处理器类型 */
-  requestProcessorTypes?: { new (config?: any): RequestProcessor }[]
-  /** 请求处理器配置 */
-  requestProcessorConfigs?: { [key: string]: any }
-  /** 网站文件夹 */
-  websiteDirectory?: string | VirtualDirectory
-  /** 请求结果转换器 */
-  requestResultTransforms?: RequestResultTransform[]
-}
-```
-
-**属性**
-
-| 名称              | 类型                     | 只读 | 定义                                           |
-| ----------------- | ------------------------ | ---- | ---------------------------------------------- |
-| port              | number                   | 是   | 端口，用于和客户端进行连接                     |
-| bindIP            | string                   | 是   | 绑定 IP                                        |
-| requestProcessors | RequestProcessor[]       | 是   | 请求处理器实例                                 |
-| source            | http.Server              | 是   |
-| contentTransforms | RequestResultTransform[] | 是   | 内容转换器，用于对请求处理器输出的内容进行转换 |
-
----
-
-**示例**
-
-## 请求处理器
-
-node-web-server 通过 RequestProcessor 类处理客户端提交上来的请求。通过 settings 的 requestProcessorTypes （数组类型） 参数设置。node-web-server 内置三个请求处理器，分别是 ProxyRequestProcessor, CGIRequestProcessor, StaticFileRequestProcessor。它们分别处理三类请求：
-
-- 请求代理
-- 动态脚本的请求
-- 静态文件请求
-
-### 请求代理
-
-ProxyRequestProcessor 类用于处理代理请求，它内置于 node-web-server。设置定义：
+**示例:**
 
 ```ts
-export interface ProxyItem {
-  targetUrl: string
-  headers?:
-    | { [name: string]: string }
-    | ((
-        requestContext: RequestContext
-      ) => { [name: string]: string } | Promise<{ [name: string]: string }>)
-}
-
-export interface ProxyConfig {
-  proxyTargets: { [key: string]: ProxyItem | string }
-}
-```
-
-| 字段      | 解释                                 |
-| --------- | ------------------------------------ |
-| targetUrl | 转发请求的目标地址，支持正则表达式   |
-| headers   | 转发请求到目标地址时，附件的 HTTP 头 |
-
-ProxyRequestProcessor 是内置于 node-web-server 中，使用是只需要配置即可。
-
-**示例**
-
-```ts
-let proxyConfig: ProxyConfig = {
-  proxyTargets: {
-    '/AdminWeiXin/(\\S+)': {
-      targetUrl: `http://127.0.0.1:${station.port}/$1`,
-      headers: function () {
-        return { token }
-      }
-    },
-    // 用于测试异步 headers
-    '/Proxy1/(\\S+)': {
-      targetUrl: `http://127.0.0.1:${station.port}/$1`,
-      headers: async function () {
-        return { token }
+import { ProxyProcessor, ProxyConfig } from 'maishu-node-web-server'
+let webserver = new WebServer({
+  port: 8080,
+  requestProcessorConfigs: {
+    Proxy: {
+      proxyTargets: {
+        '/AdminWeiXin/Index.html': `http://127.0.0.1:8085/Index.html`
       }
     }
   }
-}
+})
+```
 
-let w = new WebServer({
+请求代理的路径支持使用正则表式进行匹配，下面的示例中，使用正则表达式对路径进行匹配。
+
+**示例：**
+
+```ts
+import { ProxyProcessor, ProxyConfig } from 'maishu-node-web-server'
+let webserver = new WebServer({
+  port: 8080,
   requestProcessorConfigs: {
-    Proxy: proxyConfig
+    Proxy: {
+      proxyTargets: {
+        '/AdminWeiXin/(\\S+)': `http://127.0.0.1:8085/$1`
+      }
+    }
   }
 })
 ```
 
-### 请求处理机制
+请求代理在转发请求的时候，可以额外附加 HTTP 头。
 
-Settings 接口定义
-
-```ts
-export interface Settings {
-  port?: number
-  bindIP?: string
-  logLevel?: LogLevel
-  requestProcessorTypes?: { new (config?: any): RequestProcessor }[]
-  requestProcessorConfigs?: { [key: string]: any }
-  websiteDirectory?: string | VirtualDirectory
-  requestResultTransforms?: RequestResultTransform[]
-}
-```
-
-RequestProcessor 接口定义
+**示例：**
 
 ```ts
-export interface RequestProcessor {
-  execute(
-    args: RequestContext
-  ): RequestResult | Promise<RequestResult | null> | null
-}
+import { ProxyProcessor, ProxyConfig } from 'maishu-node-web-server'
+let webserver = new WebServer({
+  port: 8080,
+  requestProcessorConfigs: {
+    Proxy: {
+      proxyTargets: {
+        '/AdminWeiXin/(\\S+)': {
+          targetUrl: `http://127.0.0.1:8085/$1`,
+          headers: {
+            token: '1603161114105'
+          }
+        }
+      }
+    }
+  }
+})
 ```
 
-node-web-server 依照照 requestProcessorTypes 数组创建一组 RequestProcessor 对象， 通过这个 RequestProcessor 数组对客户端提交的请求进行处理（调用 execute 方法），如果 execute 方法返回 null 值，则调用下一个 RequestProcessor 对象的 execute 方法。如果返回的不是 null 值，则将结果输出到客户端。
+headers 可以是键值对，也可以是一个函数。
 
-### 添加请求处理
+**示例：**
+
+```ts
+import { ProxyProcessor, ProxyConfig } from 'maishu-node-web-server'
+let webserver = new WebServer({
+  port: 8080,
+  requestProcessorConfigs: {
+    Proxy: {
+      proxyTargets: {
+        '/AdminWeiXin/(\\S+)': {
+          targetUrl: `http://127.0.0.1:8085/$1`,
+          headers: function () {
+            return {
+              token: '1603161114105'
+            }
+          }
+        }
+      }
+    }
+  }
+})
+```
+
+## 深入了解
+
+### 请求的处理
+
+Node Web Server 在接收到客户端的请求后，会将接收到的请求进行处理，然后将结果输出。这个过程涉及两个接口：
+
+- RequestProcessor（请求处理器） 负责对接收到的请求进行处理
+- RequestResultTransform（请求结果转换器） 对请求后的结果进行转换
+
+Node Web Server 内置多个请求处理器，用于对各种请求进行处理，包括：
+
+- DynamicRequestProcessor 用于处理动态脚本文件
+- ProxyRequestProcessor 用于处理代理请求
+- StaticFileRequestProcessor 用于处理静态文件
+
+默认情况下，这几个请求处理器处理请求的顺序是：
+
+- ProxyRequestProcessor
+- DynamicRequestProcessor
+- StaticFileRequestProcessor
+
+**示例：**
+
+文件夹如下
+
+```
+website
+|--index.html
+```
+
+```ts
+import { ProxyProcessor, ProxyConfig } from 'maishu-node-web-server'
+let webserver = new WebServer({
+  port: 8080,
+  requestProcessorConfigs: {
+    Proxy: {
+      proxyTargets: {
+        '/index.html': `http://127.0.0.1:8085/index.html`
+      }
+    }
+  }
+})
+```
+
+在浏览器输入地址：http://127.0.0.1:8080/index.html ，实际看到的并不是文件夹下的 index.html 文件，而且 http://127.0.0.1:8085/index.html 页面。这是因为 ProxyRequestProcessor 比 StaticFileRequestProcessor 具有高的优先级
+
+### 请求处理器的实现
+
