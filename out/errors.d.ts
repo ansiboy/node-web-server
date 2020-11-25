@@ -25,4 +25,5 @@ export declare let errors: {
     requestNotReadable(): Error;
     unexpectedNullValue(variableName: string): Error;
     contentTransformResultNull(): Error;
+    requestProcessorTypeExists(name: string): Error;
 };

@@ -177,5 +177,12 @@ exports.errors = {
         let name = "contentTransformResultNull";
         error.name = name;
         return error;
+    },
+    requestProcessorTypeExists(name) {
+        let msg = `request processor type named '${name}' is exists.`;
+        let error = new Error(msg);
+        let errorName = "requestProcessorTypeExists";
+        error.name = errorName;
+        return error;
     }
 };

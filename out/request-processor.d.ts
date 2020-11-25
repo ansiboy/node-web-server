@@ -22,3 +22,6 @@ export declare type RequestResult = {
 export interface RequestProcessor {
     execute(ctx: RequestContext): RequestResult | Promise<RequestResult | null> | null;
 }
+export declare type RequestProcessorType = {
+    new (config?: any): RequestProcessor;
+};

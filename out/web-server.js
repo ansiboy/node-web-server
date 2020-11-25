@@ -21,7 +21,7 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
     }
     return privateMap.get(receiver);
 };
-var _websiteDirectory, _requestProcessors, _settings, _source, _requestResultTransforms, _defaultLogSettings, _logSettings;
+var _websiteDirectory, _requestProcessors, _settings, _source, _requestResultTransforms, _defaultLogSettings, _logSettings, _requestProcessorTypes;
 Object.defineProperty(exports, "__esModule", { value: true });
 const http = require("http");
 const url = require("url");
@@ -36,6 +36,7 @@ const logger_1 = require("./logger");
 const stream = require("stream");
 const path = require("path");
 const headers_1 = require("./request-processors/headers");
+const collection_1 = require("./request-processors/collection");
 const DefaultWebSitePath = "../sample-website";
 class WebServer {
     constructor(settings) {
@@ -49,6 +50,7 @@ class WebServer {
             filePath: "log.txt",
         });
         _logSettings.set(this, void 0);
+        _requestProcessorTypes.set(this, new collection_1.RequestProcessorCollection());
         settings = settings || {};
         if (settings == null)
             throw errors_1.errors.argumentNull("settings");
@@ -216,7 +218,7 @@ class WebServer {
     }
 }
 exports.WebServer = WebServer;
-_websiteDirectory = new WeakMap(), _requestProcessors = new WeakMap(), _settings = new WeakMap(), _source = new WeakMap(), _requestResultTransforms = new WeakMap(), _defaultLogSettings = new WeakMap(), _logSettings = new WeakMap();
+_websiteDirectory = new WeakMap(), _requestProcessors = new WeakMap(), _settings = new WeakMap(), _source = new WeakMap(), _requestResultTransforms = new WeakMap(), _defaultLogSettings = new WeakMap(), _logSettings = new WeakMap(), _requestProcessorTypes = new WeakMap();
 WebServer.defaultRequestProcessorTypes = [
     headers_1.HeadersRequestProcessor, proxy_1.ProxyRequestProcessor, cgi_1.DynamicRequestProcessor, static_file_1.StaticFileRequestProcessor,
 ];

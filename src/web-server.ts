@@ -15,6 +15,7 @@ import { getLogger, LogLevel } from "./logger";
 import * as stream from "stream";
 import * as path from "path";
 import { HeadersRequestProcessor } from "./request-processors/headers";
+import { RequestProcessorTypeCollection } from "./request-processors/collection";
 
 const DefaultWebSitePath = "../sample-website";
 export class WebServer {
@@ -29,6 +30,7 @@ export class WebServer {
         filePath: "log.txt",
     };
     #logSettings: NonNullable<Required<Settings["log"]>>;
+    #requestProcessorTypes: RequestProcessorTypeCollection = new RequestProcessorTypeCollection();
 
     static defaultRequestProcessorTypes: { new(config?: any): RequestProcessor }[] = [
         HeadersRequestProcessor, ProxyRequestProcessor, DynamicRequestProcessor, StaticFileRequestProcessor,
@@ -57,8 +59,8 @@ export class WebServer {
         // }
 
         let configs = this.#settings.requestProcessorConfigs || {};
-        let types = this.#settings.requestProcessorTypes || WebServer.defaultRequestProcessorTypes;
-        this.#requestProcessors = types.map((type: any) => {
+        this.#requestProcessorTypes.addRange(this.#settings.requestProcessorTypes || WebServer.defaultRequestProcessorTypes);
+        this.#requestProcessors = this.#requestProcessorTypes.map((type: any) => {
             let name = type.name;
             let alias = name.endsWith("RequestProcessor") ? name.substring(0, name.length - "RequestProcessor".length) : name;
             let config = configs[name] || configs[alias] || {};
@@ -224,6 +226,10 @@ export class WebServer {
     /** 日志等级 */
     get logLevel() {
         return this.#logSettings.level;
+    }
+
+    get requestProcessorTypes(): RequestProcessorTypeCollection {
+        return this.#requestProcessorTypes;
     }
 
 }
