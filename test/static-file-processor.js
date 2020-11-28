@@ -17,14 +17,10 @@ const assert = require("assert");
 describe("StaticFileRequestProcessor class test", function () {
     it("config", function () {
         return __awaiter(this, void 0, void 0, function* () {
-            let config = {
-                staticFileExtentions: [".less"]
-            };
-            let w = common_1.createWebServer({
-                requestProcessorConfigs: {
-                    StaticFile: config
-                }
-            });
+            let w = common_1.createWebServer();
+            var staticFileProcessor = w.requestProcessors.filter(o => o instanceof out_1.StaticFileProcessor)[0];
+            assert.notStrictEqual(staticFileProcessor, null);
+            staticFileProcessor.contentTypes[".less"] = "text/plain";
             const browser = new Browser();
             yield browser.visit(`http://127.0.0.1:${w.port}/content/style.less`);
             let buffer = fs.readFileSync(out_1.pathConcat(__dirname, "website/content/style.less"));

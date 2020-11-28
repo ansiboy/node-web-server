@@ -16,7 +16,7 @@ exports.staticFileProcessor = function (args) {
         }
         let arr = args.physicalPath.split(".");
         let ext = arr[arr.length - 1];
-        let contentType = content_types_1.contentTypes[ext] || content_types_1.contentTypes.txt;
+        let contentType = content_types_1.defaultContentTypes[ext] || content_types_1.defaultContentTypes.txt;
         let stat = fs.statSync(args.physicalPath);
         // fs.readFile(args.physicalPath, (err, data) => {
         //     if (err)

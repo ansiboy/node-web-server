@@ -1,19 +1,17 @@
 import { createWebServer } from "./common"
-import { StaticFileConfig, pathConcat } from "../out"
+import { pathConcat, StaticFileProcessor } from "../out"
 import Browser = require('zombie');
 import * as fs from "fs";
 import assert = require("assert");
 
 describe("StaticFileRequestProcessor class test", function () {
     it("config", async function () {
-        let config: StaticFileConfig = {
-            staticFileExtentions: [".less"]
-        }
-        let w = createWebServer({
-            requestProcessorConfigs: {
-                StaticFile: config
-            }
-        })
+   
+        let w = createWebServer();
+        var staticFileProcessor = w.requestProcessors.filter(o => o instanceof StaticFileProcessor)[0] as StaticFileProcessor;
+        assert.notStrictEqual(staticFileProcessor, null);
+
+        staticFileProcessor.contentTypes[".less"] = "text/plain";
 
         const browser = new Browser();
         await browser.visit(`http://127.0.0.1:${w.port}/content/style.less`);

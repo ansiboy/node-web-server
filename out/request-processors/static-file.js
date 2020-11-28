@@ -1,92 +1,94 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __classPrivateFieldSet = (this && this.__classPrivateFieldSet) || function (receiver, privateMap, value) {
-    if (!privateMap.has(receiver)) {
-        throw new TypeError("attempted to set private field on non-instance");
-    }
-    privateMap.set(receiver, value);
-    return value;
-};
-var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (receiver, privateMap) {
-    if (!privateMap.has(receiver)) {
-        throw new TypeError("attempted to get private field on non-instance");
-    }
-    return privateMap.get(receiver);
-};
-var _fileProcessors;
 Object.defineProperty(exports, "__esModule", { value: true });
 const path_concat_1 = require("../path-concat");
 // import { defaultFileProcessors } from "../file-processors";
 const errors_1 = require("../errors");
 const path = require("path");
-const text_file_1 = require("../file-processors/text-file");
-exports.defaultFileProcessors = {
-    ".txt": text_file_1.staticFileProcessor,
-    ".html": text_file_1.staticFileProcessor,
-    ".js": text_file_1.staticFileProcessor,
-    ".css": text_file_1.staticFileProcessor,
-    ".json": text_file_1.staticFileProcessor,
-    ".jpg": text_file_1.staticFileProcessor,
-};
+const status_code_1 = require("../status-code");
+const error_pages_1 = require("../error-pages");
+const fs = require("fs");
+const content_types_1 = require("../content-types");
+// export type StaticFileRequestProcessorConfig = {
+//     fileProcessors?: { [key: string]: FileProcessor },
+//     // 设置静态文件扩展名
+//     staticFileExtentions?: string[],
+// }
+// export let defaultFileProcessors: { [key: string]: FileProcessor } = {
+//     ".txt": staticFileProcessor,
+//     ".html": staticFileProcessor,
+//     ".js": staticFileProcessor,
+//     ".css": staticFileProcessor,
+//     ".json": staticFileProcessor,
+//     ".jpg": staticFileProcessor,
+// }
 // ".woff": staticFileProcessor,
 // ".woff2": staticFileProcessor,
 // ".ttf": staticFileProcessor,
 class StaticFileRequestProcessor {
-    constructor(config) {
-        _fileProcessors.set(this, void 0);
-        config = config || {};
-        __classPrivateFieldSet(this, _fileProcessors, Object.assign({}, exports.defaultFileProcessors, config.fileProcessors || {}));
-        if (config.staticFileExtentions) {
-            for (let i = 0; i < config.staticFileExtentions.length; i++) {
-                if (config.staticFileExtentions[i][0] != ".")
-                    config.staticFileExtentions[i] = "." + config.staticFileExtentions[i];
-                __classPrivateFieldGet(this, _fileProcessors)[config.staticFileExtentions[i]] = text_file_1.staticFileProcessor;
-            }
+    constructor() {
+        // #fileProcessors: { [key: string]: FileProcessor };
+        this.#contentTypes = Object.assign({}, content_types_1.defaultContentTypes);
+    }
+    // #fileProcessors: { [key: string]: FileProcessor };
+    #contentTypes;
+    get contentTypes() {
+        return this.#contentTypes;
+    }
+    async execute(ctx) {
+        let virtualPath = ctx.virtualPath;
+        if (virtualPath.indexOf(".") < 0) {
+            virtualPath = path_concat_1.pathConcat(virtualPath, "index.html");
         }
+        let physicalPath = ctx.rootDirectory.findFile(virtualPath);
+        if (physicalPath == null)
+            throw errors_1.errors.pageNotFound(virtualPath);
+        if (physicalPath.indexOf(".") < 0) {
+            physicalPath = path_concat_1.pathConcat(physicalPath, "index.html");
+        }
+        // let fileProcessor = this.#fileProcessors[ext];
+        // if (fileProcessor == null)
+        //     throw errors.fileTypeNotSupport(ext);
+        let p = this.processStaticFile(physicalPath); //fileProcessor({ virtualPath: virtualPath, physicalPath: physicalPath }, ctx) as Promise<RequestResult>;
+        if (p.then == null) {
+            p = Promise.resolve(p);
+        }
+        let r = await p;
+        let headers = r.headers || {};
+        if (ctx.logLevel == "all") {
+            Object.assign(headers, { "physical-path": physicalPath || "" });
+        }
+        return {
+            statusCode: r.statusCode, content: r.content, headers: r.headers
+        };
     }
-    execute(ctx) {
-        return __awaiter(this, void 0, void 0, function* () {
-            let virtualPath = ctx.virtualPath;
-            if (virtualPath.indexOf(".") < 0) {
-                virtualPath = path_concat_1.pathConcat(virtualPath, "index.html");
+    processStaticFile(physicalPath) {
+        return new Promise((resolve, reject) => {
+            if (!physicalPath) {
+                return resolve({ statusCode: status_code_1.StatusCode.NotFound, content: Buffer.from(error_pages_1.errorPages.NotFound) });
             }
-            let physicalPath = ctx.rootDirectory.findFile(virtualPath);
-            if (physicalPath == null)
-                throw errors_1.errors.pageNotFound(virtualPath);
-            let ext = "";
-            if (physicalPath.indexOf(".") < 0) {
-                physicalPath = path_concat_1.pathConcat(physicalPath, "index.html");
+            if (!fs.existsSync(physicalPath)) {
+                let text = `Path ${physicalPath} is not exists.`;
+                return resolve({ statusCode: 404, content: Buffer.from(text) });
             }
-            ext = path.extname(physicalPath);
-            let fileProcessor = __classPrivateFieldGet(this, _fileProcessors)[ext];
-            if (fileProcessor == null)
+            var ext = path.extname(physicalPath);
+            if (!ext)
+                return null;
+            console.assert(ext.startsWith("."));
+            let key = ext.substr(1);
+            let contentType = this.#contentTypes[key] || this.contentTypes[ext];
+            if (!contentType)
                 throw errors_1.errors.fileTypeNotSupport(ext);
-            let p = fileProcessor({ virtualPath: virtualPath, physicalPath: physicalPath }, ctx);
-            if (p.then == null) {
-                p = Promise.resolve(p);
-            }
-            let r = yield p;
-            let headers = r.headers || {};
-            if (ctx.logLevel == "all") {
-                Object.assign(headers, { "physical-path": physicalPath || "" });
-            }
-            return {
-                statusCode: r.statusCode, content: r.content, headers: r.headers
+            let stat = fs.statSync(physicalPath);
+            let data = fs.createReadStream(physicalPath);
+            let mtime = stat.mtime.valueOf();
+            let headers = {
+                "Content-Type": contentType,
+                "Etag": JSON.stringify([stat.ino, stat.size, mtime].join('-')),
+                "Last-Modified": stat.mtime.toDateString(),
             };
+            resolve({ statusCode: status_code_1.StatusCode.OK, content: data, headers });
         });
-    }
-    get fileProcessors() {
-        return __classPrivateFieldGet(this, _fileProcessors);
     }
 }
 exports.StaticFileRequestProcessor = StaticFileRequestProcessor;
-_fileProcessors = new WeakMap();
 // export let staticFileRequestProcessor = new StaticFileRequestProcessor();

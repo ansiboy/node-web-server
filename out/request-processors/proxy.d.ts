@@ -21,10 +21,13 @@ export interface ProxyRequestProcessorConfig {
 }
 export declare class ProxyRequestProcessor implements RequestProcessor {
     #private;
-    constructor(config: ProxyRequestProcessorConfig);
+    constructor();
     get proxyTargets(): {
-        [key: string]: ProxyItem;
+        [key: string]: string | ProxyItem;
     };
+    set proxyTargets(value: {
+        [key: string]: string | ProxyItem;
+    });
     execute(args: RequestContext): Promise<RequestResult | null>;
 }
 export declare function proxyRequest(targetUrl: string, req: http.IncomingMessage, res: http.ServerResponse, headers: http.IncomingMessage["headers"], method?: string): Promise<RequestResult>;

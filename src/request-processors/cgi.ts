@@ -26,12 +26,26 @@ export class DynamicRequestProcessor implements RequestProcessor {
 
     #dynamicScriptPath: string;
 
-    constructor(config?: DynamicRequestProcessorConfig) {
-        config = config || {};
+    constructor() {
+        // config = config || {};
 
-        this.#dynamicScriptPath = config.path || defaultDynamicPath;
-        if (!this.#dynamicScriptPath.startsWith("/"))
-            this.#dynamicScriptPath = "/" + this.#dynamicScriptPath;
+        console.assert(defaultDynamicPath.startsWith("/"));
+        this.#dynamicScriptPath = defaultDynamicPath;
+        // if (!this.#dynamicScriptPath.startsWith("/"))
+        //     this.#dynamicScriptPath = "/" + this.#dynamicScriptPath;
+    }
+
+    /** 获取脚本路径 */
+    get scriptPath() {
+        return this.#dynamicScriptPath;
+    }
+    /** 设置脚本路径 */
+    set scriptPath(value) {
+        if (!value) throw errors.argumentNull("value");
+        if (!value.startsWith("/"))
+            value = "/" + value;
+
+        this.#dynamicScriptPath = value;
     }
 
     execute(args: RequestContext) {

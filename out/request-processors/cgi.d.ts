@@ -5,6 +5,10 @@ export declare type DynamicRequestProcessorConfig = {
 };
 export declare class DynamicRequestProcessor implements RequestProcessor {
     #private;
-    constructor(config?: DynamicRequestProcessorConfig);
+    constructor();
+    /** 获取脚本路径 */
+    get scriptPath(): string;
+    /** 设置脚本路径 */
+    set scriptPath(value: string);
     execute(args: RequestContext): RequestResult | Promise<RequestResult> | null;
 }

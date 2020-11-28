@@ -2,7 +2,7 @@ import { FileProcessor } from "../file-processor";
 import { errorPages } from "../error-pages";
 import * as fs from "fs";
 import { StatusCode } from "../status-code";
-import { contentTypes } from "../content-types";
+import { defaultContentTypes } from "../content-types";
 import { RequestResult, RequestProcessor } from "../request-processor";
 
 // export let staticFileProcessor = createFileProcessor();
@@ -20,7 +20,7 @@ export let staticFileProcessor: FileProcessor = function (args): Promise<Request
 
         let arr = args.physicalPath.split(".");
         let ext = arr[arr.length - 1];
-        let contentType = contentTypes[ext as keyof typeof contentTypes] || contentTypes.txt;
+        let contentType = defaultContentTypes[ext as keyof typeof defaultContentTypes] || defaultContentTypes.txt;
         let stat = fs.statSync(args.physicalPath);
         // fs.readFile(args.physicalPath, (err, data) => {
         //     if (err)

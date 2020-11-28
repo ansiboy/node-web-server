@@ -11,32 +11,49 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const assert = require("assert");
 const common_1 = require("./common");
-const out_1 = require("../out");
+const proxy_1 = require("../out/request-processors/proxy");
 describe("proxy-processor", function () {
     let token = "abcde";
     let station = common_1.createWebServer();
-    let requestProcessorConfigs = {};
-    let proxyConfig = {
-        proxyTargets: {
-            "/AdminWeiXin/(\\S+)": {
-                targetUrl: `http://127.0.0.1:${station.port}/$1`,
-                headers: function () {
+    // let requestProcessorConfigs = {} as any;
+    // let proxyConfig: ProxyConfig = {
+    //     proxyTargets: {
+    //         "/AdminWeiXin/(\\S+)": {
+    //             targetUrl: `http://127.0.0.1:${station.port}/$1`,
+    //             headers: function () {
+    //                 return { token }
+    //             }
+    //         },
+    //         // 用于测试异步 headers
+    //         "/Proxy1/(\\S+)": {
+    //             targetUrl: `http://127.0.0.1:${station.port}/$1`,
+    //             headers: async function () {
+    //                 return { token }
+    //             }
+    //         },
+    //     }
+    // }
+    // requestProcessorConfigs[ProxyProcessor.name] = proxyConfig;
+    let webserver = common_1.createWebServer();
+    let proxyProcessor = webserver.requestProcessors.filter(o => o instanceof proxy_1.ProxyRequestProcessor)[0];
+    assert.notStrictEqual(proxyProcessor, null);
+    proxyProcessor.proxyTargets = {
+        "/AdminWeiXin/(\\S+)": {
+            targetUrl: `http://127.0.0.1:${station.port}/$1`,
+            headers: function () {
+                return { token };
+            }
+        },
+        // 用于测试异步 headers
+        "/Proxy1/(\\S+)": {
+            targetUrl: `http://127.0.0.1:${station.port}/$1`,
+            headers: function () {
+                return __awaiter(this, void 0, void 0, function* () {
                     return { token };
-                }
-            },
-            // 用于测试异步 headers
-            "/Proxy1/(\\S+)": {
-                targetUrl: `http://127.0.0.1:${station.port}/$1`,
-                headers: function () {
-                    return __awaiter(this, void 0, void 0, function* () {
-                        return { token };
-                    });
-                }
-            },
-        }
+                });
+            }
+        },
     };
-    requestProcessorConfigs[out_1.ProxyProcessor.name] = proxyConfig;
-    let webserver = common_1.createWebServer({ requestProcessorConfigs });
     it("request", function () {
         return __awaiter(this, void 0, void 0, function* () {
             let browser = common_1.createBrowser();

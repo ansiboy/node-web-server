@@ -1,4 +1,4 @@
-export declare const contentTypes: {
+export declare const defaultContentTypes: {
     json: string;
     txt: string;
     html: string;
@@ -6,4 +6,7 @@ export declare const contentTypes: {
     css: string;
     woff: string;
     ttf: string;
+    jpg: string;
+    png: string;
+    gif: string;
 };

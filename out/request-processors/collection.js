@@ -1,9 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const errors_1 = require("../errors");
-class RequestProcessorCollection {
+class RequestProcessorTypeCollection {
     constructor() {
         this.items = [];
+        this.map = this.items.map;
     }
     foreach(func) {
         if (!func)
@@ -16,6 +17,12 @@ class RequestProcessorCollection {
         if (isExists)
             throw errors_1.errors.requestProcessorTypeExists(item.name);
         this.items.push(item);
+    }
+    addRange(items) {
+        if (items == null)
+            throw errors_1.errors.argumentNull("items");
+        for (let i = 0; i < items.length; i++)
+            this.add(items[i]);
     }
     insertBefore(item, otherItemName) {
         let itemIndex = this.getItemIndexByName(otherItemName);
@@ -40,4 +47,4 @@ class RequestProcessorCollection {
         return itemIndex;
     }
 }
-exports.RequestProcessorCollection = RequestProcessorCollection;
+exports.RequestProcessorTypeCollection = RequestProcessorTypeCollection;

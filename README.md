@@ -276,3 +276,9 @@ let webserver = new WebServer({
 
 ### 请求处理器的实现
 
+
+
+### 请求结果转换 (RequestResultTransform) 函数
+
+
+

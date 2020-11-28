@@ -2,45 +2,42 @@ import { RequestProcessor, RequestContext, RequestResult } from "../request-proc
 import { pathConcat } from "../path-concat";
 // import { defaultFileProcessors } from "../file-processors";
 import { errors } from "../errors";
-import { FileProcessor } from "../file-processor";
 import * as path from "path";
-import { staticFileProcessor } from "../file-processors/text-file";
+import { StatusCode } from "../status-code";
+import { errorPages } from "../error-pages";
+import * as fs from "fs";
+import { defaultContentTypes } from "../content-types";
 
-export type StaticFileRequestProcessorConfig = {
-    fileProcessors?: { [key: string]: FileProcessor },
-    // 设置静态文件扩展名
-    staticFileExtentions?: string[],
-}
+// export type StaticFileRequestProcessorConfig = {
+//     fileProcessors?: { [key: string]: FileProcessor },
+//     // 设置静态文件扩展名
+//     staticFileExtentions?: string[],
+// }
 
-export let defaultFileProcessors: { [key: string]: FileProcessor } = {
-    ".txt": staticFileProcessor,
-    ".html": staticFileProcessor,
-    ".js": staticFileProcessor,
-    ".css": staticFileProcessor,
-    ".json": staticFileProcessor,
-    ".jpg": staticFileProcessor,
-}
+// export let defaultFileProcessors: { [key: string]: FileProcessor } = {
+//     ".txt": staticFileProcessor,
+//     ".html": staticFileProcessor,
+//     ".js": staticFileProcessor,
+//     ".css": staticFileProcessor,
+//     ".json": staticFileProcessor,
+//     ".jpg": staticFileProcessor,
+// }
 
-    // ".woff": staticFileProcessor,
-    // ".woff2": staticFileProcessor,
-    // ".ttf": staticFileProcessor,
+// ".woff": staticFileProcessor,
+// ".woff2": staticFileProcessor,
+// ".ttf": staticFileProcessor,
 
 export class StaticFileRequestProcessor implements RequestProcessor {
 
-    #fileProcessors: { [key: string]: FileProcessor };
+    // #fileProcessors: { [key: string]: FileProcessor };
+    #contentTypes: { [key: string]: string } = Object.assign({}, defaultContentTypes);
 
-    constructor(config?: StaticFileRequestProcessorConfig) {
-        config = config || {};
+    constructor() {
 
-        this.#fileProcessors = Object.assign({}, defaultFileProcessors, config.fileProcessors || {});
-        if (config.staticFileExtentions) {
-            for (let i = 0; i < config.staticFileExtentions.length; i++) {
-                if (config.staticFileExtentions[i][0] != ".")
-                    config.staticFileExtentions[i] = "." + config.staticFileExtentions[i];
+    }
 
-                this.#fileProcessors[config.staticFileExtentions[i]] = staticFileProcessor;
-            }
-        }
+    get contentTypes() {
+        return this.#contentTypes;
     }
 
     async execute(ctx: RequestContext): Promise<RequestResult> {
@@ -54,18 +51,17 @@ export class StaticFileRequestProcessor implements RequestProcessor {
         if (physicalPath == null)
             throw errors.pageNotFound(virtualPath);
 
-        let ext = "";
         if (physicalPath.indexOf(".") < 0) {
             physicalPath = pathConcat(physicalPath, "index.html");
         }
 
-        ext = path.extname(physicalPath);
 
-        let fileProcessor = this.#fileProcessors[ext];
-        if (fileProcessor == null)
-            throw errors.fileTypeNotSupport(ext);
 
-        let p = fileProcessor({ virtualPath: virtualPath, physicalPath: physicalPath }, ctx) as Promise<RequestResult>;
+        // let fileProcessor = this.#fileProcessors[ext];
+        // if (fileProcessor == null)
+        //     throw errors.fileTypeNotSupport(ext);
+
+        let p = this.processStaticFile(physicalPath); //fileProcessor({ virtualPath: virtualPath, physicalPath: physicalPath }, ctx) as Promise<RequestResult>;
         if (p.then == null) {
             p = Promise.resolve(p);
         }
@@ -80,9 +76,43 @@ export class StaticFileRequestProcessor implements RequestProcessor {
         };
     }
 
-    get fileProcessors() {
-        return this.#fileProcessors;
+    private processStaticFile(physicalPath: string) {
+        return new Promise<RequestResult>((resolve, reject) => {
+            if (!physicalPath) {
+                return resolve({ statusCode: StatusCode.NotFound, content: Buffer.from(errorPages.NotFound) });
+            }
+
+            if (!fs.existsSync(physicalPath)) {
+                let text = `Path ${physicalPath} is not exists.`;
+                return resolve({ statusCode: 404, content: Buffer.from(text) });
+            }
+
+            var ext = path.extname(physicalPath);
+            if (!ext)
+                return null;
+
+            console.assert(ext.startsWith("."));
+            let key = ext.substr(1);
+            let contentType = this.#contentTypes[key] || this.contentTypes[ext];
+            if (!contentType)
+                throw errors.fileTypeNotSupport(ext);
+
+            let stat = fs.statSync(physicalPath);
+            let data = fs.createReadStream(physicalPath);
+            let mtime: number = stat.mtime.valueOf();
+            let headers: RequestResult["headers"] = {
+                "Content-Type": contentType,
+                "Etag": JSON.stringify([stat.ino, stat.size, mtime].join('-')),
+                "Last-Modified": stat.mtime.toDateString(),
+            };
+
+            resolve({ statusCode: StatusCode.OK, content: data, headers });
+        })
     }
+
+    // get fileProcessors() {
+    //     return this.#fileProcessors;
+    // }
 
 }
 

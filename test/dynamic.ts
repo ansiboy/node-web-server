@@ -1,6 +1,7 @@
 import { createWebServer, createBrowser } from "./common";
 import { default as cgiFuc } from "./website/dynamic/test";
 import * as assert from "assert";
+import { DynamicRequestProcessor } from "../out";
 
 describe("dynamic", function () {
     it("test", async function () {
@@ -13,14 +14,17 @@ describe("dynamic", function () {
     })
 
     it("path", async function () {
-        let webServer = createWebServer({
+        let webServer = createWebServer();
+        /*
+        {
             requestProcessorConfigs: {
                 Dynamic: {
                     path: "cgi-bin"
                 }
             }
-        })
-
+        }/*/
+        let dynamicRequestProcessor = webServer.requestProcessors.filter(o => o instanceof DynamicRequestProcessor)[0] as DynamicRequestProcessor;
+        dynamicRequestProcessor.scriptPath = "cgi-bin";
         let browser = createBrowser();
         let url = `http://127.0.0.1:${webServer.port}/cgi-bin/test.js`;
         await browser.visit(url);

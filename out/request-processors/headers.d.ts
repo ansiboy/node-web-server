@@ -6,6 +6,12 @@ export interface HeadersRequestProcessorConfig {
 }
 export declare class HeadersRequestProcessor implements RequestProcessor {
     #private;
-    constructor(config?: HeadersRequestProcessorConfig);
+    constructor();
+    get headers(): {
+        [name: string]: string | string[];
+    } | undefined;
+    set headers(value: {
+        [name: string]: string | string[];
+    } | undefined);
     execute(ctx: RequestContext): null;
 }

@@ -16,26 +16,29 @@ export interface ProxyRequestProcessorConfig {
 
 export class ProxyRequestProcessor implements RequestProcessor {
 
-    #proxyTargets: { [key: string]: ProxyItem };
+    #proxyTargets: { [key: string]: ProxyItem | string } = {};
 
 
-    constructor(config: ProxyRequestProcessorConfig) {
-        config = config || {} as ProxyRequestProcessorConfig;
-        this.#proxyTargets = {};
-        if (config.proxyTargets) {
-            for (let key in config.proxyTargets) {
-                if (typeof config.proxyTargets[key] == "string") {
-                    this.#proxyTargets[key] = { targetUrl: config.proxyTargets[key] as string };
-                }
-                else {
-                    this.#proxyTargets[key] = config.proxyTargets[key] as ProxyItem;
-                }
-            }
-        }
+    constructor() {
+        // config = config || {} as ProxyRequestProcessorConfig;
+        // this.#proxyTargets = {};
+        // if (config.proxyTargets) {
+        //     for (let key in config.proxyTargets) {
+        //         if (typeof config.proxyTargets[key] == "string") {
+        //             this.#proxyTargets[key] = { targetUrl: config.proxyTargets[key] as string };
+        //         }
+        //         else {
+        //             this.#proxyTargets[key] = config.proxyTargets[key] as ProxyItem;
+        //         }
+        //     }
+        // }
     }
 
     get proxyTargets() {
         return this.#proxyTargets;
+    }
+    set proxyTargets(value) {
+        this.#proxyTargets = value || {};
     }
 
     async execute(args: RequestContext) {
@@ -47,7 +50,8 @@ export class ProxyRequestProcessor implements RequestProcessor {
                 continue;
             }
 
-            let proxyItem = this.#proxyTargets[key];
+            let item = this.#proxyTargets[key];
+            let proxyItem: ProxyItem = typeof item == "string" ? { targetUrl: item } : item;
             let targetUrl = proxyItem.targetUrl;
             let headers: http.IncomingMessage["headers"] = {};
             if (proxyItem.headers != null && typeof proxyItem.headers == "object") {

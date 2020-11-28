@@ -14,7 +14,6 @@ const assert = require("assert");
 const Browser = require("zombie");
 const path_concat_1 = require("../out/path-concat");
 const fs = require("fs");
-const content_types_1 = require("../out/content-types");
 const common_1 = require("./common");
 const status_code_1 = require("../out/status-code");
 describe("web-server", function () {
@@ -63,7 +62,7 @@ describe("web-server", function () {
     it("javascript content type", function () {
         return __awaiter(this, void 0, void 0, function* () {
             yield browser.visit(`http://127.0.0.1:${w.port}/index.js`);
-            assert.equal(browser.response.headers.get("content-type"), content_types_1.contentTypes.js);
+            assert.strictEqual(browser.response.headers.get("content-type"), out_1.defaultContentTypes.js);
         });
     });
     it("unsupport content type", function () {

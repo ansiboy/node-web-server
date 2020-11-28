@@ -4,9 +4,9 @@ import url = require("url");
 import { AddressInfo } from "net";
 import { errors } from "./errors";
 import { VirtualDirectory } from "./virtual-directory";
-import { RequestProcessor, RequestResult, Content, RequestContext } from "./request-processor";
-import { contentTypes } from "./content-types";
-import { RequestResultTransform } from "./content-transform";
+import { RequestProcessor, RequestResult, Content, RequestContext, RequestProcessorType } from "./request-processor";
+import { defaultContentTypes } from "./content-types";
+import { ContentTransformFunc, ContentTransform } from "./content-transform";
 import { ProxyRequestProcessor } from "./request-processors/proxy";
 import { StaticFileRequestProcessor } from "./request-processors/static-file";
 import { StatusCode } from "./status-code";
@@ -15,7 +15,6 @@ import { getLogger, LogLevel } from "./logger";
 import * as stream from "stream";
 import * as path from "path";
 import { HeadersRequestProcessor } from "./request-processors/headers";
-import { RequestProcessorTypeCollection } from "./request-processors/collection";
 
 const DefaultWebSitePath = "../sample-website";
 export class WebServer {
@@ -24,17 +23,18 @@ export class WebServer {
     #requestProcessors: RequestProcessor[];
     #settings: Settings;
     #source: http.Server;
-    #requestResultTransforms: RequestResultTransform[];
+    #contentTransforms: (ContentTransform | ContentTransformFunc)[] = [];
     #defaultLogSettings: NonNullable<Required<Settings["log"]>> = {
         level: "all",
         filePath: "log.txt",
     };
     #logSettings: NonNullable<Required<Settings["log"]>>;
-    #requestProcessorTypes: RequestProcessorTypeCollection = new RequestProcessorTypeCollection();
+    #requestProcessorTypes: RequestProcessorType[] = [];
 
-    static defaultRequestProcessorTypes: { new(config?: any): RequestProcessor }[] = [
-        HeadersRequestProcessor, ProxyRequestProcessor, DynamicRequestProcessor, StaticFileRequestProcessor,
-    ];
+    #defaultRequestProcessors = {
+        headers: new HeadersRequestProcessor(), proxy: new ProxyRequestProcessor(),
+        dynamic: new DynamicRequestProcessor(), static: new StaticFileRequestProcessor(),
+    };
 
     constructor(settings?: Settings) {
         settings = settings || {};
@@ -53,21 +53,11 @@ export class WebServer {
         this.#settings = settings;
         this.#logSettings = Object.assign(settings.log || {}, this.#defaultLogSettings);
         this.#source = this.start();
-        // if (!settings.port) {
-        //     let address = this.#source.address() as AddressInfo;
-        //     settings.port = address.port;
-        // }
+        this.#requestProcessors = [
+            this.#defaultRequestProcessors.headers, this.#defaultRequestProcessors.proxy,
+            this.#defaultRequestProcessors.dynamic, this.#defaultRequestProcessors.static,
+        ];
 
-        let configs = this.#settings.requestProcessorConfigs || {};
-        this.#requestProcessorTypes.addRange(this.#settings.requestProcessorTypes || WebServer.defaultRequestProcessorTypes);
-        this.#requestProcessors = this.#requestProcessorTypes.map((type: any) => {
-            let name = type.name;
-            let alias = name.endsWith("RequestProcessor") ? name.substring(0, name.length - "RequestProcessor".length) : name;
-            let config = configs[name] || configs[alias] || {};
-            let processor = new type(config);
-            return processor;
-        });
-        this.#requestResultTransforms = settings.requestResultTransforms || [];
     }
 
     /** 网站文件夹 */
@@ -96,7 +86,7 @@ export class WebServer {
 
     /** 内容转换器 */
     get contentTransforms() {
-        return this.#requestResultTransforms;
+        return this.#contentTransforms;
     }
 
     private start() {
@@ -126,7 +116,7 @@ export class WebServer {
                     }
 
                     if (r != null) {
-                        r = await this.resultTransform(r, requestContext, this.#requestResultTransforms);
+                        r = await this.resultTransform(r, requestContext, this.#contentTransforms);
                         if (r.statusCode) {
                             res.statusCode = r.statusCode;
                         }
@@ -157,11 +147,11 @@ export class WebServer {
         return server.listen(settings.port, settings.bindIP);
     }
 
-    private async resultTransform(result: RequestResult, requestContext: RequestContext, requestResultTransforms: RequestResultTransform[]) {
+    private async resultTransform(result: RequestResult, requestContext: RequestContext, requestResultTransforms: (ContentTransformFunc | ContentTransform)[]) {
         for (let i = 0; i < requestResultTransforms.length; i++) {
             let transform = requestResultTransforms[i];
             console.assert(transform != null);
-            let r = requestResultTransforms[i](result, requestContext);
+            let r = typeof transform == "function" ? transform(result, requestContext) : transform.execute(result, requestContext);
             if (r == null)
                 throw errors.contentTransformResultNull();
 
@@ -185,22 +175,28 @@ export class WebServer {
         }
     }
 
-    private outputError(err: Error, res: http.ServerResponse) {
+    private outputError(err: Error | string, res: http.ServerResponse) {
         if (err == null) {
             err = new Error(`Unkonwn error because original error is null.`)
             err.name = 'nullError'
         }
 
-        // const defaultErrorStatusCode = 600;
+        res.setHeader("content-type", defaultContentTypes.json);
+        if (typeof err == "string") {
+            res.statusCode = StatusCode.UnknownError;
+            res.statusMessage = err;      // statusMessage 不能为中文，否则会出现 invalid chartset 的异常
 
-        res.setHeader("content-type", contentTypes.json);
-        res.statusCode = err.statusCode || StatusCode.UnknownError;
-        res.statusMessage = err.name;      // statusMessage 不能为中文，否则会出现 invalid chartset 的异常
-
-        if (/^\d\d\d\s/.test(err.name)) {
-            res.statusCode = Number.parseInt(err.name.substr(0, 3));
-            err.name = err.name.substr(4);
         }
+        else {
+            res.statusCode = err.statusCode || StatusCode.UnknownError;
+            res.statusMessage = err.name;      // statusMessage 不能为中文，否则会出现 invalid chartset 的异常
+
+            if (/^\d\d\d\s/.test(err.name)) {
+                res.statusCode = Number.parseInt(err.name.substr(0, 3));
+                err.name = err.name.substr(4);
+            }
+        }
+
 
         let outputObject = this.errorOutputObject(err)
         let str = JSON.stringify(outputObject);
@@ -208,9 +204,9 @@ export class WebServer {
         res.end();
     }
 
-    private errorOutputObject(err: Error) {
-        let outputObject = { message: err.message, name: err.name, stack: err.stack };
-        if (err.innerError) {
+    private errorOutputObject(err: Error | string) {
+        let outputObject = typeof err == "string" ? { message: err, name: "unknown" } : { message: err.message, name: err.name, stack: err.stack };
+        if (typeof err != "string" && err.innerError) {
             (outputObject as any)['innerError'] = this.errorOutputObject(err.innerError)
         }
 
@@ -228,7 +224,7 @@ export class WebServer {
         return this.#logSettings.level;
     }
 
-    get requestProcessorTypes(): RequestProcessorTypeCollection {
+    get requestProcessorTypes() {
         return this.#requestProcessorTypes;
     }
 

@@ -2,14 +2,11 @@
 import { Settings } from "./settings";
 import http = require("http");
 import { VirtualDirectory } from "./virtual-directory";
-import { RequestProcessor } from "./request-processor";
-import { RequestResultTransform } from "./content-transform";
+import { RequestProcessor, RequestProcessorType } from "./request-processor";
+import { ContentTransformFunc, ContentTransform } from "./content-transform";
 import { LogLevel } from "./logger";
 export declare class WebServer {
     #private;
-    static defaultRequestProcessorTypes: {
-        new (config?: any): RequestProcessor;
-    }[];
     constructor(settings?: Settings);
     /** 网站文件夹 */
     get websiteDirectory(): VirtualDirectory;
@@ -19,7 +16,7 @@ export declare class WebServer {
     get requestProcessors(): RequestProcessor[];
     get source(): http.Server;
     /** 内容转换器 */
-    get contentTransforms(): RequestResultTransform[];
+    get contentTransforms(): (ContentTransform | ContentTransformFunc)[];
     private start;
     private resultTransform;
     private outputContent;
@@ -29,4 +26,5 @@ export declare class WebServer {
     getLogger(categoryName: string): import("log4js").Logger;
     /** 日志等级 */
     get logLevel(): LogLevel;
+    get requestProcessorTypes(): RequestProcessorType[];
 }

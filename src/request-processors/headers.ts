@@ -1,4 +1,4 @@
-import { RequestContext, RequestProcessor, RequestResult } from "..";
+import { RequestContext, RequestProcessor } from "..";
 
 export interface HeadersRequestProcessorConfig {
     headers?: { [name: string]: string | string[] },
@@ -6,16 +6,22 @@ export interface HeadersRequestProcessorConfig {
 
 export class HeadersRequestProcessor implements RequestProcessor {
 
-    #config: HeadersRequestProcessorConfig;
+    #headers?: { [name: string]: string | string[] };
 
-    constructor(config?: HeadersRequestProcessorConfig) {
-        this.#config = config || {};
+    constructor() {
+    }
+
+    get headers() {
+        return this.#headers;
+    }
+    set headers(value) {
+        this.#headers = value;
     }
 
     execute(ctx: RequestContext): null {
-        if (this.#config.headers) {
-            for (let name in this.#config.headers) {
-                ctx.res.setHeader(name, this.#config.headers[name]);
+        if (this.#headers) {
+            for (let name in this.#headers) {
+                ctx.res.setHeader(name, this.#headers[name]);
             }
         }
         return null
