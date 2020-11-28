@@ -1,4 +1,4 @@
-import { WebServer, Settings, defaultContentTypes } from "../out";
+import { WebServer, Settings } from "../out";
 import * as assert from "assert";
 import Browser = require('zombie');
 import { pathConcat } from "../out/path-concat";
@@ -53,7 +53,7 @@ describe("web-server", function () {
 
     it("javascript content type", async function () {
         await browser.visit(`http://127.0.0.1:${w.port}/index.js`);
-        assert.strictEqual(browser.response.headers.get("content-type"), defaultContentTypes.js);
+        assert.ok(browser.response.headers.get("content-type").indexOf("javascript") > 0);
     })
 
     it("unsupport content type", async function () {

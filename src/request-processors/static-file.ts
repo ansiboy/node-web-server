@@ -92,8 +92,7 @@ export class StaticFileRequestProcessor implements RequestProcessor {
                 return null;
 
             console.assert(ext.startsWith("."));
-            let key = ext.substr(1);
-            let contentType = this.#contentTypes[key] || this.contentTypes[ext];
+            let contentType = this.#contentTypes[ext];
             if (!contentType)
                 throw errors.fileTypeNotSupport(ext);
 

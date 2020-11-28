@@ -157,7 +157,7 @@ class WebServer {
             err = new Error(`Unkonwn error because original error is null.`);
             err.name = 'nullError';
         }
-        res.setHeader("content-type", content_types_1.defaultContentTypes.json);
+        res.setHeader("content-type", content_types_1.defaultContentTypes[".json"]);
         if (typeof err == "string") {
             res.statusCode = status_code_1.StatusCode.UnknownError;
             res.statusMessage = err; // statusMessage 不能为中文，否则会出现 invalid chartset 的异常

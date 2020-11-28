@@ -62,7 +62,7 @@ describe("web-server", function () {
     it("javascript content type", function () {
         return __awaiter(this, void 0, void 0, function* () {
             yield browser.visit(`http://127.0.0.1:${w.port}/index.js`);
-            assert.strictEqual(browser.response.headers.get("content-type"), out_1.defaultContentTypes.js);
+            assert.ok(browser.response.headers.get("content-type").indexOf("javascript") > 0);
         });
     });
     it("unsupport content type", function () {

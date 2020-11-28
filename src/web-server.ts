@@ -181,7 +181,7 @@ export class WebServer {
             err.name = 'nullError'
         }
 
-        res.setHeader("content-type", defaultContentTypes.json);
+        res.setHeader("content-type", defaultContentTypes[".json"]);
         if (typeof err == "string") {
             res.statusCode = StatusCode.UnknownError;
             res.statusMessage = err;      // statusMessage 不能为中文，否则会出现 invalid chartset 的异常

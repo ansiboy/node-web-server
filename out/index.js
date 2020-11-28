@@ -18,5 +18,3 @@ var static_file_1 = require("./request-processors/static-file");
 exports.StaticFileProcessor = static_file_1.StaticFileRequestProcessor;
 var headers_1 = require("./request-processors/headers");
 exports.HeadersProcessor = headers_1.HeadersRequestProcessor;
-var content_types_1 = require("./content-types");
-exports.defaultContentTypes = content_types_1.defaultContentTypes;

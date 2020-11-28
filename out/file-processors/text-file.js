@@ -1,34 +1,35 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const error_pages_1 = require("../error-pages");
-const fs = require("fs");
-const status_code_1 = require("../status-code");
-const content_types_1 = require("../content-types");
-// export let staticFileProcessor = createFileProcessor();
-exports.staticFileProcessor = function (args) {
-    return new Promise((resolve, reject) => {
-        if (!args.physicalPath) {
-            return resolve({ statusCode: status_code_1.StatusCode.NotFound, content: Buffer.from(error_pages_1.errorPages.NotFound) });
-        }
-        if (!fs.existsSync(args.physicalPath)) {
-            let text = `Path ${args.physicalPath} is not exists.`;
-            return resolve({ statusCode: 404, content: Buffer.from(text) });
-        }
-        let arr = args.physicalPath.split(".");
-        let ext = arr[arr.length - 1];
-        let contentType = content_types_1.defaultContentTypes[ext] || content_types_1.defaultContentTypes.txt;
-        let stat = fs.statSync(args.physicalPath);
-        // fs.readFile(args.physicalPath, (err, data) => {
-        //     if (err)
-        //         reject(err);
-        let data = fs.createReadStream(args.physicalPath); //fs.readFileSync(args.physicalPath);
-        let mtime = stat.mtime.valueOf();
-        let headers = {
-            "Content-Type": contentType,
-            "Etag": JSON.stringify([stat.ino, stat.size, mtime].join('-')),
-            "Last-Modified": stat.mtime.toDateString(),
-        };
-        resolve({ statusCode: status_code_1.StatusCode.OK, content: data, headers });
-        // })
-    });
-};
+// import { FileProcessor } from "../file-processor";
+// import { errorPages } from "../error-pages";
+// import * as fs from "fs";
+// import { StatusCode } from "../status-code";
+// import { defaultContentTypes } from "../content-types";
+// import { RequestResult, RequestProcessor } from "../request-processor";
+// // export let staticFileProcessor = createFileProcessor();
+// export let staticFileProcessor: FileProcessor = function (args): Promise<RequestResult> {
+//     return new Promise<RequestResult>((resolve, reject) => {
+//         if (!args.physicalPath) {
+//             return resolve({ statusCode: StatusCode.NotFound, content: Buffer.from(errorPages.NotFound) });
+//         }
+//         if (!fs.existsSync(args.physicalPath)) {
+//             let text = `Path ${args.physicalPath} is not exists.`;
+//             return resolve({ statusCode: 404, content: Buffer.from(text) });
+//         }
+//         let arr = args.physicalPath.split(".");
+//         let ext = arr[arr.length - 1];
+//         let contentType = defaultContentTypes[ext as keyof typeof defaultContentTypes] || defaultContentTypes[".txt"];
+//         let stat = fs.statSync(args.physicalPath);
+//         // fs.readFile(args.physicalPath, (err, data) => {
+//         //     if (err)
+//         //         reject(err);
+//         let data = fs.createReadStream(args.physicalPath); //fs.readFileSync(args.physicalPath);
+//         let mtime: number = stat.mtime.valueOf();
+//         let headers: RequestResult["headers"] = {
+//             "Content-Type": contentType,
+//             "Etag": JSON.stringify([stat.ino, stat.size, mtime].join('-')),
+//             "Last-Modified": stat.mtime.toDateString(),
+//         };
+//         resolve({ statusCode: StatusCode.OK, content: data, headers });
+//         // })
+//     })
+// }
