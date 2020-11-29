@@ -4,14 +4,13 @@ import url = require("url");
 import { AddressInfo } from "net";
 import { errors } from "./errors";
 import { VirtualDirectory } from "./virtual-directory";
-import { RequestProcessor, RequestResult, Content, RequestContext, RequestProcessorType } from "./request-processor";
+import { RequestProcessor, RequestResult, Content, RequestContext } from "./request-processor";
 import { defaultContentTypes } from "./content-types";
 import { ContentTransformFunc, ContentTransform } from "./content-transform";
 import { ProxyRequestProcessor } from "./request-processors/proxy";
 import { StaticFileRequestProcessor } from "./request-processors/static-file";
 import { StatusCode } from "./status-code";
 import { DynamicRequestProcessor } from "./request-processors/cgi";
-import { getLogger, LogLevel } from "./logger";
 import * as stream from "stream";
 import * as path from "path";
 import { HeadersRequestProcessor } from "./request-processors/headers";
@@ -29,7 +28,7 @@ export class WebServer {
         filePath: "log.txt",
     };
     #logSettings: NonNullable<Required<Settings["log"]>>;
-    #requestProcessorTypes: RequestProcessorType[] = [];
+    // #requestProcessorTypes: RequestProcessorType[] = [];
 
     #defaultRequestProcessors = {
         headers: new HeadersRequestProcessor(), proxy: new ProxyRequestProcessor(),
@@ -80,7 +79,7 @@ export class WebServer {
         return this.#requestProcessors;
     }
 
-    get source() {
+    get source(): http.Server {
         return this.#source;
     }
 
@@ -213,19 +212,19 @@ export class WebServer {
         return outputObject
     }
 
-    /** 日志记录器 */
-    getLogger(categoryName: string) {
-        let logSetting = this.#settings.log || {};
-        return getLogger(categoryName, this.logLevel, logSetting.filePath);
-    }
+    // /** 日志记录器 */
+    // getLogger(categoryName: string) {
+    //     let logSetting = this.#settings.log || {};
+    //     return getLogger(categoryName, this.logLevel, logSetting.filePath);
+    // }
 
     /** 日志等级 */
     get logLevel() {
         return this.#logSettings.level;
     }
 
-    get requestProcessorTypes() {
-        return this.#requestProcessorTypes;
-    }
+    // get requestProcessorTypes() {
+    //     return this.#requestProcessorTypes;
+    // }
 
 }

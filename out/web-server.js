@@ -9,7 +9,6 @@ const proxy_1 = require("./request-processors/proxy");
 const static_file_1 = require("./request-processors/static-file");
 const status_code_1 = require("./status-code");
 const cgi_1 = require("./request-processors/cgi");
-const logger_1 = require("./logger");
 const stream = require("stream");
 const path = require("path");
 const headers_1 = require("./request-processors/headers");
@@ -21,7 +20,7 @@ class WebServer {
             level: "all",
             filePath: "log.txt",
         };
-        this.#requestProcessorTypes = [];
+        // #requestProcessorTypes: RequestProcessorType[] = [];
         this.#defaultRequestProcessors = {
             headers: new headers_1.HeadersRequestProcessor(), proxy: new proxy_1.ProxyRequestProcessor(),
             dynamic: new cgi_1.DynamicRequestProcessor(), static: new static_file_1.StaticFileRequestProcessor(),
@@ -53,7 +52,7 @@ class WebServer {
     #contentTransforms;
     #defaultLogSettings;
     #logSettings;
-    #requestProcessorTypes;
+    // #requestProcessorTypes: RequestProcessorType[] = [];
     #defaultRequestProcessors;
     /** 网站文件夹 */
     get websiteDirectory() {
@@ -182,17 +181,14 @@ class WebServer {
         }
         return outputObject;
     }
-    /** 日志记录器 */
-    getLogger(categoryName) {
-        let logSetting = this.#settings.log || {};
-        return logger_1.getLogger(categoryName, this.logLevel, logSetting.filePath);
-    }
+    // /** 日志记录器 */
+    // getLogger(categoryName: string) {
+    //     let logSetting = this.#settings.log || {};
+    //     return getLogger(categoryName, this.logLevel, logSetting.filePath);
+    // }
     /** 日志等级 */
     get logLevel() {
         return this.#logSettings.level;
-    }
-    get requestProcessorTypes() {
-        return this.#requestProcessorTypes;
     }
 }
 exports.WebServer = WebServer;
