@@ -138,6 +138,8 @@ class WebServer {
                 result = await r;
             else
                 result = r;
+            if (result == null)
+                throw errors_1.errors.contentTransformResultNull();
         }
         return result;
     }

@@ -1,20 +1,17 @@
 import { RequestContext, RequestProcessor } from "..";
 
-export interface HeadersRequestProcessorConfig {
-    headers?: { [name: string]: string | string[] },
-}
-
+export type Headers = { [name: string]: string | string[] };
 export class HeadersRequestProcessor implements RequestProcessor {
 
-    #headers?: { [name: string]: string | string[] };
+    #headers: Headers = {};
 
     constructor() {
     }
 
-    get headers() {
+    get headers(): Headers {
         return this.#headers;
     }
-    set headers(value) {
+    set headers(value: Headers) {
         this.#headers = value;
     }
 

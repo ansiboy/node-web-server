@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 class HeadersRequestProcessor {
     constructor() {
+        this.#headers = {};
     }
     #headers;
     get headers() {

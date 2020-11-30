@@ -12,4 +12,4 @@ export { LogLevel, getLogger } from "./logger";
 export { RequestProcessor, RequestContext, RequestResult, Content, } from "./request-processor";
 export { ProxyRequestProcessor as ProxyProcessor, ProxyRequestProcessorConfig as ProxyConfig, ProxyItem } from "./request-processors/proxy";
 export { StaticFileRequestProcessor as StaticFileProcessor } from "./request-processors/static-file";
-export { HeadersRequestProcessor as HeadersProcessor, HeadersRequestProcessorConfig as HeadersConfig } from "./request-processors/headers"
+export { HeadersRequestProcessor as HeadersProcessor } from "./request-processors/headers"

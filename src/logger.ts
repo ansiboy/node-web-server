@@ -35,7 +35,7 @@ log4js.configure({ appenders, categories });
 
 export type LogLevel = keyof Pick<log4js.Logger, 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal'> | "all" | "off" | 'mark';
 
-export function getLogger(categoryName: string, logLevel: LogLevel, filePath?: string) {
+export function getLogger(categoryName: string, logLevel?: LogLevel, filePath?: string) {
 
     if (!categoryName) throw errors.arugmentNull("categoryName");
 

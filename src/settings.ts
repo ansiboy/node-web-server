@@ -1,6 +1,4 @@
 import { VirtualDirectory } from "./virtual-directory";
-import { RequestProcessor } from "./request-processor";
-import { RequestResultTransform } from "./content-transform";
 import { LogLevel } from "./logger";
 
 export interface Settings {

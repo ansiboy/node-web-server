@@ -158,6 +158,9 @@ export class WebServer {
                 result = await r;
             else
                 result = r as RequestResult;
+
+            if (result == null)
+                throw errors.contentTransformResultNull();
         }
 
         return result;
