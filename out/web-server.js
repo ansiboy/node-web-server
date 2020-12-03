@@ -107,11 +107,11 @@ class WebServer {
                         }
                         if (r.headers) {
                             for (let key in r.headers) {
-                                res.setHeader(key, r.headers[key]);
+                                res.setHeader(key, r.headers[key] || "");
                             }
-                            if (r.content instanceof Buffer) {
-                                res.setHeader("Content-Length", r.content.length.toString());
-                            }
+                            // if (r.content instanceof Buffer) {
+                            //     res.setHeader("Content-Length", r.content.length.toString());
+                            // }
                         }
                         this.outputContent(r.content, requestContext);
                         return;

@@ -109,12 +109,27 @@ export function proxyRequest(targetUrl: string, req: http.IncomingMessage, res: 
                 res.statusCode = response.statusCode || 200;
                 res.statusMessage = response.statusMessage || '';
 
-                response.pipe(res);
-                response.on("end", () => resolve());
                 response.on("error", err => reject(err));
                 response.on("close", () => reject(errors.connectionClose()));
+                response.on("end", () => {
+                    let headers = Object.assign({}, response.headers);
+                    delete headers["content-length"];
+                    resolve({
+                        content: buffer, statusCode: response.statusCode || 200,
+                        headers
+                    });
+                });
+                response.on("error", err => reject(err));
 
-                resolve({ content: response });
+                let buffer = Buffer.from([]);
+                response.on("data", function (data) {
+                    buffer = Buffer.concat([buffer, data])
+                })
+
+                // resolve({
+                //     content: response, statusCode: response.statusCode || 200,
+                //     headers: response.headers,
+                // });
             }
         );
 

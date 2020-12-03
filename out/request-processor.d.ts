@@ -16,7 +16,7 @@ export declare type RequestResult = {
     statusCode?: number;
     content: Content;
     headers?: {
-        [key: string]: string;
+        [key: string]: string | string[] | undefined;
     };
 };
 export interface RequestProcessor {
