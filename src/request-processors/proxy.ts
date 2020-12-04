@@ -113,7 +113,9 @@ export function proxyRequest(targetUrl: string, req: http.IncomingMessage, res: 
                 response.on("close", () => reject(errors.connectionClose()));
                 response.on("end", () => {
                     let headers = Object.assign({}, response.headers);
-                    delete headers["content-length"];
+                    if (headers["content-length"])
+                        delete headers["content-length"];
+                        
                     resolve({
                         content: buffer, statusCode: response.statusCode || 200,
                         headers
