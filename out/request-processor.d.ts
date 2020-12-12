@@ -14,6 +14,7 @@ export declare type RequestContext = {
 };
 export declare type RequestResult = {
     statusCode?: number;
+    statusMessage?: string;
     content: Content;
     headers?: {
         [key: string]: string | string[] | undefined;

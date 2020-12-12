@@ -57,11 +57,11 @@ class VirtualDirectory {
         return filePhysicalPaths;
     }
     /**
-     * 添加子虚拟文件夹
+     * 设置子虚拟文件夹
      * @param name 文件夹名称
      * @param physicalPath 该文件夹对应的物理路径
      */
-    addDirectory(name, physicalPath) {
+    setDirectory(name, physicalPath) {
         if (!name)
             throw errors_1.errors.argumentNull("name");
         if (!physicalPath)
@@ -73,11 +73,11 @@ class VirtualDirectory {
         return dir;
     }
     /**
-     * 添加子虚拟文件
+     * 设置子虚拟文件
      * @param name 文件名称
      * @param physicalPath 该文件名对应的物理路径
      */
-    addFile(name, physicalPath) {
+    setFile(name, physicalPath) {
         if (!name)
             throw errors_1.errors.argumentNull("name");
         if (!physicalPath)
@@ -104,16 +104,13 @@ class VirtualDirectory {
             let name = arr[i];
             let isFileName = i == arr.length - 1 && arr[arr.length - 1].indexOf(".") > 0;
             if (isFileName) {
-                let file = current.files()[name];
-                if (file == null) {
-                    current.addFile(name, physicalPath);
-                }
+                current.setFile(name, physicalPath);
                 break;
             }
             let child = current.directory(name);
             if (child == null) {
                 let directoryPhysicalPath = i == arr.length - 1 ? physicalPath : path_concat_1.pathConcat(current.physicalPath, name);
-                child = current.addDirectory(name, directoryPhysicalPath);
+                child = current.setDirectory(name, directoryPhysicalPath);
             }
             current = child;
             if (i == arr.length - 1) {
