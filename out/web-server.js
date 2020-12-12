@@ -152,6 +152,15 @@ class WebServer {
             content.pipe(res);
         }
         else {
+            if (content == null) {
+                let contentType = (res.getHeader("Content-Type") || "");
+                if (contentType.indexOf("json") >= 0) {
+                    content = JSON.stringify({});
+                }
+                else {
+                    content = "";
+                }
+            }
             res.write(content);
             res.end();
         }
