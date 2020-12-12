@@ -119,6 +119,9 @@ export class WebServer {
                         if (r.statusCode) {
                             res.statusCode = r.statusCode;
                         }
+                        if (r.statusMessage) {
+                            res.statusMessage = r.statusMessage;
+                        }
                         if (r.headers) {
                             for (let key in r.headers) {
                                 res.setHeader(key, r.headers[key] || "");

@@ -15,6 +15,7 @@ export type RequestContext = {
 
 export type RequestResult = {
     statusCode?: number,
+    statusMessage?: string,
     content: Content,
     headers?: { [key: string]: string | string[] | undefined }
 }
