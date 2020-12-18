@@ -49,19 +49,13 @@ export class StaticFileRequestProcessor implements RequestProcessor {
 
         let physicalPath = ctx.rootDirectory.findFile(virtualPath);
         if (physicalPath == null)
-            throw errors.pageNotFound(virtualPath);
+            throw errors.pageNotFound(ctx.virtualPath);
 
-        if (physicalPath.indexOf(".") < 0) {
-            physicalPath = pathConcat(physicalPath, "index.html");
-        }
+        // if (physicalPath.indexOf(".") < 0) {
+        //     physicalPath = pathConcat(physicalPath, "index.html");
+        // }
 
-
-
-        // let fileProcessor = this.#fileProcessors[ext];
-        // if (fileProcessor == null)
-        //     throw errors.fileTypeNotSupport(ext);
-
-        let p = this.processStaticFile(physicalPath); //fileProcessor({ virtualPath: virtualPath, physicalPath: physicalPath }, ctx) as Promise<RequestResult>;
+        let p = this.processStaticFile(physicalPath);
         if (p.then == null) {
             p = Promise.resolve(p);
         }
