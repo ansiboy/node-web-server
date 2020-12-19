@@ -2,6 +2,7 @@ import * as http from "http";
 import { RequestProcessor, RequestContext, RequestResult } from "../request-processor";
 import * as fs from "fs";
 import { errors } from "../errors";
+import { processorPriorities } from "./priority";
 
 export type DynamicScriptFunction = (args: RequestContext) => RequestResult | Promise<RequestResult>;
 
@@ -26,6 +27,8 @@ export class DynamicRequestProcessor implements RequestProcessor {
 
     #dynamicScriptPath: string;
 
+    priority = processorPriorities.DynamicRequestProcessor;
+    
     constructor() {
         // config = config || {};
 

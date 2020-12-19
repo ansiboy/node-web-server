@@ -7,30 +7,13 @@ import { StatusCode } from "../status-code";
 import { errorPages } from "../error-pages";
 import * as fs from "fs";
 import { defaultContentTypes } from "../content-types";
-
-// export type StaticFileRequestProcessorConfig = {
-//     fileProcessors?: { [key: string]: FileProcessor },
-//     // 设置静态文件扩展名
-//     staticFileExtentions?: string[],
-// }
-
-// export let defaultFileProcessors: { [key: string]: FileProcessor } = {
-//     ".txt": staticFileProcessor,
-//     ".html": staticFileProcessor,
-//     ".js": staticFileProcessor,
-//     ".css": staticFileProcessor,
-//     ".json": staticFileProcessor,
-//     ".jpg": staticFileProcessor,
-// }
-
-// ".woff": staticFileProcessor,
-// ".woff2": staticFileProcessor,
-// ".ttf": staticFileProcessor,
+import { processorPriorities } from "./priority";
 
 export class StaticFileRequestProcessor implements RequestProcessor {
 
-    // #fileProcessors: { [key: string]: FileProcessor };
     #contentTypes: { [key: string]: string } = Object.assign({}, defaultContentTypes);
+
+    priority = processorPriorities.StaticFileRequestProcessor;
 
     constructor() {
 

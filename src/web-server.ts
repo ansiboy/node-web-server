@@ -14,12 +14,13 @@ import { DynamicRequestProcessor } from "./request-processors/cgi";
 import * as stream from "stream";
 import * as path from "path";
 import { HeadersRequestProcessor } from "./request-processors/headers";
+import { RequestProcessorTypeCollection } from "./request-processors/collection";
 
 const DefaultWebSitePath = "../sample-website";
 export class WebServer {
 
     #websiteDirectory: VirtualDirectory;
-    #requestProcessors: RequestProcessor[];
+    #requestProcessors: RequestProcessorTypeCollection;
     #settings: Settings;
     #source: http.Server;
     #contentTransforms: (ContentTransform | ContentTransformFunc)[] = [];
@@ -52,11 +53,10 @@ export class WebServer {
         this.#settings = settings;
         this.#logSettings = Object.assign(settings.log || {}, this.#defaultLogSettings);
         this.#source = this.start();
-        this.#requestProcessors = [
+        this.#requestProcessors = new RequestProcessorTypeCollection([
             this.#defaultRequestProcessors.headers, this.#defaultRequestProcessors.proxy,
             this.#defaultRequestProcessors.dynamic, this.#defaultRequestProcessors.static,
-        ];
-
+        ]);
     }
 
     /** 网站文件夹 */
@@ -96,7 +96,7 @@ export class WebServer {
             let path = u.pathname || "";
 
             for (let i = 0; i < this.#requestProcessors.length; i++) {
-                let processor = this.#requestProcessors[i];
+                let processor = this.#requestProcessors.item(i);
                 try {
                     let r: RequestResult | null = null;
                     let requestContext: RequestContext = {

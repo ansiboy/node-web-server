@@ -1,6 +1,7 @@
 import { RequestProcessor, RequestContext, RequestResult } from "../request-processor";
 import http = require('http');
 import { errors } from "../errors";
+import { processorPriorities } from "./priority";
 
 export interface ProxyItem {
     /** 转发请求的目标地址 */
@@ -18,6 +19,7 @@ export class ProxyRequestProcessor implements RequestProcessor {
 
     #proxyTargets: { [key: string]: ProxyItem | string } = {};
 
+    priority = processorPriorities.ProxyRequestProcessor;
 
     constructor() {
         // config = config || {} as ProxyRequestProcessorConfig;
@@ -115,7 +117,7 @@ export function proxyRequest(targetUrl: string, req: http.IncomingMessage, res: 
                     let headers = Object.assign({}, response.headers);
                     if (headers["content-length"])
                         delete headers["content-length"];
-                        
+
                     resolve({
                         content: buffer, statusCode: response.statusCode || 200,
                         headers

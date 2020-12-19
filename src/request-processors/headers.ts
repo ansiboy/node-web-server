@@ -1,9 +1,12 @@
 import { RequestContext, RequestProcessor } from "..";
+import { processorPriorities } from "./priority";
 
 export type Headers = { [name: string]: string | string[] };
 export class HeadersRequestProcessor implements RequestProcessor {
 
     #headers: Headers = {};
+
+    priority = processorPriorities.HeadersRequestProcessor;
 
     constructor() {
     }
