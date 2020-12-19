@@ -6,11 +6,11 @@ export class RequestProcessorTypeCollection {
 
     constructor(items?: RequestProcessor[]) {
         if (items != null) {
-            items.forEach((o) => this.push(o));
+            items.forEach((o) => this.add(o));
         }
     }
 
-    push(item: RequestProcessor) {
+    add(item: RequestProcessor) {
         if (item == null)
             throw errors.argumentNull("item");
 

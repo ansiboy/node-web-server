@@ -5,10 +5,10 @@ class RequestProcessorTypeCollection {
     constructor(items) {
         this.items = [];
         if (items != null) {
-            items.forEach((o) => this.push(o));
+            items.forEach((o) => this.add(o));
         }
     }
-    push(item) {
+    add(item) {
         if (item == null)
             throw errors_1.errors.argumentNull("item");
         if (item.priority == null || this.items.length == 0) {
