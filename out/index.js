@@ -18,3 +18,5 @@ var static_file_1 = require("./request-processors/static-file");
 exports.StaticFileProcessor = static_file_1.StaticFileRequestProcessor;
 var headers_1 = require("./request-processors/headers");
 exports.HeadersProcessor = headers_1.HeadersRequestProcessor;
+var priority_1 = require("./request-processors/priority");
+exports.processorPriorities = priority_1.processorPriorities;

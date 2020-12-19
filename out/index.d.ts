@@ -11,3 +11,4 @@ export { RequestProcessor, RequestContext, RequestResult, Content, } from "./req
 export { ProxyRequestProcessor as ProxyProcessor, ProxyRequestProcessorConfig as ProxyConfig, ProxyItem } from "./request-processors/proxy";
 export { StaticFileRequestProcessor as StaticFileProcessor } from "./request-processors/static-file";
 export { HeadersRequestProcessor as HeadersProcessor } from "./request-processors/headers";
+export { processorPriorities } from "./request-processors/priority";
