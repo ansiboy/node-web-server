@@ -18,7 +18,7 @@ describe("StaticFileRequestProcessor class test", function () {
     it("config", function () {
         return __awaiter(this, void 0, void 0, function* () {
             let w = common_1.createWebServer();
-            var staticFileProcessor = w.requestProcessors.filter(o => o instanceof out_1.StaticFileProcessor)[0];
+            var staticFileProcessor = w.requestProcessors.filter(o => o instanceof out_1.StaticFileProcessor).item(0);
             assert.notStrictEqual(staticFileProcessor, null);
             staticFileProcessor.contentTypes[".less"] = "text/plain";
             const browser = new Browser();

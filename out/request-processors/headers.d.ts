@@ -4,6 +4,7 @@ export declare type Headers = {
 };
 export declare class HeadersRequestProcessor implements RequestProcessor {
     #private;
+    priority: number;
     constructor();
     get headers(): Headers;
     set headers(value: Headers);

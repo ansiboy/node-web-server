@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const fs = require("fs");
 const errors_1 = require("../errors");
+const priority_1 = require("./priority");
 const defaultDynamicPath = "/dynamic";
 let noDefaultExport = (name) => {
     let error = { message: `Module "${name}" has not a default export.`, name: "noDefaultExport" };
@@ -14,6 +15,7 @@ let defaultExportNotFunction = (name) => {
 class DynamicRequestProcessor {
     constructor() {
         // config = config || {};
+        this.priority = priority_1.processorPriorities.DynamicRequestProcessor;
         console.assert(defaultDynamicPath.startsWith("/"));
         this.#dynamicScriptPath = defaultDynamicPath;
         // if (!this.#dynamicScriptPath.startsWith("/"))

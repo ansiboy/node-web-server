@@ -1,6 +1,6 @@
 # NODE-WEB-SERVER
 
-采用 nodejs 编写的 WEB SERVER
+采用 nodejs 编写的 WEB SERVER，插件化处理各种类型的请求。
 
 ## 功能列表
 

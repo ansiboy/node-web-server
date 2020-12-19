@@ -8,28 +8,12 @@ const status_code_1 = require("../status-code");
 const error_pages_1 = require("../error-pages");
 const fs = require("fs");
 const content_types_1 = require("../content-types");
-// export type StaticFileRequestProcessorConfig = {
-//     fileProcessors?: { [key: string]: FileProcessor },
-//     // 设置静态文件扩展名
-//     staticFileExtentions?: string[],
-// }
-// export let defaultFileProcessors: { [key: string]: FileProcessor } = {
-//     ".txt": staticFileProcessor,
-//     ".html": staticFileProcessor,
-//     ".js": staticFileProcessor,
-//     ".css": staticFileProcessor,
-//     ".json": staticFileProcessor,
-//     ".jpg": staticFileProcessor,
-// }
-// ".woff": staticFileProcessor,
-// ".woff2": staticFileProcessor,
-// ".ttf": staticFileProcessor,
+const priority_1 = require("./priority");
 class StaticFileRequestProcessor {
     constructor() {
-        // #fileProcessors: { [key: string]: FileProcessor };
         this.#contentTypes = Object.assign({}, content_types_1.defaultContentTypes);
+        this.priority = priority_1.processorPriorities.StaticFileRequestProcessor;
     }
-    // #fileProcessors: { [key: string]: FileProcessor };
     #contentTypes;
     get contentTypes() {
         return this.#contentTypes;
@@ -41,14 +25,11 @@ class StaticFileRequestProcessor {
         }
         let physicalPath = ctx.rootDirectory.findFile(virtualPath);
         if (physicalPath == null)
-            throw errors_1.errors.pageNotFound(virtualPath);
-        if (physicalPath.indexOf(".") < 0) {
-            physicalPath = path_concat_1.pathConcat(physicalPath, "index.html");
-        }
-        // let fileProcessor = this.#fileProcessors[ext];
-        // if (fileProcessor == null)
-        //     throw errors.fileTypeNotSupport(ext);
-        let p = this.processStaticFile(physicalPath); //fileProcessor({ virtualPath: virtualPath, physicalPath: physicalPath }, ctx) as Promise<RequestResult>;
+            throw errors_1.errors.pageNotFound(ctx.virtualPath);
+        // if (physicalPath.indexOf(".") < 0) {
+        //     physicalPath = pathConcat(physicalPath, "index.html");
+        // }
+        let p = this.processStaticFile(physicalPath);
         if (p.then == null) {
             p = Promise.resolve(p);
         }

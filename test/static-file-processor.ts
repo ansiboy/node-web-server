@@ -6,9 +6,9 @@ import assert = require("assert");
 
 describe("StaticFileRequestProcessor class test", function () {
     it("config", async function () {
-   
+
         let w = createWebServer();
-        var staticFileProcessor = w.requestProcessors.filter(o => o instanceof StaticFileProcessor)[0] as StaticFileProcessor;
+        var staticFileProcessor = w.requestProcessors.filter(o => o instanceof StaticFileProcessor).item(0) as StaticFileProcessor;
         assert.notStrictEqual(staticFileProcessor, null);
 
         staticFileProcessor.contentTypes[".less"] = "text/plain";

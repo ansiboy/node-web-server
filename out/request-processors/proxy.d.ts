@@ -21,6 +21,7 @@ export interface ProxyRequestProcessorConfig {
 }
 export declare class ProxyRequestProcessor implements RequestProcessor {
     #private;
+    priority: number;
     constructor();
     get proxyTargets(): {
         [key: string]: string | ProxyItem;

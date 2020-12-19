@@ -5,6 +5,7 @@ export declare type DynamicRequestProcessorConfig = {
 };
 export declare class DynamicRequestProcessor implements RequestProcessor {
     #private;
+    priority: number;
     constructor();
     /** 获取脚本路径 */
     get scriptPath(): string;

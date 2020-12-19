@@ -2,9 +2,11 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const http = require("http");
 const errors_1 = require("../errors");
+const priority_1 = require("./priority");
 class ProxyRequestProcessor {
     constructor() {
         this.#proxyTargets = {};
+        this.priority = priority_1.processorPriorities.ProxyRequestProcessor;
         // config = config || {} as ProxyRequestProcessorConfig;
         // this.#proxyTargets = {};
         // if (config.proxyTargets) {

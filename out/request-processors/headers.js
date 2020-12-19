@@ -1,8 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const priority_1 = require("./priority");
 class HeadersRequestProcessor {
     constructor() {
         this.#headers = {};
+        this.priority = priority_1.processorPriorities.HeadersRequestProcessor;
     }
     #headers;
     get headers() {

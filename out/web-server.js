@@ -12,6 +12,7 @@ const cgi_1 = require("./request-processors/cgi");
 const stream = require("stream");
 const path = require("path");
 const headers_1 = require("./request-processors/headers");
+const collection_1 = require("./request-processors/collection");
 const DefaultWebSitePath = "../sample-website";
 class WebServer {
     constructor(settings) {
@@ -40,10 +41,10 @@ class WebServer {
         this.#settings = settings;
         this.#logSettings = Object.assign(settings.log || {}, this.#defaultLogSettings);
         this.#source = this.start();
-        this.#requestProcessors = [
+        this.#requestProcessors = new collection_1.RequestProcessorTypeCollection([
             this.#defaultRequestProcessors.headers, this.#defaultRequestProcessors.proxy,
             this.#defaultRequestProcessors.dynamic, this.#defaultRequestProcessors.static,
-        ];
+        ]);
     }
     #websiteDirectory;
     #requestProcessors;
@@ -84,7 +85,7 @@ class WebServer {
             let u = url.parse(req.url || "");
             let path = u.pathname || "";
             for (let i = 0; i < this.#requestProcessors.length; i++) {
-                let processor = this.#requestProcessors[i];
+                let processor = this.#requestProcessors.item(i);
                 try {
                     let r = null;
                     let requestContext = {

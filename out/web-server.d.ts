@@ -2,8 +2,8 @@
 import { Settings } from "./settings";
 import http = require("http");
 import { VirtualDirectory } from "./virtual-directory";
-import { RequestProcessor } from "./request-processor";
 import { ContentTransformFunc, ContentTransform } from "./content-transform";
+import { RequestProcessorTypeCollection } from "./request-processors/collection";
 export declare class WebServer {
     #private;
     constructor(settings?: Settings);
@@ -12,7 +12,7 @@ export declare class WebServer {
     /** 端口 */
     get port(): number;
     /** 请求处理器实例 */
-    get requestProcessors(): RequestProcessor[];
+    get requestProcessors(): RequestProcessorTypeCollection;
     get source(): http.Server;
     /** 内容转换器 */
     get contentTransforms(): (ContentTransform | ContentTransformFunc)[];
