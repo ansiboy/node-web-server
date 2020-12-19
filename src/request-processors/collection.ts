@@ -1,16 +1,19 @@
 import { errors } from "../errors";
 import { RequestProcessor } from "../request-processor";
 
+type RequestProcessorType<T extends RequestProcessor> = { new(config?: any): T };
+
+
 export class RequestProcessorTypeCollection {
     private items: RequestProcessor[] = [];
 
     constructor(items?: RequestProcessor[]) {
         if (items != null) {
-            items.forEach((o) => this.add(o));
+            items.forEach((o) => this.push(o));
         }
     }
 
-    add(item: RequestProcessor) {
+    push(item: RequestProcessor) {
         if (item == null)
             throw errors.argumentNull("item");
 
@@ -50,11 +53,6 @@ export class RequestProcessorTypeCollection {
         }
     }
 
-    filter(predicate: (item: RequestProcessor) => boolean) {
-        let q = this.items.filter(predicate);
-        return new RequestProcessorTypeCollection(q);
-    }
-
     item(index: number) {
         return this.items[index];
     }
@@ -63,6 +61,10 @@ export class RequestProcessorTypeCollection {
         return this.items.length;
     }
 
+    find<T extends RequestProcessor>(type: RequestProcessorType<T>): T {
+        let item = this.items.filter(o => o instanceof type)[0] as T;
+        return item;
+    }
 
     // map = this.items.map;
 

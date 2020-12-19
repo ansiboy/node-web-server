@@ -5,10 +5,10 @@ class RequestProcessorTypeCollection {
     constructor(items) {
         this.items = [];
         if (items != null) {
-            items.forEach((o) => this.add(o));
+            items.forEach((o) => this.push(o));
         }
     }
-    add(item) {
+    push(item) {
         if (item == null)
             throw errors_1.errors.argumentNull("item");
         if (item.priority == null || this.items.length == 0) {
@@ -42,15 +42,15 @@ class RequestProcessorTypeCollection {
             }
         }
     }
-    filter(predicate) {
-        let q = this.items.filter(predicate);
-        return new RequestProcessorTypeCollection(q);
-    }
     item(index) {
         return this.items[index];
     }
     get length() {
         return this.items.length;
+    }
+    find(type) {
+        let item = this.items.filter(o => o instanceof type)[0];
+        return item;
     }
 }
 exports.RequestProcessorTypeCollection = RequestProcessorTypeCollection;

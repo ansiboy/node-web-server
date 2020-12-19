@@ -35,7 +35,7 @@ describe("proxy-processor", function () {
     // }
     // requestProcessorConfigs[ProxyProcessor.name] = proxyConfig;
     let webserver = common_1.createWebServer();
-    let proxyProcessor = webserver.requestProcessors.filter(o => o instanceof proxy_1.ProxyRequestProcessor).item(0);
+    let proxyProcessor = webserver.requestProcessors.find(proxy_1.ProxyRequestProcessor);
     assert.notStrictEqual(proxyProcessor, null);
     proxyProcessor.proxyTargets = {
         "/AdminWeiXin/(\\S+)": {
