@@ -31,16 +31,6 @@ class RequestProcessorTypeCollection {
             this.items.push(item);
         }
     }
-    async foreach(func) {
-        if (!func)
-            throw errors_1.errors.argumentNull("func");
-        for (let i = 0; i < this.items.length; i++) {
-            let r = func(this.items[i]);
-            if (r != null && r.then != null && r.catch != null) {
-                await r;
-            }
-        }
-    }
     item(index) {
         return this.items[index];
     }

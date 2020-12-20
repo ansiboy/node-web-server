@@ -39,7 +39,7 @@ class WebServer {
             this.#websiteDirectory = settings.websiteDirectory;
         }
         this.#settings = settings;
-        this.#logSettings = Object.assign(settings.log || {}, this.#defaultLogSettings);
+        this.#logSettings = Object.assign({}, this.#defaultLogSettings, settings.log || {});
         this.#source = this.start();
         this.#requestProcessors = new collection_1.RequestProcessorTypeCollection([
             this.#defaultRequestProcessors.headers, this.#defaultRequestProcessors.proxy,
