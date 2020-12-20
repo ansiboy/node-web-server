@@ -41,17 +41,6 @@ export class RequestProcessorTypeCollection {
         }
     }
 
-    async foreach(func: (item: RequestProcessor) => Promise<any | void>) {
-        if (!func) throw errors.argumentNull("func");
-
-        for (let i = 0; i < this.items.length; i++) {
-            let r = func(this.items[i]);
-            if (r != null && r.then != null && r.catch != null) {
-                await r;
-            }
-        }
-    }
-
     item(index: number) {
         return this.items[index];
     }
