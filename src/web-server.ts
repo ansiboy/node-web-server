@@ -51,7 +51,7 @@ export class WebServer {
 
 
         this.#settings = settings;
-        this.#logSettings = Object.assign(settings.log || {}, this.#defaultLogSettings);
+        this.#logSettings = Object.assign({}, this.#defaultLogSettings, settings.log || {});
         this.#source = this.start();
         this.#requestProcessors = new RequestProcessorTypeCollection([
             this.#defaultRequestProcessors.headers, this.#defaultRequestProcessors.proxy,
