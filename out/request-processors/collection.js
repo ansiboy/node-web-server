@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const errors_1 = require("../errors");
+const priority_1 = require("./priority");
 class RequestProcessorTypeCollection {
     constructor(items) {
         this.items = [];
@@ -11,10 +12,8 @@ class RequestProcessorTypeCollection {
     add(item) {
         if (item == null)
             throw errors_1.errors.argumentNull("item");
-        if (item.priority == null || this.items.length == 0) {
-            this.items.push(item);
-            return;
-        }
+        if (item.priority == null)
+            item.priority = priority_1.processorPriorities.Default;
         let nextItemIndex = null;
         for (let i = 0; i < this.items.length; i++) {
             let priority = this.items[i].priority;

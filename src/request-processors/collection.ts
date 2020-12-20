@@ -1,5 +1,6 @@
 import { errors } from "../errors";
 import { RequestProcessor } from "../request-processor";
+import { processorPriorities } from "./priority";
 
 type RequestProcessorType<T extends RequestProcessor> = { new(config?: any): T };
 
@@ -17,10 +18,8 @@ export class RequestProcessorTypeCollection {
         if (item == null)
             throw errors.argumentNull("item");
 
-        if (item.priority == null || this.items.length == 0) {
-            this.items.push(item);
-            return;
-        }
+        if (item.priority == null)
+            item.priority = processorPriorities.Default;
 
         let nextItemIndex: number | null = null;
         for (let i = 0; i < this.items.length; i++) {
