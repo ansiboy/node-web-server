@@ -12,23 +12,34 @@ const priority_1 = require("./priority");
 class StaticFileRequestProcessor {
     constructor() {
         this.#contentTypes = Object.assign({}, content_types_1.defaultContentTypes);
+        this.#path = null;
         this.priority = priority_1.processorPriorities.StaticFileRequestProcessor;
     }
     #contentTypes;
+    #path;
     get contentTypes() {
         return this.#contentTypes;
+    }
+    /** 获取静态文件夹路径 */
+    get staticPath() {
+        return this.#path;
+    }
+    /** 设置静态文件夹路径 */
+    set staticPath(value) {
+        this.#path = value;
     }
     async execute(ctx) {
         let virtualPath = ctx.virtualPath;
         if (virtualPath.indexOf(".") < 0) {
             virtualPath = path_concat_1.pathConcat(virtualPath, "index.html");
         }
-        let physicalPath = ctx.rootDirectory.findFile(virtualPath);
+        var dir = this.staticPath ? ctx.rootDirectory.findDirectory(this.staticPath) : ctx.rootDirectory;
+        let physicalPath = null;
+        if (dir != null) {
+            physicalPath = dir.findFile(virtualPath);
+        }
         if (physicalPath == null)
             throw errors_1.errors.pageNotFound(ctx.virtualPath);
-        // if (physicalPath.indexOf(".") < 0) {
-        //     physicalPath = pathConcat(physicalPath, "index.html");
-        // }
         let p = this.processStaticFile(physicalPath);
         if (p.then == null) {
             p = Promise.resolve(p);

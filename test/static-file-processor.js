@@ -28,4 +28,17 @@ describe("StaticFileRequestProcessor class test", function () {
             assert.equal(browser.source, source);
         });
     });
+    it("path", function () {
+        return __awaiter(this, void 0, void 0, function* () {
+            let w = common_1.createWebServer();
+            var staticFileProcessor = w.requestProcessors.find(out_1.StaticFileProcessor);
+            assert.notStrictEqual(staticFileProcessor, null);
+            staticFileProcessor.staticPath = "public";
+            const browser = new Browser();
+            yield browser.visit(`http://127.0.0.1:${w.port}/temp.html`);
+            let buffer = fs.readFileSync(out_1.pathConcat(__dirname, "website/public/temp.html"));
+            let source = buffer.toString();
+            assert.strictEqual(browser.source, source);
+        });
+    });
 });

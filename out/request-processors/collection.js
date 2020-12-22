@@ -12,6 +12,11 @@ class RequestProcessorTypeCollection {
     add(item) {
         if (item == null)
             throw errors_1.errors.argumentNull("item");
+        console.assert(item.constructor != null);
+        let existsItem = this.find(item.constructor);
+        if (existsItem != null) {
+            return;
+        }
         if (item.priority == null)
             item.priority = priority_1.processorPriorities.Default;
         let nextItemIndex = null;

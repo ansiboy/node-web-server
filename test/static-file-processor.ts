@@ -19,4 +19,18 @@ describe("StaticFileRequestProcessor class test", function () {
         let source: string = buffer.toString();
         assert.equal(browser.source, source);
     })
+
+    it("path", async function () {
+        let w = createWebServer();
+        var staticFileProcessor = w.requestProcessors.find(StaticFileProcessor);
+        assert.notStrictEqual(staticFileProcessor, null);
+
+        staticFileProcessor.staticPath = "public";
+
+        const browser = new Browser();
+        await browser.visit(`http://127.0.0.1:${w.port}/temp.html`);
+        let buffer: Buffer = fs.readFileSync(pathConcat(__dirname, "website/public/temp.html"));
+        let source: string = buffer.toString();
+        assert.strictEqual(browser.source, source);
+    })
 })

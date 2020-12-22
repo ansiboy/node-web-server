@@ -9,4 +9,8 @@ describe("RequestProcessorTypeCollection", function () {
         let type = webserver.requestProcessors.find(out_1.StaticFileProcessor);
         assert.ok(type != null);
     });
+    it("add exists processor", () => {
+        var p = new out_1.StaticFileProcessor();
+        webserver.requestProcessors.add(p);
+    });
 });
