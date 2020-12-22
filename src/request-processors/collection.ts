@@ -18,6 +18,12 @@ export class RequestProcessorTypeCollection {
         if (item == null)
             throw errors.argumentNull("item");
 
+        console.assert(item.constructor != null);
+        let existsItem = this.find(item.constructor as RequestProcessorType<any>);
+        if (existsItem != null) {
+            return;
+        }
+
         if (item.priority == null)
             item.priority = processorPriorities.Default;
 
@@ -53,55 +59,4 @@ export class RequestProcessorTypeCollection {
         let item = this.items.filter(o => o instanceof type)[0] as T;
         return item;
     }
-
-    // map = this.items.map;
-
-    // foreach(func: (item: RequestProcessorType) => void) {
-    //     if (!func) throw errors.argumentNull("func");
-
-    //     for (let i = 0; i < this.items.length; i++)
-    //         func(this.items[i]);
-    // }
-
-    // add(item: RequestProcessorType) {
-    //     var isExists = this.items.filter(o => o.name == item.name).length > 0;
-    //     if (isExists)
-    //         throw errors.requestProcessorTypeExists(item.name);
-
-    //     this.items.push(item);
-    // }
-
-    // addRange(items: RequestProcessorType[]) {
-    //     if (items == null) throw errors.argumentNull("items");
-    //     for (let i = 0; i < items.length; i++)
-    //         this.add(items[i]);
-    // }
-
-    // insertBefore(item: RequestProcessorType, otherItemName: string) {
-    //     let itemIndex = this.getItemIndexByName(otherItemName);
-    //     if (itemIndex < 0)
-    //         throw errors.requestProcessorTypeExists(otherItemName);
-
-    //     this.items.splice(itemIndex, 0, item);
-    // }
-
-    // insertAfter(item: RequestProcessorType, otherItemName: string) {
-    //     let itemIndex = this.getItemIndexByName(otherItemName);
-    //     if (itemIndex < 0)
-    //         throw errors.requestProcessorTypeExists(otherItemName);
-
-    //     this.items.splice(itemIndex + 1, 0, item);
-    // }
-
-    // private getItemIndexByName(name: string) {
-    //     let itemIndex = -1;
-    //     for (let i = 0; i < this.items.length; i++) {
-    //         if (this.items[i].name == name) {
-    //             itemIndex = i;
-    //             break;
-    //         }
-    //     }
-
-    //     return itemIndex;
-    // }
 }
