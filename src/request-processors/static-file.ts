@@ -12,6 +12,7 @@ import { processorPriorities } from "./priority";
 export class StaticFileRequestProcessor implements RequestProcessor {
 
     #contentTypes: { [key: string]: string } = Object.assign({}, defaultContentTypes);
+    #path: string | null = null;
 
     priority = processorPriorities.StaticFileRequestProcessor;
 
@@ -23,6 +24,15 @@ export class StaticFileRequestProcessor implements RequestProcessor {
         return this.#contentTypes;
     }
 
+    /** 获取静态文件夹路径 */
+    get staticPath() {
+        return this.#path;
+    }
+    /** 设置静态文件夹路径 */
+    set staticPath(value: string | null) {
+        this.#path = value;
+    }
+
     async execute(ctx: RequestContext): Promise<RequestResult> {
 
         let virtualPath = ctx.virtualPath;
@@ -30,13 +40,15 @@ export class StaticFileRequestProcessor implements RequestProcessor {
             virtualPath = pathConcat(virtualPath, "index.html");
         }
 
-        let physicalPath = ctx.rootDirectory.findFile(virtualPath);
+        var dir = this.staticPath ? ctx.rootDirectory.findDirectory(this.staticPath) : ctx.rootDirectory;
+
+        let physicalPath: string | null = null;
+        if (dir != null) {
+            physicalPath = dir.findFile(virtualPath);
+        }
+
         if (physicalPath == null)
             throw errors.pageNotFound(ctx.virtualPath);
-
-        // if (physicalPath.indexOf(".") < 0) {
-        //     physicalPath = pathConcat(physicalPath, "index.html");
-        // }
 
         let p = this.processStaticFile(physicalPath);
         if (p.then == null) {
