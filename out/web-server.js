@@ -13,6 +13,8 @@ const stream = require("stream");
 const path = require("path");
 const headers_1 = require("./request-processors/headers");
 const collection_1 = require("./request-processors/collection");
+const logger_1 = require("./logger");
+const load_plugins_1 = require("./load-plugins");
 const DefaultWebSitePath = "../sample-website";
 class WebServer {
     constructor(settings) {
@@ -27,8 +29,6 @@ class WebServer {
             dynamic: new cgi_1.DynamicRequestProcessor(), static: new static_file_1.StaticFileRequestProcessor(),
         };
         settings = settings || {};
-        if (settings == null)
-            throw errors_1.errors.argumentNull("settings");
         if (settings.websiteDirectory == null) {
             this.#websiteDirectory = new virtual_directory_1.VirtualDirectory(path.join(__dirname, DefaultWebSitePath));
         }
@@ -37,6 +37,10 @@ class WebServer {
         }
         else {
             this.#websiteDirectory = settings.websiteDirectory;
+        }
+        let obj = this.loadConfigFromFile(this.#websiteDirectory);
+        if (obj) {
+            Object.assign(settings, obj);
         }
         this.#settings = settings;
         this.#logSettings = Object.assign({}, this.#defaultLogSettings, settings.log || {});
@@ -129,6 +133,22 @@ class WebServer {
             // 404
             this.outputError(errors_1.errors.pageNotFound(path), res);
         });
+        let packagePath = "../package.json";
+        let pkg = require(packagePath);
+        let logger = logger_1.getLogger(pkg.name, settings.log?.level);
+        load_plugins_1.loadPlugins(this, logger);
+        if (settings.processors != null) {
+            for (let i = 0; i < this.requestProcessors.length; i++) {
+                let requestProcessor = this.requestProcessors.item(i);
+                let name = requestProcessor.constructor.name;
+                let processorProperties = settings.processors[name];
+                for (let prop in processorProperties) {
+                    if (requestProcessor[prop]) {
+                        requestProcessor[prop] = processorProperties[prop];
+                    }
+                }
+            }
+        }
         return server.listen(settings.port, settings.bindIP);
     }
     async resultTransform(result, requestContext, requestResultTransforms) {
@@ -204,6 +224,24 @@ class WebServer {
     /** 日志等级 */
     get logLevel() {
         return this.#logSettings.level;
+    }
+    // get requestProcessorTypes() {
+    //     return this.#requestProcessorTypes;
+    // }
+    loadConfigFromFile(rootDirectory) {
+        const jsonConfigName = "nwsp-config.json";
+        const jsConfigName = "nwsp-config.js";
+        let configPath = rootDirectory.findFile(jsonConfigName);
+        if (configPath) {
+            let obj = require(configPath);
+            return obj;
+        }
+        configPath = rootDirectory.findFile(jsConfigName);
+        if (configPath) {
+            let obj = require(configPath);
+            return obj;
+        }
+        return null;
     }
 }
 exports.WebServer = WebServer;

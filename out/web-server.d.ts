@@ -23,4 +23,5 @@ export declare class WebServer {
     private errorOutputObject;
     /** 日志等级 */
     get logLevel(): import("./logger").LogLevel;
+    private loadConfigFromFile;
 }

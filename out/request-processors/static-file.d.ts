@@ -10,6 +10,6 @@ export declare class StaticFileRequestProcessor implements RequestProcessor {
     get staticPath(): string | null;
     /** 设置静态文件夹路径 */
     set staticPath(value: string | null);
-    execute(ctx: RequestContext): Promise<RequestResult>;
+    execute(ctx: RequestContext): Promise<RequestResult | null>;
     private processStaticFile;
 }

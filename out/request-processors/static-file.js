@@ -38,8 +38,9 @@ class StaticFileRequestProcessor {
         if (dir != null) {
             physicalPath = dir.findFile(virtualPath);
         }
-        if (physicalPath == null)
-            throw errors_1.errors.pageNotFound(ctx.virtualPath);
+        if (physicalPath == null) {
+            return null;
+        }
         let p = this.processStaticFile(physicalPath);
         if (p.then == null) {
             p = Promise.resolve(p);
@@ -82,4 +83,3 @@ class StaticFileRequestProcessor {
     }
 }
 exports.StaticFileRequestProcessor = StaticFileRequestProcessor;
-// export let staticFileRequestProcessor = new StaticFileRequestProcessor();

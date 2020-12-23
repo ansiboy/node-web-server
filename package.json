@@ -1,13 +1,14 @@
 {
   "name": "maishu-node-web-server",
-  "version": "1.9.6",
+  "version": "1.10.0",
   "main": "./out/index",
   "scripts": {
     "test": "mocha",
     "build": "tsc -p src"
   },
   "dependencies": {
-    "log4js": "^6.3.0"
+    "log4js": "^6.3.0",
+    "yargs": "^16.2.0"
   },
   "devDependencies": {
     "@babel/code-frame": "^7.8.3",
@@ -27,5 +28,8 @@
     "load-grunt-tasks": "^4.0.0",
     "mocha": "^8.0.1",
     "zombie": "^6.1.4"
+  },
+  "bin": {
+    "nws": "./cli/index.js"
   }
 }
