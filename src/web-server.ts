@@ -4,7 +4,7 @@ import url = require("url");
 import { AddressInfo } from "net";
 import { errors } from "./errors";
 import { VirtualDirectory } from "./virtual-directory";
-import { RequestProcessor, RequestResult, Content, RequestContext } from "./request-processor";
+import { RequestResult, Content, RequestContext } from "./request-processor";
 import { defaultContentTypes } from "./content-types";
 import { ContentTransformFunc, ContentTransform } from "./content-transform";
 import { ProxyRequestProcessor } from "./request-processors/proxy";
@@ -15,6 +15,8 @@ import * as stream from "stream";
 import * as path from "path";
 import { HeadersRequestProcessor } from "./request-processors/headers";
 import { RequestProcessorTypeCollection } from "./request-processors/collection";
+import { getLogger } from "./logger";
+import { loadPlugins } from "./load-plugins";
 
 const DefaultWebSitePath = "../sample-website";
 export class WebServer {
@@ -38,7 +40,7 @@ export class WebServer {
 
     constructor(settings?: Settings) {
         settings = settings || {};
-        if (settings == null) throw errors.argumentNull("settings");
+
         if (settings.websiteDirectory == null) {
             this.#websiteDirectory = new VirtualDirectory(path.join(__dirname, DefaultWebSitePath));
         }
@@ -49,6 +51,10 @@ export class WebServer {
             this.#websiteDirectory = settings.websiteDirectory;
         }
 
+        let obj = this.loadConfigFromFile(this.#websiteDirectory);
+        if (obj) {
+            Object.assign(settings, obj);
+        }
 
         this.#settings = settings;
         this.#logSettings = Object.assign({}, this.#defaultLogSettings, settings.log || {});
@@ -146,6 +152,24 @@ export class WebServer {
             this.outputError(errors.pageNotFound(path), res);
         })
 
+        let packagePath = "../package.json";
+        let pkg = require(packagePath);
+        let logger = getLogger(pkg.name, settings.log?.level)
+        loadPlugins(this, logger);
+
+        if (settings.processors != null) {
+            for (let i = 0; i < this.requestProcessors.length; i++) {
+                let requestProcessor = this.requestProcessors.item(i);
+                let name = requestProcessor.constructor.name;
+                let processorProperties = settings.processors[name];
+                for (let prop in processorProperties) {
+                    if ((requestProcessor as any)[prop]) {
+                        (requestProcessor as any)[prop] = processorProperties[prop];
+                    }
+                }
+            }
+        }
+
         return server.listen(settings.port, settings.bindIP);
     }
 
@@ -241,5 +265,26 @@ export class WebServer {
     // get requestProcessorTypes() {
     //     return this.#requestProcessorTypes;
     // }
+
+    private loadConfigFromFile(rootDirectory: VirtualDirectory): Settings | null {
+        const jsonConfigName = "nwsp-config.json";
+        const jsConfigName = "nwsp-config.js";
+
+        let configPath = rootDirectory.findFile(jsonConfigName);
+        if (configPath) {
+            let obj = require(configPath);
+            return obj;
+        }
+
+        configPath = rootDirectory.findFile(jsConfigName);
+        if (configPath) {
+            let obj = require(configPath);
+            return obj;
+        }
+
+        return null;
+
+    }
+
 
 }

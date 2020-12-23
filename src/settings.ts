@@ -12,12 +12,8 @@ export interface Settings {
         level?: LogLevel,
         filePath?: string,
     },
-    // /** 请求处理器类型 */
-    // requestProcessorTypes?: { new(config?: any): RequestProcessor }[],
-    // /** 请求处理器配置 */
-    // requestProcessorConfigs?: { [key: string]: any },
     /** 网站文件夹 */
     websiteDirectory?: string | VirtualDirectory,
-    /** 请求结果转换器 */
-    // requestResultTransforms?: RequestResultTransform[]
+    /** 请求处理选项配置 */
+    processors?: { [name: string]: any }
 }

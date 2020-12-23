@@ -33,7 +33,7 @@ export class StaticFileRequestProcessor implements RequestProcessor {
         this.#path = value;
     }
 
-    async execute(ctx: RequestContext): Promise<RequestResult> {
+    async execute(ctx: RequestContext): Promise<RequestResult | null> {
 
         let virtualPath = ctx.virtualPath;
         if (virtualPath.indexOf(".") < 0) {
@@ -47,8 +47,9 @@ export class StaticFileRequestProcessor implements RequestProcessor {
             physicalPath = dir.findFile(virtualPath);
         }
 
-        if (physicalPath == null)
-            throw errors.pageNotFound(ctx.virtualPath);
+        if (physicalPath == null) {
+            return null;
+        }
 
         let p = this.processStaticFile(physicalPath);
         if (p.then == null) {
@@ -97,11 +98,4 @@ export class StaticFileRequestProcessor implements RequestProcessor {
             resolve({ statusCode: StatusCode.OK, content: data, headers });
         })
     }
-
-    // get fileProcessors() {
-    //     return this.#fileProcessors;
-    // }
-
 }
-
-// export let staticFileRequestProcessor = new StaticFileRequestProcessor();
