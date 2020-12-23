@@ -14,3 +14,4 @@ export { ProxyRequestProcessor as ProxyProcessor, ProxyRequestProcessorConfig as
 export { StaticFileRequestProcessor as StaticFileProcessor } from "./request-processors/static-file";
 export { HeadersRequestProcessor as HeadersProcessor } from "./request-processors/headers";
 export { processorPriorities } from "./request-processors/priority";
+export { LoadPlugin } from "./load-plugins";

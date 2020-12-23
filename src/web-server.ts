@@ -58,11 +58,12 @@ export class WebServer {
 
         this.#settings = settings;
         this.#logSettings = Object.assign({}, this.#defaultLogSettings, settings.log || {});
-        this.#source = this.start();
         this.#requestProcessors = new RequestProcessorTypeCollection([
             this.#defaultRequestProcessors.headers, this.#defaultRequestProcessors.proxy,
             this.#defaultRequestProcessors.dynamic, this.#defaultRequestProcessors.static,
         ]);
+
+        this.#source = this.start();
     }
 
     /** 网站文件夹 */
