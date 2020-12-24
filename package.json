@@ -31,5 +31,9 @@
   },
   "bin": {
     "nws": "./cli/index.js"
-  }
+  },
+  "files": [
+    "out",
+    "cli"
+  ]
 }
