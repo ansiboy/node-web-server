@@ -51,6 +51,17 @@ export class WebServer {
             this.#websiteDirectory = settings.websiteDirectory;
         }
 
+        if (settings.virtualPaths) {
+            for (let virtualPath in settings.virtualPaths) {
+                let physicalPath = settings.virtualPaths[virtualPath];
+                if (virtualPath[0] != "/")
+                    virtualPath = "/" + virtualPath;
+
+                this.#websiteDirectory.setPath(virtualPath, physicalPath);
+            }
+        }
+
+
         let obj = this.loadConfigFromFile(this.#websiteDirectory);
         if (obj) {
             Object.assign(settings, obj);

@@ -15,5 +15,6 @@ export interface Settings {
     /** 网站文件夹 */
     websiteDirectory?: string | VirtualDirectory,
     /** 请求处理选项配置 */
-    processors?: { [name: string]: any }
+    processors?: { [name: string]: any },
+    virtualPaths?: { [virtualPath: string]: string },
 }
