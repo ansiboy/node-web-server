@@ -17,6 +17,7 @@ import { HeadersRequestProcessor } from "./request-processors/headers";
 import { RequestProcessorTypeCollection } from "./request-processors/collection";
 import { getLogger } from "./logger";
 import { loadPlugins } from "./load-plugins";
+import { Logger } from "log4js";
 
 const DefaultWebSitePath = "../sample-website";
 export class WebServer {
@@ -51,6 +52,14 @@ export class WebServer {
             this.#websiteDirectory = settings.websiteDirectory;
         }
 
+
+        let pkg = require("../package.json");
+        let logger = getLogger(pkg.name, settings.log?.level);
+        let obj = this.loadConfigFromFile(this.#websiteDirectory, logger);
+        if (obj) {
+            Object.assign(settings, obj);
+        }
+
         if (settings.virtualPaths) {
             for (let virtualPath in settings.virtualPaths) {
                 let physicalPath = settings.virtualPaths[virtualPath];
@@ -61,20 +70,30 @@ export class WebServer {
             }
         }
 
-
-        let obj = this.loadConfigFromFile(this.#websiteDirectory);
-        if (obj) {
-            Object.assign(settings, obj);
-        }
-
         this.#settings = settings;
         this.#logSettings = Object.assign({}, this.#defaultLogSettings, settings.log || {});
         this.#requestProcessors = new RequestProcessorTypeCollection([
             this.#defaultRequestProcessors.headers, this.#defaultRequestProcessors.proxy,
             this.#defaultRequestProcessors.dynamic, this.#defaultRequestProcessors.static,
         ]);
-
         this.#source = this.start();
+
+        if (settings.processors != null) {
+            for (let i = 0; i < this.requestProcessors.length; i++) {
+                let requestProcessor = this.requestProcessors.item(i);
+                let name = requestProcessor.constructor.name;
+                let shortName = requestProcessor.constructor.name.replace("RequestProcessor", "").replace("Processor", "");
+                let alaisName = shortName + "Processor";
+                let processorProperties = settings.processors[name] || settings.processors[shortName] || settings.processors[alaisName];
+                for (let prop in processorProperties) {
+                    if ((requestProcessor as any)[prop] !== undefined) {
+                        (requestProcessor as any)[prop] = processorProperties[prop];
+                    }
+                }
+            }
+        }
+
+
     }
 
     /** 网站文件夹 */
@@ -278,19 +297,21 @@ export class WebServer {
     //     return this.#requestProcessorTypes;
     // }
 
-    private loadConfigFromFile(rootDirectory: VirtualDirectory): Settings | null {
-        const jsonConfigName = "nwsp-config.json";
-        const jsConfigName = "nwsp-config.js";
+    private loadConfigFromFile(rootDirectory: VirtualDirectory, logger: Logger): Settings | null {
+        const jsonConfigName = "nws-config.json";
+        const jsConfigName = "nws-config.js";
 
         let configPath = rootDirectory.findFile(jsonConfigName);
         if (configPath) {
             let obj = require(configPath);
+            logger.info(`Config file '${configPath}' is loaded.`)
             return obj;
         }
 
         configPath = rootDirectory.findFile(jsConfigName);
         if (configPath) {
             let obj = require(configPath);
+            logger.info(`Config file '${configPath}' is loaded.`)
             return obj;
         }
 
