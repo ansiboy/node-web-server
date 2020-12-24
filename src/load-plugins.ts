@@ -2,6 +2,7 @@ import { Logger } from "log4js";
 import * as path from "path";
 import { WebServer } from "./web-server";
 
+const PluginFileName = "nws-plugin.js";
 export type LoadPlugin = (webServer: WebServer) => void;
 
 export function loadPlugins(webServer: WebServer, logger: Logger,) {
@@ -20,6 +21,8 @@ export function loadPlugins(webServer: WebServer, logger: Logger,) {
             continue;
         }
 
+
+
         let packagePhysicalPath = dirs[name].findFile("package.json");
         if (!packagePhysicalPath) {
             logger.warn(`File package.json is not exists in the directory ${packagePhysicalPath}.`);
@@ -27,11 +30,21 @@ export function loadPlugins(webServer: WebServer, logger: Logger,) {
         }
 
         let pkg = require(packagePhysicalPath);
-        let mainPath = pkg.main || "index.js";
-        if (!path.isAbsolute(mainPath))
-            mainPath = path.join(dirs[name].physicalPath, mainPath);
 
-        let mod = require(mainPath);
+        let pluginPath = dirs[name].findFile(PluginFileName);
+        if (pluginPath == null) {
+            pluginPath = pkg.main || "index.js";
+            if (pluginPath != null && !path.isAbsolute(pluginPath))
+                pluginPath = path.join(dirs[name].physicalPath, pluginPath);
+        }
+
+
+        if (pluginPath == null)
+            continue;
+
+        logger.info(`Plug path is '${pluginPath}'.`);
+
+        let mod = require(pluginPath);
         if (mod == null) {
             logger.warn(`Load package '${pkg.name}' fail.`);
             continue;
@@ -49,6 +62,8 @@ export function loadPlugins(webServer: WebServer, logger: Logger,) {
 
         let func = mod.default as LoadPlugin;
         func(webServer);
+
+        logger.info(`Plugin ${pkg.name} is loaded.`);
     }
 
 }
