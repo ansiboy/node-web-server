@@ -9,7 +9,7 @@ export function loadPlugins(webServer: WebServer, logger: Logger,) {
     let rootDirectory = webServer.websiteDirectory;
     let nodeModulesDir = rootDirectory.findDirectory("node_modules");
     if (nodeModulesDir == null) {
-        logger.warn(`Node_modules directory is not exists in the root directory '${rootDirectory.physicalPath}'.`)
+        logger.warn(`Directory 'node_modules' is not exists in the root directory '${rootDirectory.physicalPath}'.`)
         return;
     }
 

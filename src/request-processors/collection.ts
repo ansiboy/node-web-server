@@ -56,7 +56,7 @@ export class RequestProcessorTypeCollection {
     }
 
     find<T extends RequestProcessor>(type: RequestProcessorType<T>): T {
-        let item = this.items.filter(o => o instanceof type)[0] as T;
+        let item = this.items.filter(o => o instanceof type || o.constructor.name == type.name)[0] as T;
         return item;
     }
 }
