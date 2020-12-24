@@ -11,7 +11,7 @@ import { processorPriorities } from "./priority";
 
 export class StaticFileRequestProcessor implements RequestProcessor {
 
-    #contentTypes: { [key: string]: string } = Object.assign({}, defaultContentTypes);
+    #contentTypes: { [key: string]: string } = {};
     #path: string | null = null;
 
     priority = processorPriorities.StaticFileRequestProcessor;
@@ -22,6 +22,9 @@ export class StaticFileRequestProcessor implements RequestProcessor {
 
     get contentTypes() {
         return this.#contentTypes;
+    }
+    set contentTypes(value) {
+        this.#contentTypes = value || {};
     }
 
     /** 获取静态文件夹路径 */
@@ -82,7 +85,7 @@ export class StaticFileRequestProcessor implements RequestProcessor {
                 return null;
 
             console.assert(ext.startsWith("."));
-            let contentType = this.#contentTypes[ext];
+            let contentType = this.#contentTypes[ext] || defaultContentTypes[ext];
             if (!contentType)
                 throw errors.fileTypeNotSupport(ext);
 
