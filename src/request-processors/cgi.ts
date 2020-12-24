@@ -1,8 +1,8 @@
-import * as http from "http";
 import { RequestProcessor, RequestContext, RequestResult } from "../request-processor";
 import * as fs from "fs";
 import { errors } from "../errors";
 import { processorPriorities } from "./priority";
+import { watch } from "fs";
 
 export type DynamicScriptFunction = (args: RequestContext) => RequestResult | Promise<RequestResult>;
 
@@ -28,14 +28,23 @@ export class DynamicRequestProcessor implements RequestProcessor {
     #dynamicScriptPath: string;
 
     priority = processorPriorities.DynamicRequestProcessor;
-    
-    constructor() {
-        // config = config || {};
 
+    private watches: { [key: string]: any } = {};
+
+    constructor() {
         console.assert(defaultDynamicPath.startsWith("/"));
         this.#dynamicScriptPath = defaultDynamicPath;
-        // if (!this.#dynamicScriptPath.startsWith("/"))
-        //     this.#dynamicScriptPath = "/" + this.#dynamicScriptPath;
+    }
+
+    private watchFile(physicalPath: string) {
+        if (this.watches[physicalPath]) {
+            return;
+        }
+
+        this.watches[physicalPath] = physicalPath;
+        watch(physicalPath).on("change", (eventType, file) => {
+            delete require.cache[require.resolve(physicalPath)];
+        })
     }
 
     /** 获取脚本路径 */
@@ -64,11 +73,12 @@ export class DynamicRequestProcessor implements RequestProcessor {
             throw errors.physicalPathNotExists(physicalPath);
         }
 
+        this.watchFile(physicalPath);
         if (physicalPath.endsWith(".js") == false)
             physicalPath = physicalPath + ".js";
 
         let cgiModule = require(physicalPath);
-        let func: DynamicScriptFunction = cgiModule["default"];
+        let func: DynamicScriptFunction = cgiModule["default"] || cgiModule;
 
         if (func == null)
             throw noDefaultExport(physicalPath);
