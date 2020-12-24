@@ -43,7 +43,7 @@ class RequestProcessorTypeCollection {
         return this.items.length;
     }
     find(type) {
-        let item = this.items.filter(o => o instanceof type)[0];
+        let item = this.items.filter(o => o instanceof type || o.constructor.name == type.name)[0];
         return item;
     }
 }

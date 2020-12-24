@@ -17,4 +17,7 @@ export interface Settings {
     processors?: {
         [name: string]: any;
     };
+    virtualPaths?: {
+        [virtualPath: string]: string;
+    };
 }

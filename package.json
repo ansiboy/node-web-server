@@ -1,6 +1,6 @@
 {
   "name": "maishu-node-web-server",
-  "version": "1.10.0",
+  "version": "1.13.0",
   "main": "./out/index",
   "scripts": {
     "test": "mocha",

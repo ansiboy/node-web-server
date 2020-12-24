@@ -38,17 +38,27 @@ class WebServer {
         else {
             this.#websiteDirectory = settings.websiteDirectory;
         }
+
         let obj = this.loadConfigFromFile(this.#websiteDirectory);
         if (obj) {
             Object.assign(settings, obj);
         }
+        if (settings.virtualPaths) {
+            for (let virtualPath in settings.virtualPaths) {
+                let physicalPath = settings.virtualPaths[virtualPath];
+                if (virtualPath[0] != "/")
+                    virtualPath = "/" + virtualPath;
+                this.#websiteDirectory.setPath(virtualPath, physicalPath);
+            }
+        }
+        
         this.#settings = settings;
         this.#logSettings = Object.assign({}, this.#defaultLogSettings, settings.log || {});
-        this.#source = this.start();
         this.#requestProcessors = new collection_1.RequestProcessorTypeCollection([
             this.#defaultRequestProcessors.headers, this.#defaultRequestProcessors.proxy,
             this.#defaultRequestProcessors.dynamic, this.#defaultRequestProcessors.static,
         ]);
+        this.#source = this.start();
     }
     #websiteDirectory;
     #requestProcessors;

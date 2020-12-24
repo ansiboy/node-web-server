@@ -5,7 +5,7 @@ function loadPlugins(webServer, logger) {
     let rootDirectory = webServer.websiteDirectory;
     let nodeModulesDir = rootDirectory.findDirectory("node_modules");
     if (nodeModulesDir == null) {
-        logger.warn(`Node_modules directory is not exists in the root directory '${rootDirectory.physicalPath}'.`);
+        logger.warn(`Directory 'node_modules' is not exists in the root directory '${rootDirectory.physicalPath}'.`);
         return;
     }
     let pluginNameRegex = new RegExp("\\S+-nws-");
