@@ -88,12 +88,12 @@ export class WebServer {
                 for (let prop in processorProperties) {
                     if ((requestProcessor as any)[prop] !== undefined) {
                         (requestProcessor as any)[prop] = processorProperties[prop];
+                        logger.info(`Set processor '${name}' property '${prop}', value is:\n`);
+                        logger.info(processorProperties[prop])
                     }
                 }
             }
         }
-
-
     }
 
     /** 网站文件夹 */
