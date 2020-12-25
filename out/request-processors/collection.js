@@ -2,9 +2,11 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const errors_1 = require("../errors");
 const priority_1 = require("./priority");
+const maishu_toolkit_1 = require("maishu-toolkit");
 class RequestProcessorTypeCollection {
     constructor(items) {
         this.items = [];
+        this.added = new maishu_toolkit_1.Callback();
         if (items != null) {
             items.forEach((o) => this.add(o));
         }
@@ -35,6 +37,7 @@ class RequestProcessorTypeCollection {
         else {
             this.items.push(item);
         }
+        this.added.fire({ item });
     }
     item(index) {
         return this.items[index];

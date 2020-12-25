@@ -11,7 +11,7 @@ const content_types_1 = require("../content-types");
 const priority_1 = require("./priority");
 class StaticFileRequestProcessor {
     constructor() {
-        this.#contentTypes = Object.assign({}, content_types_1.defaultContentTypes);
+        this.#contentTypes = {};
         this.#path = null;
         this.priority = priority_1.processorPriorities.StaticFileRequestProcessor;
     }
@@ -19,6 +19,9 @@ class StaticFileRequestProcessor {
     #path;
     get contentTypes() {
         return this.#contentTypes;
+    }
+    set contentTypes(value) {
+        this.#contentTypes = value || {};
     }
     /** 获取静态文件夹路径 */
     get staticPath() {
@@ -67,7 +70,7 @@ class StaticFileRequestProcessor {
             if (!ext)
                 return null;
             console.assert(ext.startsWith("."));
-            let contentType = this.#contentTypes[ext];
+            let contentType = this.#contentTypes[ext] || content_types_1.defaultContentTypes[ext];
             if (!contentType)
                 throw errors_1.errors.fileTypeNotSupport(ext);
             let stat = fs.statSync(physicalPath);

@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const path = require("path");
+const PluginFileName = "nws-plugin.js";
 function loadPlugins(webServer, logger) {
     let rootDirectory = webServer.websiteDirectory;
     let nodeModulesDir = rootDirectory.findDirectory("node_modules");
@@ -20,10 +21,16 @@ function loadPlugins(webServer, logger) {
             continue;
         }
         let pkg = require(packagePhysicalPath);
-        let mainPath = pkg.main || "index.js";
-        if (!path.isAbsolute(mainPath))
-            mainPath = path.join(dirs[name].physicalPath, mainPath);
-        let mod = require(mainPath);
+        let pluginPath = dirs[name].findFile(PluginFileName);
+        if (pluginPath == null) {
+            pluginPath = pkg.main || "index.js";
+            if (pluginPath != null && !path.isAbsolute(pluginPath))
+                pluginPath = path.join(dirs[name].physicalPath, pluginPath);
+        }
+        if (pluginPath == null)
+            continue;
+        logger.info(`Plug path is '${pluginPath}'.`);
+        let mod = require(pluginPath);
         if (mod == null) {
             logger.warn(`Load package '${pkg.name}' fail.`);
             continue;
@@ -38,6 +45,7 @@ function loadPlugins(webServer, logger) {
         }
         let func = mod.default;
         func(webServer);
+        logger.info(`Plugin ${pkg.name} is loaded.`);
     }
 }
 exports.loadPlugins = loadPlugins;

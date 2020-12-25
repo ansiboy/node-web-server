@@ -38,8 +38,9 @@ class WebServer {
         else {
             this.#websiteDirectory = settings.websiteDirectory;
         }
-
-        let obj = this.loadConfigFromFile(this.#websiteDirectory);
+        let pkg = require("../package.json");
+        let logger = logger_1.getLogger(pkg.name, settings.log?.level);
+        let obj = this.loadConfigFromFile(this.#websiteDirectory, logger);
         if (obj) {
             Object.assign(settings, obj);
         }
@@ -51,7 +52,6 @@ class WebServer {
                 this.#websiteDirectory.setPath(virtualPath, physicalPath);
             }
         }
-        
         this.#settings = settings;
         this.#logSettings = Object.assign({}, this.#defaultLogSettings, settings.log || {});
         this.#requestProcessors = new collection_1.RequestProcessorTypeCollection([
@@ -59,6 +59,22 @@ class WebServer {
             this.#defaultRequestProcessors.dynamic, this.#defaultRequestProcessors.static,
         ]);
         this.#source = this.start();
+        if (settings.processors != null) {
+            for (let i = 0; i < this.requestProcessors.length; i++) {
+                let requestProcessor = this.requestProcessors.item(i);
+                let name = requestProcessor.constructor.name;
+                let shortName = requestProcessor.constructor.name.replace("RequestProcessor", "").replace("Processor", "");
+                let alaisName = shortName + "Processor";
+                let processorProperties = settings.processors[name] || settings.processors[shortName] || settings.processors[alaisName];
+                for (let prop in processorProperties) {
+                    if (requestProcessor[prop] !== undefined) {
+                        requestProcessor[prop] = processorProperties[prop];
+                        logger.info(`Set processor '${name}' property '${prop}', value is:\n`);
+                        logger.info(processorProperties[prop]);
+                    }
+                }
+            }
+        }
     }
     #websiteDirectory;
     #requestProcessors;
@@ -238,17 +254,19 @@ class WebServer {
     // get requestProcessorTypes() {
     //     return this.#requestProcessorTypes;
     // }
-    loadConfigFromFile(rootDirectory) {
-        const jsonConfigName = "nwsp-config.json";
-        const jsConfigName = "nwsp-config.js";
+    loadConfigFromFile(rootDirectory, logger) {
+        const jsonConfigName = "nws-config.json";
+        const jsConfigName = "nws-config.js";
         let configPath = rootDirectory.findFile(jsonConfigName);
         if (configPath) {
             let obj = require(configPath);
+            logger.info(`Config file '${configPath}' is loaded.`);
             return obj;
         }
         configPath = rootDirectory.findFile(jsConfigName);
         if (configPath) {
             let obj = require(configPath);
+            logger.info(`Config file '${configPath}' is loaded.`);
             return obj;
         }
         return null;

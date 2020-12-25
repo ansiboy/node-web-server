@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "log4js": "^6.3.0",
+    "maishu-toolkit": "^1.6.1",
     "yargs": "^16.2.0"
   },
   "devDependencies": {

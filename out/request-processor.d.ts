@@ -21,7 +21,7 @@ export declare type RequestResult = {
     };
 };
 export interface RequestProcessor {
-    /** 优先级别，数字越小越优先，空值优先级别最低 */
+    /** 优先级别，数字越小越优先执行 */
     priority?: number;
     execute(ctx: RequestContext): RequestResult | Promise<RequestResult | null> | null;
 }

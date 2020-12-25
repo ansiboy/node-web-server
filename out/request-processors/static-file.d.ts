@@ -6,6 +6,9 @@ export declare class StaticFileRequestProcessor implements RequestProcessor {
     get contentTypes(): {
         [key: string]: string;
     };
+    set contentTypes(value: {
+        [key: string]: string;
+    });
     /** 获取静态文件夹路径 */
     get staticPath(): string | null;
     /** 设置静态文件夹路径 */
