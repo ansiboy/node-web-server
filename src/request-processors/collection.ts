@@ -1,12 +1,15 @@
 import { errors } from "../errors";
 import { RequestProcessor } from "../request-processor";
 import { processorPriorities } from "./priority";
+import { Callback } from "maishu-toolkit";
 
 type RequestProcessorType<T extends RequestProcessor> = { new(config?: any): T };
 
 
 export class RequestProcessorTypeCollection {
     private items: RequestProcessor[] = [];
+
+    added: Callback<{ item: RequestProcessor }> = new Callback();
 
     constructor(items?: RequestProcessor[]) {
         if (items != null) {
@@ -45,6 +48,8 @@ export class RequestProcessorTypeCollection {
         else {
             this.items.push(item);
         }
+
+        this.added.fire({ item });
     }
 
     item(index: number) {
@@ -59,4 +64,6 @@ export class RequestProcessorTypeCollection {
         let item = this.items.filter(o => o instanceof type || o.constructor.name == type.name)[0] as T;
         return item;
     }
+
+
 }
