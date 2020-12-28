@@ -312,7 +312,7 @@ export class WebServer {
         if (configPath) {
             let obj = require(configPath);
             logger.info(`Config file '${configPath}' is loaded.`)
-            return obj;
+            return obj.default || obj;
         }
 
         return null;

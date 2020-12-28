@@ -13,7 +13,7 @@ function main() {
     var argv = yargs
         .describe({ p: "服务器端口" })
         .describe({ i: "服务器 IP" })
-        .usage("Usage: nwsp <website path> -p <port> -i <ip>")
+        .usage("Usage: nws <website path> -p <port> -i <ip>")
         .check((argv) => {
 
             if (argv._ != null && argv._[0] != null) {
