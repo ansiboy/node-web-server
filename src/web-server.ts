@@ -4,7 +4,7 @@ import url = require("url");
 import { AddressInfo } from "net";
 import { errors } from "./errors";
 import { VirtualDirectory } from "./virtual-directory";
-import { RequestResult, Content, RequestContext } from "./request-processor";
+import { RequestResult, Content, RequestContext, RequestProcessor } from "./request-processor";
 import { defaultContentTypes } from "./content-types";
 import { ContentTransformFunc, ContentTransform } from "./content-transform";
 import { ProxyRequestProcessor } from "./request-processors/proxy";
@@ -78,22 +78,13 @@ export class WebServer {
         ]);
         this.#source = this.start();
 
-        if (settings.processors != null) {
-            for (let i = 0; i < this.requestProcessors.length; i++) {
-                let requestProcessor = this.requestProcessors.item(i);
-                let name = requestProcessor.constructor.name;
-                let shortName = requestProcessor.constructor.name.replace("RequestProcessor", "").replace("Processor", "");
-                let alaisName = shortName + "Processor";
-                let processorProperties = settings.processors[name] || settings.processors[shortName] || settings.processors[alaisName];
-                for (let prop in processorProperties) {
-                    if ((requestProcessor as any)[prop] !== undefined) {
-                        (requestProcessor as any)[prop] = processorProperties[prop];
-                        logger.info(`Set processor '${name}' property '${prop}', value is:\n`);
-                        logger.info(processorProperties[prop])
-                    }
-                }
-            }
+        for (let i = 0; i < this.requestProcessors.length; i++) {
+            let requestProcessor = this.requestProcessors.item(i);
+            this.setProcessorOptions(requestProcessor, logger);
         }
+        this.requestProcessors.added.add(args => {
+            this.setProcessorOptions(args.item, logger);
+        })
     }
 
     /** 网站文件夹 */
@@ -317,6 +308,33 @@ export class WebServer {
 
         return null;
 
+    }
+
+    private setProcessorOptions(requestProcessor: RequestProcessor<any>, logger: Logger) {
+        let processors = this.#settings.processors || {};
+        let name = requestProcessor.constructor.name;
+        let shortName = requestProcessor.constructor.name.replace("RequestProcessor", "").replace("Processor", "");
+        let alaisName = shortName + "Processor";
+        let processorProperties = processors[name] || processors[shortName] || processors[alaisName];
+        for (let prop in processorProperties) {
+            if ((requestProcessor as any)[prop] !== undefined) {
+                (requestProcessor as any)[prop] = processorProperties[prop];
+                logger.info(`Set processor '${name}' property '${prop}', value is:\n`);
+                logger.info(processorProperties[prop])
+            }
+        }
+
+        let configFileName = `${shortName}.config.json`;
+        let configFilePhysicalPath = this.websiteDirectory.findFile(configFileName);
+        if (!configFilePhysicalPath) {
+            configFileName = `${alaisName}.config.json`;
+            configFilePhysicalPath = this.websiteDirectory.findFile(configFileName);
+        }
+
+        if (configFilePhysicalPath) {
+            let options = require(configFilePhysicalPath);
+            requestProcessor.options = options;
+        }
     }
 
 

@@ -12,7 +12,7 @@ export interface Settings {
         level?: LogLevel,
         filePath?: string,
     },
-    /** 网站文件夹 */
+    /** 网站文件夹，使用绝对路径或者 VirtualDirectory 对象 */
     websiteDirectory?: string | VirtualDirectory,
     /** 请求处理选项配置 */
     processors?: { [name: string]: any },

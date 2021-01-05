@@ -20,9 +20,10 @@ export type RequestResult = {
     headers?: { [key: string]: string | string[] | undefined }
 }
 
-export interface RequestProcessor {
+export interface RequestProcessor<T = any> {
     /** 优先级别，数字越小越优先执行 */
     priority?: number;
     execute(ctx: RequestContext): RequestResult | Promise<RequestResult | null> | null;
+    options: T;
 }
-export type RequestProcessorType = { new(config?: any): RequestProcessor };
+export type RequestProcessorType = { new(config?: any): RequestProcessor<any> };

@@ -9,31 +9,38 @@ import * as fs from "fs";
 import { defaultContentTypes } from "../content-types";
 import { processorPriorities } from "./priority";
 
-export class StaticFileRequestProcessor implements RequestProcessor {
+interface Options {
+    /** 内容类型 */
+    contentTypes: { [key: string]: string },
 
-    #contentTypes: { [key: string]: string } = {};
-    #path: string | null = null;
+    /** 文件夹虚拟路径 */
+    directoryPath?: string | null,
+}
+
+export class StaticFileRequestProcessor implements RequestProcessor<Options> {
 
     priority = processorPriorities.StaticFileRequestProcessor;
+
+    options: Options = { contentTypes: {} };
 
     constructor() {
 
     }
 
-    get contentTypes() {
-        return this.#contentTypes;
+    get contentTypes(): Options["contentTypes"] {
+        return this.options.contentTypes;
     }
     set contentTypes(value) {
-        this.#contentTypes = value || {};
+        this.options.contentTypes = value || {};
     }
 
     /** 获取静态文件夹路径 */
     get staticPath() {
-        return this.#path;
+        return this.options.directoryPath;
     }
     /** 设置静态文件夹路径 */
-    set staticPath(value: string | null) {
-        this.#path = value;
+    set staticPath(value: string | null | undefined) {
+        this.options.directoryPath = value;
     }
 
     async execute(ctx: RequestContext): Promise<RequestResult | null> {
@@ -85,7 +92,7 @@ export class StaticFileRequestProcessor implements RequestProcessor {
                 return null;
 
             console.assert(ext.startsWith("."));
-            let contentType = this.#contentTypes[ext] || defaultContentTypes[ext];
+            let contentType = this.contentTypes[ext] || defaultContentTypes[ext];
             if (!contentType)
                 throw errors.fileTypeNotSupport(ext);
 

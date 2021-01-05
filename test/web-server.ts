@@ -1,10 +1,11 @@
-import { WebServer, Settings } from "../out";
+import { WebServer, Settings, StaticFileProcessor } from "../out";
 import * as assert from "assert";
 import Browser = require('zombie');
 import { pathConcat } from "../out/path-concat";
 import * as fs from "fs";
 import { createWebServer } from "./common";
 import { StatusCode } from "../out/status-code";
+import * as path from "path";
 
 describe("web-server", function () {
 
@@ -84,5 +85,12 @@ describe("web-server", function () {
         let buffer: Buffer = fs.readFileSync(pathConcat(__dirname, "website/content/virutal-file.html"));
         let source: string = buffer.toString();
         assert.equal(browser.source, source);
+    })
+
+    it("prcessor config file", async function () {
+        let w = new WebServer({ websiteDirectory: path.join(__dirname, "website") });
+        let p = w.requestProcessors.find(StaticFileProcessor);
+        let config: StaticFileProcessor["options"] = require("./website/StaticFileProcessor.config.json");
+        console.log(p.options.directoryPath);
     })
 })

@@ -1,6 +1,5 @@
 import * as assert from "assert";
 import { createWebServer, createBrowser, readFile } from "./common";
-import { ProxyProcessor, ProxyConfig } from "../out";
 import { ProxyRequestProcessor } from "../out/request-processors/proxy";
 
 describe("proxy-processor", function () {

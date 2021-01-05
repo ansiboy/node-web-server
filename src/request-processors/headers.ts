@@ -2,9 +2,12 @@ import { RequestContext, RequestProcessor } from "..";
 import { processorPriorities } from "./priority";
 
 export type Headers = { [name: string]: string | string[] };
-export class HeadersRequestProcessor implements RequestProcessor {
+interface Options {
+    headers: Headers
+}
+export class HeadersRequestProcessor implements RequestProcessor<Options> {
 
-    #headers: Headers = {};
+    options: Options = { headers: {} };
 
     priority = processorPriorities.HeadersRequestProcessor;
 
@@ -12,16 +15,16 @@ export class HeadersRequestProcessor implements RequestProcessor {
     }
 
     get headers(): Headers {
-        return this.#headers;
+        return this.options.headers;
     }
     set headers(value: Headers) {
-        this.#headers = value;
+        this.options.headers = value;
     }
 
     execute(ctx: RequestContext): null {
-        if (this.#headers) {
-            for (let name in this.#headers) {
-                ctx.res.setHeader(name, this.#headers[name]);
+        if (this.headers) {
+            for (let name in this.headers) {
+                ctx.res.setHeader(name, this.headers[name]);
             }
         }
         return null

@@ -18,22 +18,24 @@ let defaultExportNotFunction = (name: string) => {
     return error;
 }
 
-export type DynamicRequestProcessorConfig = {
-    // 动态脚本路径
-    path?: string
+export type Options = {
+    // 动态脚本夹的虚拟路径
+    directoryPath: string
 };
 
-export class DynamicRequestProcessor implements RequestProcessor {
+export class DynamicRequestProcessor implements RequestProcessor<Options> {
 
-    #dynamicScriptPath: string;
+    // #dynamicScriptPath: string;
 
     priority = processorPriorities.DynamicRequestProcessor;
 
     private watches: { [key: string]: any } = {};
 
+    options: Options = { directoryPath: defaultDynamicPath };
+
     constructor() {
         console.assert(defaultDynamicPath.startsWith("/"));
-        this.#dynamicScriptPath = defaultDynamicPath;
+        // this.#dynamicScriptPath = defaultDynamicPath;
     }
 
     private watchFile(physicalPath: string) {
@@ -49,7 +51,7 @@ export class DynamicRequestProcessor implements RequestProcessor {
 
     /** 获取脚本路径 */
     get scriptPath() {
-        return this.#dynamicScriptPath;
+        return this.options.directoryPath;
     }
     /** 设置脚本路径 */
     set scriptPath(value) {
@@ -57,11 +59,11 @@ export class DynamicRequestProcessor implements RequestProcessor {
         if (!value.startsWith("/"))
             value = "/" + value;
 
-        this.#dynamicScriptPath = value;
+        this.options.directoryPath = value;
     }
 
     execute(args: RequestContext) {
-        if (args.virtualPath.startsWith(this.#dynamicScriptPath) == false)
+        if (args.virtualPath.startsWith(this.scriptPath) == false)
             return null;
 
         let physicalPath = args.rootDirectory.findFile(args.virtualPath);

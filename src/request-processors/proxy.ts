@@ -10,41 +10,28 @@ export interface ProxyItem {
     headers?: { [name: string]: string } | ((requestContext: RequestContext) => { [name: string]: string } | Promise<{ [name: string]: string }>),
 }
 
-export interface ProxyRequestProcessorConfig {
+interface Options {
     /** 转发目标 */
     proxyTargets: { [key: string]: ProxyItem | string };
 }
 
-export class ProxyRequestProcessor implements RequestProcessor {
-
-    #proxyTargets: { [key: string]: ProxyItem | string } = {};
+export class ProxyRequestProcessor implements RequestProcessor<Options> {
 
     priority = processorPriorities.ProxyRequestProcessor;
+    options = { proxyTargets: {} };
 
     constructor() {
-        // config = config || {} as ProxyRequestProcessorConfig;
-        // this.#proxyTargets = {};
-        // if (config.proxyTargets) {
-        //     for (let key in config.proxyTargets) {
-        //         if (typeof config.proxyTargets[key] == "string") {
-        //             this.#proxyTargets[key] = { targetUrl: config.proxyTargets[key] as string };
-        //         }
-        //         else {
-        //             this.#proxyTargets[key] = config.proxyTargets[key] as ProxyItem;
-        //         }
-        //     }
-        // }
     }
 
-    get proxyTargets() {
-        return this.#proxyTargets;
+    get proxyTargets(): Options["proxyTargets"] {
+        return this.options.proxyTargets;
     }
     set proxyTargets(value) {
-        this.#proxyTargets = value || {};
+        this.options.proxyTargets = value || {};
     }
 
     async execute(args: RequestContext) {
-        for (let key in this.#proxyTargets) {
+        for (let key in this.proxyTargets) {
             let regex = new RegExp(key)
             let reqUrl = args.virtualPath;
             let arr = regex.exec(reqUrl)
@@ -52,7 +39,7 @@ export class ProxyRequestProcessor implements RequestProcessor {
                 continue;
             }
 
-            let item = this.#proxyTargets[key];
+            let item = this.proxyTargets[key];
             let proxyItem: ProxyItem = typeof item == "string" ? { targetUrl: item } : item;
             let targetUrl = proxyItem.targetUrl;
             let headers: http.IncomingMessage["headers"] = {};
