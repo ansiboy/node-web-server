@@ -116,6 +116,11 @@ export class WebServer {
         return this.#contentTransforms;
     }
 
+    /** 设置 */
+    get settings() {
+        return this.#settings;
+    }
+
     private start() {
         let settings: Settings = this.#settings;
         let server = http.createServer(async (req, res) => {
