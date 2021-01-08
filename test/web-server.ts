@@ -87,10 +87,10 @@ describe("web-server", function () {
         assert.equal(browser.source, source);
     })
 
-    it("prcessor config file", async function () {
-        let w = new WebServer({ websiteDirectory: path.join(__dirname, "website") });
-        let p = w.requestProcessors.find(StaticFileProcessor);
-        let config: StaticFileProcessor["options"] = require("./website/StaticFileProcessor.config.json");
-        console.log(p.options.directoryPath);
-    })
+    // it("prcessor config file", async function () {
+    //     let w = new WebServer({ websiteDirectory: path.join(__dirname, "website") });
+    //     let p = w.requestProcessors.find(StaticFileProcessor);
+    //     let config: StaticFileProcessor["options"] = require("./website/StaticFileProcessor.config.json");
+    //     console.log(p.options.directoryPath);
+    // })
 })

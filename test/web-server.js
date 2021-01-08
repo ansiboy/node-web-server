@@ -16,7 +16,6 @@ const path_concat_1 = require("../out/path-concat");
 const fs = require("fs");
 const common_1 = require("./common");
 const status_code_1 = require("../out/status-code");
-const path = require("path");
 describe("web-server", function () {
     let w = common_1.createWebServer();
     console.log(`Web server port is ${w.port}.`);
@@ -99,12 +98,10 @@ describe("web-server", function () {
             assert.equal(browser.source, source);
         });
     });
-    it("prcessor config file", function () {
-        return __awaiter(this, void 0, void 0, function* () {
-            let w = new out_1.WebServer({ websiteDirectory: path.join(__dirname, "website") });
-            let p = w.requestProcessors.find(out_1.StaticFileProcessor);
-            let config = require("./website/StaticFileProcessor.config.json");
-            assert.strictEqual(p.options.directoryPath, config.directoryPath);
-        });
-    });
+    // it("prcessor config file", async function () {
+    //     let w = new WebServer({ websiteDirectory: path.join(__dirname, "website") });
+    //     let p = w.requestProcessors.find(StaticFileProcessor);
+    //     let config: StaticFileProcessor["options"] = require("./website/StaticFileProcessor.config.json");
+    //     console.log(p.options.directoryPath);
+    // })
 });

@@ -10,10 +10,10 @@ const RootVirtualPath = "/";
  * 虚拟文件夹
  */
 export class VirtualDirectory {
-    #physicalPath: string;
-    #directories: { [name: string]: VirtualDirectory } = {};
-    #files: { [name: string]: string } = {};
-    #virtualPath: string;
+    private _physicalPath: string;
+    private _directories: { [name: string]: VirtualDirectory } = {};
+    private _files: { [name: string]: string } = {};
+    private _virtualPath: string;
 
     constructor(physicalPath: string, virtualPath: string = RootVirtualPath) {
 
@@ -26,18 +26,18 @@ export class VirtualDirectory {
             throw errors.pathNotDirectory(physicalPath);
 
 
-        this.#physicalPath = physicalPath;
-        this.#virtualPath = virtualPath;
+        this._physicalPath = physicalPath;
+        this._virtualPath = virtualPath;
     }
 
     /** 获取当前文件夹的子文件夹 */
     directories() {
-        let childDirs: { [name: string]: VirtualDirectory } = this.#directories;
-        this.checkPhysicalPath(this.#physicalPath);
-        let names = fs.existsSync(this.physicalPath) ? fs.readdirSync(this.#physicalPath) : [];
+        let childDirs: { [name: string]: VirtualDirectory } = this._directories;
+        this.checkPhysicalPath(this._physicalPath);
+        let names = fs.existsSync(this.physicalPath) ? fs.readdirSync(this._physicalPath) : [];
         names.map(name => {
-            let childPhysicalPath = pathConcat(this.#physicalPath, name);
-            let childVirtualPath = pathConcat(this.#virtualPath, name);
+            let childPhysicalPath = pathConcat(this._physicalPath, name);
+            let childVirtualPath = pathConcat(this._virtualPath, name);
             if (!fs.statSync(childPhysicalPath).isDirectory())
                 return;
 
@@ -52,18 +52,15 @@ export class VirtualDirectory {
     /** 该文件夹下文件的物理路径 */
     files() {
         let filePhysicalPaths: { [name: string]: string } = {};
-        // if (!fs.existsSync(this.#physicalPath))
-        //     throw errors.physicalPathNotExists(this.#physicalPath);
-
-        let names = fs.existsSync(this.#physicalPath) ? fs.readdirSync(this.#physicalPath) : [];
+        let names = fs.existsSync(this._physicalPath) ? fs.readdirSync(this._physicalPath) : [];
         names.forEach(name => {
-            let childPhysicalPath = pathConcat(this.#physicalPath, name);
+            let childPhysicalPath = pathConcat(this._physicalPath, name);
             if (fs.statSync(childPhysicalPath).isFile()) {
                 filePhysicalPaths[name] = childPhysicalPath;
             }
         })
 
-        Object.assign(filePhysicalPaths, this.#files);
+        Object.assign(filePhysicalPaths, this._files,);
         return filePhysicalPaths;
     }
 
@@ -79,7 +76,7 @@ export class VirtualDirectory {
 
         let virtualPath = pathConcat(this.virtualPath, name);
         let dir = new VirtualDirectory(physicalPath, virtualPath);
-        this.#directories[name] = dir;
+        this._directories[name] = dir;
 
         return dir;
     }
@@ -94,7 +91,7 @@ export class VirtualDirectory {
         if (!physicalPath) throw errors.argumentNull("physicalPath");
         this.checkPhysicalPath(physicalPath);
 
-        this.#files[name] = physicalPath;
+        this._files[name] = physicalPath;
     }
 
     /** 设置虚拟路径
@@ -117,7 +114,7 @@ export class VirtualDirectory {
         for (let i = 0; i < arr.length; i++) {
             let name = arr[i];
 
-            let isFileName = i == arr.length - 1 && arr[arr.length - 1].indexOf(".") > 0;
+            let isFileName = i == arr.length - 1 && arr[arr.length - 1].indexOf(".") >= 0;
             if (isFileName) {
                 current.setFile(name, physicalPath);
                 break;
@@ -131,7 +128,7 @@ export class VirtualDirectory {
 
             current = child;
             if (i == arr.length - 1) {
-                current.#physicalPath = physicalPath;
+                current._physicalPath = physicalPath;
             }
         }
 
@@ -191,28 +188,28 @@ export class VirtualDirectory {
      * @returns 子文件夹的虚拟文件夹
      */
     private directory(name: string) {
-        if (this.#directories[name])
-            return this.#directories[name];
+        if (this._directories[name])
+            return this._directories[name];
 
-        if (this.#directories[name])
-            return this.#directories[name];
+        if (this._directories[name])
+            return this._directories[name];
 
-        let physicalPath = pathConcat(this.#physicalPath, name);
+        let physicalPath = pathConcat(this._physicalPath, name);
         if (fs.existsSync(physicalPath)) {
-            let childVirtualPath = pathConcat(this.#virtualPath, name);
-            this.#directories[name] = new VirtualDirectory(physicalPath, childVirtualPath);
-            return this.#directories[name];
+            let childVirtualPath = pathConcat(this._virtualPath, name);
+            this._directories[name] = new VirtualDirectory(physicalPath, childVirtualPath);
+            return this._directories[name];
         }
 
         return null;
     }
 
     get virtualPath() {
-        return this.#virtualPath;
+        return this._virtualPath;
     }
 
     get physicalPath() {
-        return this.#physicalPath;
+        return this._physicalPath;
     }
 
     private checkPhysicalPath(physicalPath: string) {

@@ -33,18 +33,30 @@ describe("virtual directory", function () {
         assert.equal(dir, root);
     })
 
+    it("add path file simple", function () {
+        let p1 = pathConcat(websitePath, "css/bootstrap.css");
+        root.setPath("bootstrap1.css", p1);
+        let p2 = root.findFile("bootstrap1.css");
+        assert.strictEqual(p2, p1);
+    })
+
+
     it("add path file", function () {
         let p1 = pathConcat(websitePath, "css/bootstrap.css");
         root.setPath("/content/bootstrap.css", p1);
+
+        let dir = root.findDirectory("content");
+        assert.ok(dir != null);
+
         let p2 = root.findFile("/content/bootstrap.css");
-        assert.equal(p2, p1);
+        assert.strictEqual(p2, p1);
     })
 
     it("add path directory", function () {
         let p1 = pathConcat(websitePath, "css");
         root.setPath("/content/css", p1);
         let p2 = root.findDirectory("/content/css");
-        assert.notEqual(p2, null);
-        assert.equal(p2?.physicalPath, p1);
+        assert.notStrictEqual(p2, null);
+        assert.strictEqual(p2?.physicalPath, p1);
     })
 })
