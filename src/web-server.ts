@@ -164,6 +164,7 @@ export class WebServer {
                             //     res.setHeader("Content-Length", r.content.length.toString());
                             // }
                         }
+                        res.setHeader("processor", processor.constructor.name);
 
                         this.outputContent(r.content, requestContext);
                         return;
