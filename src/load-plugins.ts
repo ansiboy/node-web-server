@@ -10,7 +10,7 @@ export function loadPlugins(webServer: WebServer, logger: Logger,) {
     let rootDirectory = webServer.websiteDirectory;
     let nodeModulesDir = rootDirectory.findDirectory("node_modules");
     if (nodeModulesDir == null) {
-        logger.warn(`Directory 'node_modules' is not exists in the root directory '${rootDirectory.physicalPath}'.`)
+        logger.warn(`${loadPlugins.name}: Directory 'node_modules' is not exists in the root directory '${rootDirectory.physicalPath}'.`)
         return;
     }
 
@@ -25,7 +25,7 @@ export function loadPlugins(webServer: WebServer, logger: Logger,) {
 
         let packagePhysicalPath = dirs[name].findFile("package.json");
         if (!packagePhysicalPath) {
-            logger.warn(`File package.json is not exists in the directory ${packagePhysicalPath}.`);
+            logger.warn(`${loadPlugins.name}: File package.json is not exists in the directory ${packagePhysicalPath}.`);
             continue;
         }
 
@@ -51,19 +51,19 @@ export function loadPlugins(webServer: WebServer, logger: Logger,) {
         }
 
         if (mod.default == null) {
-            logger.warn(`Package '${pkg.name}' has not a default field, is has a default export?.`);
+            logger.warn(`${loadPlugins.name}: Package '${pkg.name}' has not a default field, is has a default export?.`);
             continue;
         }
 
         if (typeof mod.default != "function") {
-            logger.warn(`Package '${pkg.name}' default export is not a function, require a function.`);
+            logger.warn(`${loadPlugins.name}: Package '${pkg.name}' default export is not a function, require a function.`);
             continue;
         }
 
         let func = mod.default as LoadPlugin;
         func(webServer);
 
-        logger.info(`Plugin ${pkg.name} is loaded.`);
+        logger.info(`${loadPlugins.name}: Plugin ${pkg.name} is loaded.`);
     }
 
 }
