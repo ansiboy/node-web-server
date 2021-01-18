@@ -33,7 +33,7 @@ export class ProxyRequestProcessor implements RequestProcessor<Options> {
     async execute(args: RequestContext) {
         for (let key in this.proxyTargets) {
             let regex = new RegExp(key)
-            let reqUrl = args.virtualPath;
+            let reqUrl = args.req.url || "";
             let arr = regex.exec(reqUrl)
             if (arr == null || arr.length == 0) {
                 continue;
