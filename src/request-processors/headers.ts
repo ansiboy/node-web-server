@@ -1,4 +1,5 @@
 import { RequestContext, RequestProcessor } from "..";
+import { RequestResult } from "../request-processor";
 import { processorPriorities } from "./priority";
 
 export type Headers = { [name: string]: string | string[] };
@@ -21,12 +22,17 @@ export class HeadersRequestProcessor implements RequestProcessor<Options> {
         this.options.headers = value;
     }
 
-    execute(ctx: RequestContext): null {
+    execute(ctx: RequestContext): RequestResult | null {
         if (this.headers) {
             for (let name in this.headers) {
                 ctx.res.setHeader(name, this.headers[name]);
             }
         }
+
+        if (ctx.req.method == "OPTIONS") {
+            return { content: JSON.stringify({}) };
+        }
+
         return null
     }
 
