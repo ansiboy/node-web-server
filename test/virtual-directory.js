@@ -49,4 +49,16 @@ describe("virtual directory", function () {
         assert.notStrictEqual(p2, null);
         assert.strictEqual(p2 === null || p2 === void 0 ? void 0 : p2.physicalPath, p1);
     });
+    it("direcotry same", function () {
+        let d1 = root.findDirectory("css");
+        assert.ok(d1 != null);
+        let d2 = root.findDirectory("css");
+        assert.strictEqual(d1, d2);
+        let temp1 = root.findDirectory("css/temp");
+        assert.ok(temp1 != null);
+        if (d2 == null)
+            throw "d2 is null";
+        let temp2 = d2.findDirectory("temp");
+        assert.strictEqual(temp1, temp2);
+    });
 });

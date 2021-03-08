@@ -41,4 +41,24 @@ describe("StaticFileRequestProcessor class test", function () {
             assert.strictEqual(browser.source, source);
         });
     });
+    it("ignore paths", function () {
+        return __awaiter(this, void 0, void 0, function* () {
+            let w = common_1.createWebServer();
+            let staticFileProcessor = w.requestProcessors.find(out_1.StaticFileProcessor);
+            assert.notStrictEqual(staticFileProcessor, null);
+            staticFileProcessor.staticPath = "public";
+            const browser = new Browser();
+            yield browser.visit(`http://127.0.0.1:${w.port}/temp.html`);
+            let buffer = fs.readFileSync(out_1.pathConcat(__dirname, "website/public/temp.html"));
+            let source = buffer.toString();
+            assert.strictEqual(browser.source, source);
+            try {
+                staticFileProcessor.ignorePaths = ["/temp.html"];
+                yield browser.visit(`http://127.0.0.1:${w.port}/temp.html`);
+            }
+            catch (err) {
+                assert.strictEqual(browser.status, 404);
+            }
+        });
+    });
 });
