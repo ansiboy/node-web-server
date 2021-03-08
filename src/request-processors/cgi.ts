@@ -6,7 +6,7 @@ import { watch } from "fs";
 
 export type DynamicScriptFunction = (args: RequestContext) => RequestResult | Promise<RequestResult>;
 
-const defaultDynamicPath = "/dynamic";
+export const defaultDynamicPath = "/dynamic";
 
 let noDefaultExport = (name: string) => {
     let error: Error = { message: `Module "${name}" has not a default export.`, name: "noDefaultExport" };

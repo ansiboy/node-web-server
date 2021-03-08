@@ -8,39 +8,51 @@ import { errorPages } from "../error-pages";
 import * as fs from "fs";
 import { defaultContentTypes } from "../content-types";
 import { processorPriorities } from "./priority";
+import { defaultDynamicPath } from "./cgi";
 
-interface Options {
-    /** 内容类型 */
-    contentTypes: { [key: string]: string },
-
-    /** 文件夹虚拟路径 */
-    directoryPath?: string | null,
-}
-
-export class StaticFileRequestProcessor implements RequestProcessor<Options> {
+export class StaticFileRequestProcessor implements RequestProcessor {
 
     priority = processorPriorities.StaticFileRequestProcessor;
 
-    options: Options = { contentTypes: {} };
+    private _contentTypes: { [key: string]: string } = {};
+    private _staticPath: string | null | undefined;
+    private _ignorePaths: string[] = [`${defaultDynamicPath}/\\S*`];
 
     constructor() {
 
     }
 
-    get contentTypes(): Options["contentTypes"] {
-        return this.options.contentTypes;
+    /** 获取内容类型 */
+    get contentTypes() {
+        return this._contentTypes;
     }
+    /** 设置内容类型 */
     set contentTypes(value) {
-        this.options.contentTypes = value || {};
+        this._contentTypes = value || {};
     }
 
     /** 获取静态文件夹路径 */
     get staticPath() {
-        return this.options.directoryPath;
+        return this._staticPath;
     }
-    /** 设置静态文件夹路径 */
+    /** 设置静态文件夹路径，如果路径位空，则位网站根目录 */
     set staticPath(value: string | null | undefined) {
-        this.options.directoryPath = value;
+        this._staticPath = value;
+    }
+
+    /** 获取忽略的路径 */
+    get ignorePaths() {
+        return this._ignorePaths;
+    }
+    /** 设置忽略的路径（正则表达式），如果某些请求的路径不需要处理，设置此参数。 */
+    set ignorePaths(value) {
+        if (value == null)
+            throw errors.argumentNull("value");
+
+        if (!Array.isArray(value))
+            throw errors.argumentTypeIncorrect("value", "Array");
+
+        this._ignorePaths = value;
     }
 
     async execute(ctx: RequestContext): Promise<RequestResult | null> {
@@ -48,6 +60,13 @@ export class StaticFileRequestProcessor implements RequestProcessor<Options> {
         let virtualPath = ctx.virtualPath;
         if (virtualPath.indexOf(".") < 0) {
             virtualPath = pathConcat(virtualPath, "index.html");
+        }
+
+        console.assert(this.ignorePaths != null && Array.isArray(this.ignorePaths));
+        for (let i = 0; i < this.ignorePaths.length; i++) {
+            let reg = new RegExp(this.ignorePaths[i]);
+            if (reg.test(virtualPath))
+                return null;
         }
 
         var dir = this.staticPath ? ctx.rootDirectory.findDirectory(this.staticPath) : ctx.rootDirectory;
