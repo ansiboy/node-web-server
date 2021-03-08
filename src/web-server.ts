@@ -22,19 +22,19 @@ import { Logger } from "log4js";
 const DefaultWebSitePath = "../sample-website";
 export class WebServer {
 
-    #websiteDirectory: VirtualDirectory;
-    #requestProcessors: RequestProcessorTypeCollection;
-    #settings: Settings;
-    #source: http.Server;
-    #contentTransforms: (ContentTransform | ContentTransformFunc)[] = [];
-    #defaultLogSettings: NonNullable<Required<Settings["log"]>> = {
+    private _websiteDirectory: VirtualDirectory;
+    private _requestProcessors: RequestProcessorTypeCollection;
+    private _settings: Settings;
+    private _source: http.Server;
+    private _contentTransforms: (ContentTransform | ContentTransformFunc)[] = [];
+    private _defaultLogSettings: NonNullable<Required<Settings["log"]>> = {
         level: "all",
         filePath: "log.txt",
     };
-    #logSettings: NonNullable<Required<Settings["log"]>>;
+    private _logSettings: NonNullable<Required<Settings["log"]>>;
     // #requestProcessorTypes: RequestProcessorType[] = [];
 
-    #defaultRequestProcessors = {
+    private _defaultRequestProcessors = {
         headers: new HeadersRequestProcessor(), proxy: new ProxyRequestProcessor(),
         dynamic: new DynamicRequestProcessor(), static: new StaticFileRequestProcessor(),
     };
@@ -43,19 +43,19 @@ export class WebServer {
         settings = settings || {};
 
         if (settings.websiteDirectory == null) {
-            this.#websiteDirectory = new VirtualDirectory(path.join(__dirname, DefaultWebSitePath));
+            this._websiteDirectory = new VirtualDirectory(path.join(__dirname, DefaultWebSitePath));
         }
         else if (typeof settings.websiteDirectory == "string") {
-            this.#websiteDirectory = new VirtualDirectory(settings.websiteDirectory);
+            this._websiteDirectory = new VirtualDirectory(settings.websiteDirectory);
         }
         else {
-            this.#websiteDirectory = settings.websiteDirectory;
+            this._websiteDirectory = settings.websiteDirectory;
         }
 
 
         let pkg = require("../package.json");
         let logger = getLogger(pkg.name, settings.log?.level);
-        let obj = this.loadConfigFromFile(this.#websiteDirectory, logger);
+        let obj = this.loadConfigFromFile(this._websiteDirectory, logger);
         if (obj) {
             Object.assign(settings, obj);
         }
@@ -66,17 +66,17 @@ export class WebServer {
                 if (virtualPath[0] != "/")
                     virtualPath = "/" + virtualPath;
 
-                this.#websiteDirectory.setPath(virtualPath, physicalPath);
+                this._websiteDirectory.setPath(virtualPath, physicalPath);
             }
         }
 
-        this.#settings = settings;
-        this.#logSettings = Object.assign({}, this.#defaultLogSettings, settings.log || {});
-        this.#requestProcessors = new RequestProcessorTypeCollection([
-            this.#defaultRequestProcessors.headers, this.#defaultRequestProcessors.proxy,
-            this.#defaultRequestProcessors.dynamic, this.#defaultRequestProcessors.static,
+        this._settings = settings;
+        this._logSettings = Object.assign({}, this._defaultLogSettings, settings.log || {});
+        this._requestProcessors = new RequestProcessorTypeCollection([
+            this._defaultRequestProcessors.headers, this._defaultRequestProcessors.proxy,
+            this._defaultRequestProcessors.dynamic, this._defaultRequestProcessors.static,
         ]);
-        this.#source = this.start();
+        this._source = this.start();
 
         for (let i = 0; i < this.requestProcessors.length; i++) {
             let requestProcessor = this.requestProcessors.item(i);
@@ -89,51 +89,51 @@ export class WebServer {
 
     /** 网站文件夹 */
     get websiteDirectory() {
-        return this.#websiteDirectory;
+        return this._websiteDirectory;
     }
 
     /** 端口 */
     get port() {
-        if (this.#settings.port == null) {
-            let address = this.#source.address() as AddressInfo;
+        if (this._settings.port == null) {
+            let address = this._source.address() as AddressInfo;
             // TODO: address is null
             return address.port;
         }
-        return this.#settings.port;
+        return this._settings.port;
     }
 
     /** 请求处理器实例 */
     get requestProcessors() {
-        return this.#requestProcessors;
+        return this._requestProcessors;
     }
 
     get source(): http.Server {
-        return this.#source;
+        return this._source;
     }
 
     /** 内容转换器 */
     get contentTransforms() {
-        return this.#contentTransforms;
+        return this._contentTransforms;
     }
 
     /** 设置 */
     get settings() {
-        return this.#settings;
+        return this._settings;
     }
 
     private start() {
-        let settings: Settings = this.#settings;
+        let settings: Settings = this._settings;
         let server = http.createServer(async (req, res) => {
             let u = url.parse(req.url || "");
 
             let path = u.pathname || "";
 
-            for (let i = 0; i < this.#requestProcessors.length; i++) {
-                let processor = this.#requestProcessors.item(i);
+            for (let i = 0; i < this._requestProcessors.length; i++) {
+                let processor = this._requestProcessors.item(i);
                 try {
                     let r: RequestResult | null = null;
                     let requestContext: RequestContext = {
-                        virtualPath: path, rootDirectory: this.#websiteDirectory,
+                        virtualPath: path, rootDirectory: this._websiteDirectory,
                         req, res, logLevel: this.logLevel
                     };
                     let p = processor.execute(requestContext);
@@ -148,7 +148,7 @@ export class WebServer {
                     }
 
                     if (r != null) {
-                        r = await this.resultTransform(r, requestContext, this.#contentTransforms);
+                        r = await this.resultTransform(r, requestContext, this._contentTransforms);
                         if (r.statusCode) {
                             res.statusCode = r.statusCode;
                         }
@@ -287,7 +287,7 @@ export class WebServer {
 
     /** 日志等级 */
     get logLevel() {
-        return this.#logSettings.level;
+        return this._logSettings.level;
     }
 
     // get requestProcessorTypes() {
@@ -317,7 +317,7 @@ export class WebServer {
     }
 
     private setProcessorOptions(requestProcessor: RequestProcessor<any>, logger: Logger) {
-        let processors = this.#settings.processors || {};
+        let processors = this._settings.processors || {};
         let name = requestProcessor.constructor.name;
         let shortName = requestProcessor.constructor.name.replace("RequestProcessor", "").replace("Processor", "");
         let alaisName = shortName + "Processor";
