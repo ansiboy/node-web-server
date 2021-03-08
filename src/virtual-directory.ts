@@ -107,6 +107,8 @@ export class VirtualDirectory {
 
         this.checkVirtualPath(virtualPath);
         this.checkPhysicalPath(physicalPath);
+        if (!fs.existsSync(physicalPath))
+            throw errors.physicalPathNotExists(physicalPath);
 
         let arr = virtualPath.split("/").filter(o => o);
 
@@ -114,8 +116,12 @@ export class VirtualDirectory {
         for (let i = 0; i < arr.length; i++) {
             let name = arr[i];
 
-            let isFileName = i == arr.length - 1 && arr[arr.length - 1].indexOf(".") >= 0;
-            if (isFileName) {
+            // let isFileName = i == arr.length - 1 && arr[arr.length - 1].indexOf(".") >= 0;
+            // if (isFileName) {
+            //     current.setFile(name, physicalPath);
+            //     break;
+            // }
+            if (i == arr.length - 1 && fs.statSync(physicalPath).isFile()) {
                 current.setFile(name, physicalPath);
                 break;
             }
