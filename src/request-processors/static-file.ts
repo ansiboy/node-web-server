@@ -15,7 +15,7 @@ export class StaticFileRequestProcessor implements RequestProcessor {
     priority = processorPriorities.StaticFileRequestProcessor;
 
     private _contentTypes: { [key: string]: string } = {};
-    private _staticPath: string | null | undefined;
+    private _staticPath: string | null = null;
     private _ignorePaths: string[] = [`${defaultDynamicPath}/\\S*`];
 
     constructor() {
@@ -36,7 +36,7 @@ export class StaticFileRequestProcessor implements RequestProcessor {
         return this._staticPath;
     }
     /** 设置静态文件夹路径，如果路径位空，则位网站根目录 */
-    set staticPath(value: string | null | undefined) {
+    set staticPath(value: string | null) {
         this._staticPath = value;
     }
 
