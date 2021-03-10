@@ -316,7 +316,7 @@ export class WebServer {
 
     }
 
-    private setProcessorOptions(requestProcessor: RequestProcessor<any>, logger: Logger) {
+    private setProcessorOptions(requestProcessor: RequestProcessor, logger: Logger) {
         let processors = this._settings.processors || {};
         let name = requestProcessor.constructor.name;
         let shortName = requestProcessor.constructor.name.replace("RequestProcessor", "").replace("Processor", "");
@@ -337,10 +337,10 @@ export class WebServer {
             configFilePhysicalPath = this.websiteDirectory.findFile(configFileName);
         }
 
-        if (configFilePhysicalPath) {
-            let options = require(configFilePhysicalPath);
-            requestProcessor.options = options;
-        }
+        // if (configFilePhysicalPath) {
+        //     let options = require(configFilePhysicalPath);
+        //     requestProcessor.options = options;
+        // }
     }
 
 

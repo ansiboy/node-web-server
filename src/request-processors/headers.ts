@@ -6,7 +6,7 @@ export type Headers = { [name: string]: string | string[] };
 interface Options {
     headers: Headers
 }
-export class HeadersRequestProcessor implements RequestProcessor<Options> {
+export class HeadersRequestProcessor implements RequestProcessor {
 
     options: Options = { headers: {} };
 

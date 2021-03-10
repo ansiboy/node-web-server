@@ -15,7 +15,7 @@ interface Options {
     proxyTargets: { [key: string]: ProxyItem | string };
 }
 
-export class ProxyRequestProcessor implements RequestProcessor<Options> {
+export class ProxyRequestProcessor implements RequestProcessor {
 
     priority = processorPriorities.ProxyRequestProcessor;
     options = { proxyTargets: {} };

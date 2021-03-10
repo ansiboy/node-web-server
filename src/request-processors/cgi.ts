@@ -23,7 +23,7 @@ export type Options = {
     directoryPath: string
 };
 
-export class DynamicRequestProcessor implements RequestProcessor<Options> {
+export class DynamicRequestProcessor implements RequestProcessor {
 
     // #dynamicScriptPath: string;
 
