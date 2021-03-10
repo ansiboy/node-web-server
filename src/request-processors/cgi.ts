@@ -18,10 +18,10 @@ let defaultExportNotFunction = (name: string) => {
     return error;
 }
 
-export type Options = {
-    // 动态脚本夹的虚拟路径
-    directoryPath: string
-};
+// export type Options = {
+//     // 动态脚本夹的虚拟路径
+//     directoryPath: string
+// };
 
 export class DynamicRequestProcessor implements RequestProcessor {
 
@@ -31,7 +31,8 @@ export class DynamicRequestProcessor implements RequestProcessor {
 
     private watches: { [key: string]: any } = {};
 
-    options: Options = { directoryPath: defaultDynamicPath };
+    // options: Options = { directoryPath: defaultDynamicPath };
+    private directoryPath = defaultDynamicPath;
 
     constructor() {
         console.assert(defaultDynamicPath.startsWith("/"));
@@ -51,7 +52,7 @@ export class DynamicRequestProcessor implements RequestProcessor {
 
     /** 获取脚本路径 */
     get scriptPath() {
-        return this.options.directoryPath;
+        return this.directoryPath;
     }
     /** 设置脚本路径 */
     set scriptPath(value) {
@@ -59,7 +60,7 @@ export class DynamicRequestProcessor implements RequestProcessor {
         if (!value.startsWith("/"))
             value = "/" + value;
 
-        this.options.directoryPath = value;
+        this.directoryPath = value;
     }
 
     execute(args: RequestContext) {

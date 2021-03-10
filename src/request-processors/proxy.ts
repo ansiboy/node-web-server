@@ -18,7 +18,7 @@ interface Options {
 export class ProxyRequestProcessor implements RequestProcessor {
 
     priority = processorPriorities.ProxyRequestProcessor;
-    options = { proxyTargets: {} };
+    private options = { proxyTargets: {} };
 
     constructor() {
     }

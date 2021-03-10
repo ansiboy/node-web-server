@@ -8,7 +8,7 @@ interface Options {
 }
 export class HeadersRequestProcessor implements RequestProcessor {
 
-    options: Options = { headers: {} };
+    private options: Options = { headers: {} };
 
     priority = processorPriorities.HeadersRequestProcessor;
 
