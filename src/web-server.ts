@@ -41,7 +41,8 @@ export class WebServer {
 
     constructor(settings?: Settings) {
         settings = settings || {};
-
+        this.checkSettings(settings);
+        
         if (settings.websiteDirectory == null) {
             this._websiteDirectory = new VirtualDirectory(path.join(__dirname, DefaultWebSitePath));
         }
@@ -279,41 +280,50 @@ export class WebServer {
         return outputObject
     }
 
-    // /** 日志记录器 */
-    // getLogger(categoryName: string) {
-    //     let logSetting = this.#settings.log || {};
-    //     return getLogger(categoryName, this.logLevel, logSetting.filePath);
-    // }
-
     /** 日志等级 */
     get logLevel() {
         return this._logSettings.level;
     }
 
-    // get requestProcessorTypes() {
-    //     return this.#requestProcessorTypes;
-    // }
-
     private loadConfigFromFile(rootDirectory: VirtualDirectory, logger: Logger): Settings | null {
         const jsonConfigName = "nws-config.json";
         const jsConfigName = "nws-config.js";
 
+        let r: Settings | null = null;
         let configPath = rootDirectory.findFile(jsonConfigName);
         if (configPath) {
-            let obj = require(configPath);
+            r = require(configPath);
             logger.info(`Config file '${configPath}' is loaded.`)
-            return obj;
         }
 
         configPath = rootDirectory.findFile(jsConfigName);
-        if (configPath) {
+        if (r == null && configPath != null) {
             let obj = require(configPath);
             logger.info(`Config file '${configPath}' is loaded.`)
-            return obj.default || obj;
+            r = obj.default || obj;
         }
 
-        return null;
+        // check config file
+        if (r != null) {
+            this.checkSettings(r);
+        }
 
+        return r;
+
+    }
+
+    private checkSettings(settings: Settings) {
+        let settingsKeys: (keyof Settings)[] = [
+            "port", "bindIP", "log", "websiteDirectory",
+            "processors", "virtualPaths"
+        ];
+
+        let keys = Object.getOwnPropertyNames(settings) as (keyof Settings)[];
+        for (let i = 0; i < keys.length; i++) {
+            if (settingsKeys.indexOf(keys[i]) < 0) {
+                throw errors.notSettingsField(keys[i]);
+            }
+        }
     }
 
     private setProcessorOptions(requestProcessor: RequestProcessor, logger: Logger) {
@@ -336,12 +346,5 @@ export class WebServer {
             configFileName = `${alaisName}.config.json`;
             configFilePhysicalPath = this.websiteDirectory.findFile(configFileName);
         }
-
-        // if (configFilePhysicalPath) {
-        //     let options = require(configFilePhysicalPath);
-        //     requestProcessor.options = options;
-        // }
     }
-
-
 }

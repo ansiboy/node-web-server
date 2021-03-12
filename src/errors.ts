@@ -177,13 +177,18 @@ export let errors = {
         error.name = name;
         return error;
     },
-    requestProcessorTypeExists(name:string){
+    requestProcessorTypeExists(name: string) {
         let msg = `request processor type named '${name}' is exists.`;
         let error = new Error(msg);
-        let errorName:keyof typeof errors = "requestProcessorTypeExists";
+        let errorName: keyof typeof errors = "requestProcessorTypeExists";
+        error.name = errorName;
+        return error;
+    },
+    notSettingsField(name: string) {
+        let msg = `Field ${name} is not a field of settings.`;
+        let error = new Error(msg);
+        let errorName: keyof typeof errors = "notSettingsField";
         error.name = errorName;
         return error;
     }
-
-
 }
