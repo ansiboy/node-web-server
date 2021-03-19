@@ -42,7 +42,7 @@ export class WebServer {
     constructor(settings?: Settings) {
         settings = settings || {};
         this.checkSettings(settings);
-        
+
         if (settings.websiteDirectory == null) {
             this._websiteDirectory = new VirtualDirectory(path.join(__dirname, DefaultWebSitePath));
         }
@@ -336,7 +336,7 @@ export class WebServer {
             if ((requestProcessor as any)[prop] !== undefined) {
                 (requestProcessor as any)[prop] = processorProperties[prop];
                 logger.info(`Set processor '${name}' property '${prop}', value is:\n`);
-                logger.info(processorProperties[prop])
+                logger.info(JSON.stringify(processorProperties[prop], null, "    "));
             }
         }
 
