@@ -41,7 +41,6 @@ export class WebServer {
 
     constructor(settings?: Settings) {
         settings = settings || {};
-        this.checkSettings(settings);
 
         if (settings.websiteDirectory == null) {
             this._websiteDirectory = new VirtualDirectory(path.join(__dirname, DefaultWebSitePath));
@@ -127,8 +126,32 @@ export class WebServer {
         let server = http.createServer(async (req, res) => {
             let u = url.parse(req.url || "");
 
-            let path = u.pathname || "";
+            let path = u.pathname || "";// for (let key in this.proxyTargets) {
+            let pathRewrite = settings.pathRewrite || {};
+            for (let key in pathRewrite) {
+                if (key[0] != '/')
+                    key = '/' + key;
 
+                let regex = new RegExp(key);
+                let arr = regex.exec(path)
+                if (arr == null || arr.length == 0) {
+                    continue;
+                }
+
+                let targetPath = pathRewrite[key];
+                let regex1 = /\$(\d+)/g;
+                if (regex1.test(targetPath)) {
+                    targetPath = targetPath.replace(regex1, (match, number) => {
+                        if (arr == null) throw errors.unexpectedNullValue('arr')
+
+                        return typeof arr[number] != 'undefined' ? arr[number] : match;
+                    })
+                }
+                
+                logger.info(`Path rewrite, ${path} -> ${targetPath}`);
+                path = targetPath;
+                break;
+            }
             for (let i = 0; i < this._requestProcessors.length; i++) {
                 let processor = this._requestProcessors.item(i);
                 try {
@@ -305,14 +328,14 @@ export class WebServer {
 
         // check config file
         if (r != null) {
-            this.checkSettings(r);
+            this.checkSettings(r, logger);
         }
 
         return r;
 
     }
 
-    private checkSettings(settings: Settings) {
+    private checkSettings(settings: Settings, logger: Logger) {
         let settingsKeys: (keyof Settings)[] = [
             "port", "bindIP", "log", "websiteDirectory",
             "processors", "virtualPaths"
@@ -321,7 +344,9 @@ export class WebServer {
         let keys = Object.getOwnPropertyNames(settings) as (keyof Settings)[];
         for (let i = 0; i < keys.length; i++) {
             if (settingsKeys.indexOf(keys[i]) < 0) {
-                throw errors.notSettingsField(keys[i]);
+                // throw errors.notSettingsField(keys[i]);
+                let err = errors.notSettingsField(keys[i]);
+                logger.warn(err.message);
             }
         }
     }
