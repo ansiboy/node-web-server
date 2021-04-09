@@ -129,15 +129,11 @@ export class WebServer {
             let path = u.pathname || "";// for (let key in this.proxyTargets) {
             let pathRewrite = settings.pathRewrite || {};
             for (let key in pathRewrite) {
-                if (key[0] != '/')
-                    key = '/' + key;
-
                 let regex = new RegExp(key);
                 let arr = regex.exec(path)
                 if (arr == null || arr.length == 0) {
                     continue;
                 }
-
                 let targetPath = pathRewrite[key];
                 let regex1 = /\$(\d+)/g;
                 if (regex1.test(targetPath)) {
@@ -147,7 +143,7 @@ export class WebServer {
                         return typeof arr[number] != 'undefined' ? arr[number] : match;
                     })
                 }
-                
+
                 logger.info(`Path rewrite, ${path} -> ${targetPath}`);
                 path = targetPath;
                 break;
