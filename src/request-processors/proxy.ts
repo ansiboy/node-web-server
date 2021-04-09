@@ -33,7 +33,7 @@ export class ProxyRequestProcessor implements RequestProcessor {
     async execute(args: RequestContext) {
         for (let key in this.proxyTargets) {
             let regex = new RegExp(key)
-            let reqUrl = args.req.url || "";
+            let reqUrl = args.virtualPath;
             let arr = regex.exec(reqUrl)
             if (arr == null || arr.length == 0) {
                 continue;
@@ -116,11 +116,6 @@ export function proxyRequest(targetUrl: string, req: http.IncomingMessage, res: 
                 response.on("data", function (data) {
                     buffer = Buffer.concat([buffer, data])
                 })
-
-                // resolve({
-                //     content: response, statusCode: response.statusCode || 200,
-                //     headers: response.headers,
-                // });
             }
         );
 
