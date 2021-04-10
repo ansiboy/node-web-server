@@ -7,6 +7,7 @@ export type Content = string | Buffer | stream.Readable;
 
 export type RequestContext = {
     virtualPath: string, //physicalPath?: string | null,
+    url: string,
     /** 站点根目录 */
     rootDirectory: VirtualDirectory,
     res: http.ServerResponse, req: http.IncomingMessage,

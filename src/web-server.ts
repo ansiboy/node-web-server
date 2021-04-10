@@ -1,4 +1,4 @@
-import { Settings } from "./settings";
+import { Settings, UrlRewriteItem } from "./settings";
 import http = require("http");
 import url = require("url");
 import { AddressInfo } from "net";
@@ -124,37 +124,63 @@ export class WebServer {
     private start() {
         let settings: Settings = this._settings;
         let server = http.createServer(async (req, res) => {
-            let u = url.parse(req.url || "");
 
-            let path = u.pathname || "";// for (let key in this.proxyTargets) {
-            let pathRewrite = settings.pathRewrite || {};
+            let reqUrl = req.url || "";
+            let pathRewrite = settings.urlRewrite || {};
+            let u = url.parse(reqUrl);
+            let pathname = u.pathname || "";
+            let ext = path.extname(pathname);
             for (let key in pathRewrite) {
                 let regex = new RegExp(key);
-                let arr = regex.exec(path)
+                let arr = regex.exec(reqUrl)
                 if (arr == null || arr.length == 0) {
                     continue;
                 }
-                let targetPath = pathRewrite[key];
+
+                let rewriteItem: UrlRewriteItem = typeof pathRewrite[key] == "string" ? { targetUrl: pathRewrite[key] as string } : pathRewrite[key] as UrlRewriteItem;
+                if (rewriteItem.method != null && rewriteItem.method.toUpperCase() != (req.method || "").toUpperCase())
+                    continue;
+
+                let exts: string[] | null = null;
+                if (typeof rewriteItem.ext == "string")
+                    exts = [rewriteItem.ext];
+                else if (Array.isArray(rewriteItem.ext))
+                    exts = rewriteItem.ext;
+
+                if (exts != null && exts.indexOf(ext) < 0)
+                    continue;
+
+                let targetURL = rewriteItem.targetUrl;
                 let regex1 = /\$(\d+)/g;
-                if (regex1.test(targetPath)) {
-                    targetPath = targetPath.replace(regex1, (match, number) => {
+                if (regex1.test(targetURL)) {
+                    targetURL = targetURL.replace(regex1, (match, number) => {
                         if (arr == null) throw errors.unexpectedNullValue('arr')
 
                         return typeof arr[number] != 'undefined' ? arr[number] : match;
                     })
                 }
 
-                logger.info(`Path rewrite, ${path} -> ${targetPath}`);
-                path = targetPath;
+
+                logger.info(`Path rewrite, ${reqUrl} -> ${targetURL}`);
+                reqUrl = targetURL;
+
+                //======================================
+                u = url.parse(reqUrl);
+                pathname = u.pathname || "";
+                //======================================
+
                 break;
             }
+
+
+
             for (let i = 0; i < this._requestProcessors.length; i++) {
                 let processor = this._requestProcessors.item(i);
                 try {
                     let r: RequestResult | null = null;
                     let requestContext: RequestContext = {
-                        virtualPath: path, rootDirectory: this._websiteDirectory,
-                        req, res, logLevel: this.logLevel
+                        virtualPath: pathname, rootDirectory: this._websiteDirectory,
+                        req, res, logLevel: this.logLevel, url: reqUrl,
                     };
                     let p = processor.execute(requestContext);
                     if (p == null)
@@ -197,7 +223,7 @@ export class WebServer {
             }
 
             // 404
-            this.outputError(errors.pageNotFound(path), res);
+            this.outputError(errors.pageNotFound(pathname), res);
         })
 
         let packagePath = "../package.json";

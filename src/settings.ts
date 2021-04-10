@@ -17,5 +17,12 @@ export interface Settings {
     /** 请求处理选项配置 */
     processors?: { [name: string]: any },
     virtualPaths?: { [virtualPath: string]: string },
-    pathRewrite?: { [path: string]: string },
+    urlRewrite?: { [url: string]: (string | UrlRewriteItem) },
+}
+
+export interface UrlRewriteItem {
+    targetUrl: string,
+    method?: string,
+    /** 路径的扩展名 */
+    ext?: string | string[],
 }
