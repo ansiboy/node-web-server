@@ -17,7 +17,7 @@ describe("rewrite", function () {
     it("rewrite 1", function () {
         return __awaiter(this, void 0, void 0, function* () {
             let server = common_1.createWebServer({
-                pathRewrite: {
+                urlRewrite: {
                     "/test.html": "/index.html"
                 }
             });
@@ -34,7 +34,7 @@ describe("rewrite", function () {
     it("rewrite 2", function () {
         return __awaiter(this, void 0, void 0, function* () {
             let server = common_1.createWebServer({
-                pathRewrite: {
+                urlRewrite: {
                     "test.html": "/index.html"
                 }
             });
@@ -49,8 +49,23 @@ describe("rewrite", function () {
     it("rewrite 3", function () {
         return __awaiter(this, void 0, void 0, function* () {
             let server = common_1.createWebServer({
-                pathRewrite: {
+                urlRewrite: {
                     "dir/(\\S+)": "/$1.html"
+                }
+            });
+            let browser = common_1.createBrowser();
+            yield browser.visit(`http://127.0.0.1:${server.port}/dir/index`);
+            let indexPath = out_1.pathConcat(__dirname, "website/index.html");
+            assert.ok(fs.existsSync(indexPath), "index.html is not exists.");
+            let indexContent = fs.readFileSync(indexPath).toString();
+            assert.strictEqual(browser.source, indexContent);
+        });
+    });
+    it("rewrite func", function () {
+        return __awaiter(this, void 0, void 0, function* () {
+            let server = common_1.createWebServer({
+                urlRewrite: (url) => {
+                    return "/index.html";
                 }
             });
             let browser = common_1.createBrowser();

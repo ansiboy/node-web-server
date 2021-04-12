@@ -2,16 +2,48 @@ import * as http from "http";
 import { LogLevel } from "./logger";
 import * as stream from "stream";
 import { VirtualDirectory } from "./virtual-directory";
+import * as url from "url";
+import { errors } from "./errors";
 
 export type Content = string | Buffer | stream.Readable;
 
-export type RequestContext = {
-    virtualPath: string, //physicalPath?: string | null,
-    url: string,
+export class RequestContext {
+
+    private _virtualPath: string;
+    private _url: string;
+
+    constructor(args: {
+        url: string, rootDirectory: VirtualDirectory,
+        req: http.IncomingMessage, res: http.ServerResponse,
+        logLevel: LogLevel
+    }) {
+
+        this.url = args.url;
+        this.rootDirectory = args.rootDirectory;
+        this.req = args.req;
+        this.res = args.res;
+        this.logLevel = args.logLevel;
+
+    }
+
     /** 站点根目录 */
-    rootDirectory: VirtualDirectory,
-    res: http.ServerResponse, req: http.IncomingMessage,
-    logLevel: LogLevel
+    rootDirectory: VirtualDirectory;
+    res: http.ServerResponse;
+    req: http.IncomingMessage;
+    logLevel: LogLevel;
+    get virtualPath(): string {
+        return this._virtualPath;
+    }
+    get url(): string {
+        return this._url;
+    }
+    set url(value: string) {
+        if (!value) throw errors.argumentNull("value");
+        
+        this._url = value;
+        let u = url.parse(value);
+        this._virtualPath = u.pathname || "";
+    }
 }
 
 export type RequestResult = {

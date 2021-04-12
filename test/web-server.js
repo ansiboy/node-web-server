@@ -25,16 +25,6 @@ describe("web-server", function () {
         assert.notEqual(webserver.port, null);
         webserver.port;
     });
-    it("error settings", function () {
-        let error = null;
-        try {
-            var webserver = new out_1.WebServer({ errorKey: "" });
-        }
-        catch (err) {
-            error = err;
-        }
-        assert.ok(error != null);
-    });
     it("start auto port", function () {
         let settings = {};
         var webserver = new out_1.WebServer(settings);

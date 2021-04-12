@@ -19,19 +19,6 @@ describe("web-server", function () {
         webserver.port;
     })
 
-    it("error settings", function () {
-
-        let error: Error | null = null;
-        try {
-            var webserver = new WebServer({ errorKey: "" } as any);
-        }
-        catch (err) {
-            error = err;
-        }
-
-        assert.ok(error != null);
-    })
-
     it("start auto port", function () {
         let settings: Settings = {};
         var webserver = new WebServer(settings);

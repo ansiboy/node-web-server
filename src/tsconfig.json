@@ -5,6 +5,7 @@
         "declaration": true,
         "sourceMap": false,
         "module": "commonjs",
-        "strict": true
+        "strict": true,
+        "strictPropertyInitialization": false
     }
 }

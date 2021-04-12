@@ -8,7 +8,7 @@ describe("rewrite", function () {
 
     it("rewrite 1", async function () {
         let server = createWebServer({
-            pathRewrite: {
+            urlRewrite: {
                 "/test.html": "/index.html"
             }
         });
@@ -28,7 +28,7 @@ describe("rewrite", function () {
 
     it("rewrite 2", async function () {
         let server = createWebServer({
-            pathRewrite: {
+            urlRewrite: {
                 "test.html": "/index.html"
             }
         });
@@ -45,7 +45,7 @@ describe("rewrite", function () {
 
     it("rewrite 3", async function () {
         let server = createWebServer({
-            pathRewrite: {
+            urlRewrite: {
                 "dir/(\\S+)": "/$1.html"
             }
         });
@@ -56,7 +56,21 @@ describe("rewrite", function () {
         assert.ok(fs.existsSync(indexPath), "index.html is not exists.");
         let indexContent = fs.readFileSync(indexPath).toString();
         assert.strictEqual(browser.source, indexContent);
-
-
     })
+
+    it("rewrite func", async function () {
+        let server = createWebServer({
+            urlRewrite: (url) => {
+                return "/index.html";
+            }
+        });
+        let browser = createBrowser();
+        await browser.visit(`http://127.0.0.1:${server.port}/dir/index`);
+
+        let indexPath = pathConcat(__dirname, "website/index.html");
+        assert.ok(fs.existsSync(indexPath), "index.html is not exists.");
+        let indexContent = fs.readFileSync(indexPath).toString();
+        assert.strictEqual(browser.source, indexContent);
+    })
+
 })

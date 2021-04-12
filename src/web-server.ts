@@ -1,4 +1,4 @@
-import { Settings, UrlRewriteItem } from "./settings";
+import { Settings, UrlRewriteFunc, UrlRewriteItem } from "./settings";
 import http = require("http");
 import url = require("url");
 import { AddressInfo } from "net";
@@ -126,62 +126,46 @@ export class WebServer {
         let server = http.createServer(async (req, res) => {
 
             let reqUrl = req.url || "";
-            let pathRewrite = settings.urlRewrite || {};
             let u = url.parse(reqUrl);
             let pathname = u.pathname || "";
             let ext = path.extname(pathname);
-            for (let key in pathRewrite) {
-                let regex = new RegExp(key);
-                let arr = regex.exec(reqUrl)
-                if (arr == null || arr.length == 0) {
-                    continue;
-                }
 
-                let rewriteItem: UrlRewriteItem = typeof pathRewrite[key] == "string" ? { targetUrl: pathRewrite[key] as string } : pathRewrite[key] as UrlRewriteItem;
-                if (rewriteItem.method != null && rewriteItem.method.toUpperCase() != (req.method || "").toUpperCase())
-                    continue;
-
-                let exts: string[] | null = null;
-                if (typeof rewriteItem.ext == "string")
-                    exts = [rewriteItem.ext];
-                else if (Array.isArray(rewriteItem.ext))
-                    exts = rewriteItem.ext;
-
-                if (exts != null && exts.indexOf(ext) < 0)
-                    continue;
-
-                let targetURL = rewriteItem.targetUrl;
-                let regex1 = /\$(\d+)/g;
-                if (regex1.test(targetURL)) {
-                    targetURL = targetURL.replace(regex1, (match, number) => {
-                        if (arr == null) throw errors.unexpectedNullValue('arr')
-
-                        return typeof arr[number] != 'undefined' ? arr[number] : match;
-                    })
-                }
-
-
-                logger.info(`Path rewrite, ${reqUrl} -> ${targetURL}`);
-                reqUrl = targetURL;
-
-                //======================================
-                u = url.parse(reqUrl);
-                pathname = u.pathname || "";
-                //======================================
-
-                break;
+            let rewrite: UrlRewriteFunc | null = null;
+            if (typeof settings.urlRewrite == "function") {
+                rewrite = settings.urlRewrite;
+            }
+            else if (settings.urlRewrite != null) {
+                let dic: { [url: string]: UrlRewriteItem } = {};
+                Object.keys(settings.urlRewrite).forEach(k => {
+                    let urlRewrite = settings.urlRewrite as { [url: string]: (string | UrlRewriteItem) };
+                    if (typeof urlRewrite[k] == "string") {
+                        dic[k] = { targetUrl: urlRewrite[k] as string };
+                    }
+                    else {
+                        dic[k] = urlRewrite[k] as UrlRewriteItem;
+                    }
+                })
+                rewrite = this.createRewriteFunc(dic);
             }
 
+            let targetURL: string | null = null;
+            if (rewrite != null) {
+                targetURL = rewrite(reqUrl, { ext, method: req.method || "" });
+            }
 
+            if (targetURL != null) {
+                logger.info(`Path rewrite, ${reqUrl} -> ${targetURL}`);
+                reqUrl = targetURL;
+            }
 
             for (let i = 0; i < this._requestProcessors.length; i++) {
                 let processor = this._requestProcessors.item(i);
                 try {
                     let r: RequestResult | null = null;
-                    let requestContext: RequestContext = {
-                        virtualPath: pathname, rootDirectory: this._websiteDirectory,
-                        req, res, logLevel: this.logLevel, url: reqUrl,
-                    };
+                    let requestContext = new RequestContext({
+                        url: reqUrl, rootDirectory: this._websiteDirectory,
+                        req, res, logLevel: this.logLevel
+                    });
                     let p = processor.execute(requestContext);
                     if (p == null)
                         continue;
@@ -205,10 +189,6 @@ export class WebServer {
                             for (let key in r.headers) {
                                 res.setHeader(key, r.headers[key] || "");
                             }
-
-                            // if (r.content instanceof Buffer) {
-                            //     res.setHeader("Content-Length", r.content.length.toString());
-                            // }
                         }
                         res.setHeader("processor", processor.constructor.name);
 
@@ -393,5 +373,50 @@ export class WebServer {
             configFileName = `${alaisName}.config.json`;
             configFilePhysicalPath = this.websiteDirectory.findFile(configFileName);
         }
+    }
+
+    private createRewriteFunc(rewriteItems: { [url: string]: UrlRewriteItem }): UrlRewriteFunc {
+        let func: UrlRewriteFunc = (rawUrl, options): string | null => {
+            for (let key in rewriteItems) {
+                let regex = new RegExp(key);
+                let arr = regex.exec(rawUrl)
+                if (arr == null || arr.length == 0) {
+                    continue;
+                }
+
+                let rewriteItem: UrlRewriteItem = rewriteItems[key];
+                if (rewriteItem.method != null && rewriteItem.method.toUpperCase() != options.method.toUpperCase())
+                    continue;
+
+                let exts: string[] | null = null;
+                if (typeof rewriteItem.ext == "string")
+                    exts = [rewriteItem.ext];
+                else if (Array.isArray(rewriteItem.ext))
+                    exts = rewriteItem.ext;
+
+                if (exts != null && exts.indexOf(options.ext) < 0)
+                    continue;
+
+                let targetURL = rewriteItem.targetUrl;
+                let regex1 = /\$(\d+)/g;
+                if (regex1.test(targetURL)) {
+                    targetURL = targetURL.replace(regex1, (match, number) => {
+                        if (arr == null) throw errors.unexpectedNullValue('arr')
+
+                        return typeof arr[number] != 'undefined' ? arr[number] : match;
+                    })
+                }
+
+                if (targetURL[0] != "/")
+                    targetURL = "/" + targetURL;
+                    
+                return targetURL;
+            }
+
+            return null;
+
+        }
+
+        return func;
     }
 }
