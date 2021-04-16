@@ -80,7 +80,7 @@ export function proxyRequest(targetUrl: string, req: http.IncomingMessage, res: 
         // headers = Object.assign(req.headers, headers);
         //=====================================================
         if (headers.host) {
-            headers["delete-host"] = headers.host;
+            headers["original-host"] = headers.host;
             // 在转发请求到 nginx 服务器,如果有 host 字段,转发失败
             delete headers.host;
         }

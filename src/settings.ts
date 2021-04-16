@@ -1,5 +1,6 @@
 import { VirtualDirectory } from "./virtual-directory";
 import { LogLevel } from "./logger";
+import { IncomingMessage } from "http";
 
 export interface Settings {
     /** 服务端口 */
@@ -20,7 +21,10 @@ export interface Settings {
     urlRewrite?: { [url: string]: (string | UrlRewriteItem) } | UrlRewriteFunc,
 }
 
-export type UrlRewriteFunc = (rawUrl: string, options: { ext: string, method: string }) => string | null;
+export type UrlRewriteOptions = {
+    req: IncomingMessage
+}
+export type UrlRewriteFunc = (rawUrl: string, options: UrlRewriteOptions) => string | null | Promise<string>;
 
 export interface UrlRewriteItem {
     targetUrl: string,

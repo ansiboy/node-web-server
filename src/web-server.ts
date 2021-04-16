@@ -150,7 +150,17 @@ export class WebServer {
 
             let targetURL: string | null = null;
             if (rewrite != null) {
-                targetURL = rewrite(reqUrl, { ext, method: req.method || "" });
+                try {
+                    let r = rewrite(reqUrl, { req });
+                    if (typeof r == "string")
+                        targetURL = r;
+                    else
+                        targetURL = await r;
+                }
+                catch (err) {
+                    this.outputError(err, res);
+                    return;
+                }
             }
 
             if (targetURL != null) {
@@ -158,14 +168,16 @@ export class WebServer {
                 reqUrl = targetURL;
             }
 
+            let requestContext = new RequestContext({
+                url: reqUrl, rootDirectory: this._websiteDirectory,
+                req, res, logLevel: this.logLevel
+            });
+
             for (let i = 0; i < this._requestProcessors.length; i++) {
                 let processor = this._requestProcessors.item(i);
                 try {
                     let r: RequestResult | null = null;
-                    let requestContext = new RequestContext({
-                        url: reqUrl, rootDirectory: this._websiteDirectory,
-                        req, res, logLevel: this.logLevel
-                    });
+
                     let p = processor.execute(requestContext);
                     if (p == null)
                         continue;
@@ -203,7 +215,7 @@ export class WebServer {
             }
 
             // 404
-            this.outputError(errors.pageNotFound(pathname), res);
+            this.outputError(errors.pageNotFound(requestContext.url), res);
         })
 
         let packagePath = "../package.json";
@@ -385,17 +397,17 @@ export class WebServer {
                 }
 
                 let rewriteItem: UrlRewriteItem = rewriteItems[key];
-                if (rewriteItem.method != null && rewriteItem.method.toUpperCase() != options.method.toUpperCase())
+                if (rewriteItem.method != null && rewriteItem.method.toUpperCase() != (options.req.method || "").toUpperCase())
                     continue;
 
-                let exts: string[] | null = null;
-                if (typeof rewriteItem.ext == "string")
-                    exts = [rewriteItem.ext];
-                else if (Array.isArray(rewriteItem.ext))
-                    exts = rewriteItem.ext;
+                // let exts: string[] | null = null;
+                // if (typeof rewriteItem.ext == "string")
+                //     exts = [rewriteItem.ext];
+                // else if (Array.isArray(rewriteItem.ext))
+                //     exts = rewriteItem.ext;
 
-                if (exts != null && exts.indexOf(options.ext) < 0)
-                    continue;
+                // if (exts != null && exts.indexOf(options.ext) < 0)
+                //     continue;
 
                 let targetURL = rewriteItem.targetUrl;
                 let regex1 = /\$(\d+)/g;
@@ -409,7 +421,7 @@ export class WebServer {
 
                 if (targetURL[0] != "/")
                     targetURL = "/" + targetURL;
-                    
+
                 return targetURL;
             }
 
