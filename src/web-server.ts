@@ -121,102 +121,107 @@ export class WebServer {
         return this._settings;
     }
 
+    private async requestListener(req: http.IncomingMessage, res: http.ServerResponse, settings: Settings, logger: Logger) {
+        let reqUrl = req.url || "";
+        let rewrite: UrlRewriteFunc | null = null;
+        if (typeof settings.urlRewrite == "function") {
+            rewrite = settings.urlRewrite;
+        }
+        else if (settings.urlRewrite != null) {
+            let dic: { [url: string]: UrlRewriteItem } = {};
+            Object.keys(settings.urlRewrite).forEach(k => {
+                let urlRewrite = settings.urlRewrite as { [url: string]: (string | UrlRewriteItem) };
+                if (typeof urlRewrite[k] == "string") {
+                    dic[k] = { targetUrl: urlRewrite[k] as string };
+                }
+                else {
+                    dic[k] = urlRewrite[k] as UrlRewriteItem;
+                }
+            })
+            rewrite = this.createRewriteFunc(dic);
+        }
+
+        let targetURL: string | null = null;
+        if (rewrite != null) {
+            try {
+                let r = rewrite(reqUrl, { req });
+                if (typeof r == "string")
+                    targetURL = r;
+                else
+                    targetURL = await r;
+            }
+            catch (err) {
+                this.outputError(err, res);
+                return;
+            }
+        }
+
+        if (targetURL != null) {
+            logger.info(`Path rewrite, ${reqUrl} -> ${targetURL}`);
+            reqUrl = targetURL;
+        }
+
+        let requestContext = new RequestContext({
+            url: reqUrl, rootDirectory: this._websiteDirectory,
+            req, res, logLevel: this.logLevel
+        });
+
+        for (let i = 0; i < this._requestProcessors.length; i++) {
+            let processor = this._requestProcessors.item(i);
+            try {
+                let r: RequestResult | null = null;
+
+                let p = processor.execute(requestContext);
+                if (p == null)
+                    continue;
+
+                if ((p as Promise<any>).then != null) {
+                    r = await p;
+                }
+                else {
+                    r = p as RequestResult;
+                }
+
+                if (r != null) {
+                    r = await this.resultTransform(r, requestContext, this._contentTransforms);
+                    if (r.statusCode) {
+                        res.statusCode = r.statusCode;
+                    }
+                    if (r.statusMessage) {
+                        res.statusMessage = r.statusMessage;
+                    }
+                    if (r.headers) {
+                        for (let key in r.headers) {
+                            res.setHeader(key, r.headers[key] || "");
+                        }
+                    }
+                    res.setHeader("processor", processor.constructor.name);
+
+                    this.outputContent(r.content, requestContext);
+                    return;
+                }
+            }
+            catch (err) {
+                this.outputError(err, res);
+                return;
+            }
+        }
+
+        // 404
+        this.outputError(errors.pageNotFound(requestContext.url), res);
+    }
+
     private start() {
         let settings: Settings = this._settings;
         let server = http.createServer(async (req, res) => {
-
-            let reqUrl = req.url || "";
-            let u = url.parse(reqUrl);
-            let pathname = u.pathname || "";
-            let ext = path.extname(pathname);
-
-            let rewrite: UrlRewriteFunc | null = null;
-            if (typeof settings.urlRewrite == "function") {
-                rewrite = settings.urlRewrite;
+            try {
+                await this.requestListener(req, res, settings, logger);
             }
-            else if (settings.urlRewrite != null) {
-                let dic: { [url: string]: UrlRewriteItem } = {};
-                Object.keys(settings.urlRewrite).forEach(k => {
-                    let urlRewrite = settings.urlRewrite as { [url: string]: (string | UrlRewriteItem) };
-                    if (typeof urlRewrite[k] == "string") {
-                        dic[k] = { targetUrl: urlRewrite[k] as string };
-                    }
-                    else {
-                        dic[k] = urlRewrite[k] as UrlRewriteItem;
-                    }
-                })
-                rewrite = this.createRewriteFunc(dic);
+            catch (err) {
+                this.outputError(err, res);
+                return;
             }
-
-            let targetURL: string | null = null;
-            if (rewrite != null) {
-                try {
-                    let r = rewrite(reqUrl, { req });
-                    if (typeof r == "string")
-                        targetURL = r;
-                    else
-                        targetURL = await r;
-                }
-                catch (err) {
-                    this.outputError(err, res);
-                    return;
-                }
-            }
-
-            if (targetURL != null) {
-                logger.info(`Path rewrite, ${reqUrl} -> ${targetURL}`);
-                reqUrl = targetURL;
-            }
-
-            let requestContext = new RequestContext({
-                url: reqUrl, rootDirectory: this._websiteDirectory,
-                req, res, logLevel: this.logLevel
-            });
-
-            for (let i = 0; i < this._requestProcessors.length; i++) {
-                let processor = this._requestProcessors.item(i);
-                try {
-                    let r: RequestResult | null = null;
-
-                    let p = processor.execute(requestContext);
-                    if (p == null)
-                        continue;
-
-                    if ((p as Promise<any>).then != null) {
-                        r = await p;
-                    }
-                    else {
-                        r = p as RequestResult;
-                    }
-
-                    if (r != null) {
-                        r = await this.resultTransform(r, requestContext, this._contentTransforms);
-                        if (r.statusCode) {
-                            res.statusCode = r.statusCode;
-                        }
-                        if (r.statusMessage) {
-                            res.statusMessage = r.statusMessage;
-                        }
-                        if (r.headers) {
-                            for (let key in r.headers) {
-                                res.setHeader(key, r.headers[key] || "");
-                            }
-                        }
-                        res.setHeader("processor", processor.constructor.name);
-
-                        this.outputContent(r.content, requestContext);
-                        return;
-                    }
-                }
-                catch (err) {
-                    this.outputError(err, res);
-                    return;
-                }
-            }
-
-            // 404
-            this.outputError(errors.pageNotFound(requestContext.url), res);
-        })
+        });
 
         let packagePath = "../package.json";
         let pkg = require(packagePath);
