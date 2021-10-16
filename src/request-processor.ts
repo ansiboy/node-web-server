@@ -39,7 +39,7 @@ export class RequestContext {
     }
     set url(value: string) {
         if (!value) throw errors.argumentNull("value");
-        
+
         this._url = value;
         let u = url.parse(value);
         this._virtualPath = u.pathname || "";
@@ -50,7 +50,10 @@ export type RequestResult = {
     statusCode?: number,
     statusMessage?: string,
     content: Content,
-    headers?: { [key: string]: string | string[] | undefined }
+    headers?: { [key: string]: string | string[] | undefined },
+
+    /** 禁止转换，设置为 true 后，将不对 content 进行转换 */
+    disableTransform?: boolean,
 }
 
 export interface RequestProcessor {

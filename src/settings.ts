@@ -19,6 +19,12 @@ export interface Settings {
     processors?: { [name: string]: any },
     virtualPaths?: { [virtualPath: string]: string },
     urlRewrite?: { [url: string]: (string | UrlRewriteItem) } | UrlRewriteFunc,
+    https?: {
+        /** Private keys in PEM format. */
+        key: string,
+        /** PEM formatted CRLs (Certificate Revocation Lists). */
+        cert: string
+    }
 }
 
 export type UrlRewriteOptions = {

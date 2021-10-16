@@ -1,6 +1,7 @@
 import { Settings, UrlRewriteFunc, UrlRewriteItem } from "./settings";
 import http = require("http");
-import url = require("url");
+import https = require("https");
+import net = require("net");
 import { AddressInfo } from "net";
 import { errors } from "./errors";
 import { VirtualDirectory } from "./virtual-directory";
@@ -25,14 +26,13 @@ export class WebServer {
     private _websiteDirectory: VirtualDirectory;
     private _requestProcessors: RequestProcessorTypeCollection;
     private _settings: Settings;
-    private _source: http.Server;
+    private _source: net.Server;
     private _contentTransforms: (ContentTransform | ContentTransformFunc)[] = [];
     private _defaultLogSettings: NonNullable<Required<Settings["log"]>> = {
         level: "all",
         filePath: "log.txt",
     };
     private _logSettings: NonNullable<Required<Settings["log"]>>;
-    // #requestProcessorTypes: RequestProcessorType[] = [];
 
     private _defaultRequestProcessors = {
         headers: new HeadersRequestProcessor(), proxy: new ProxyRequestProcessor(),
@@ -107,7 +107,7 @@ export class WebServer {
         return this._requestProcessors;
     }
 
-    get source(): http.Server {
+    get source(): net.Server {
         return this._source;
     }
 
@@ -150,7 +150,7 @@ export class WebServer {
                 else
                     targetURL = await r;
             }
-            catch (err) {
+            catch (err: any) {
                 this.outputError(err, res);
                 return;
             }
@@ -183,7 +183,10 @@ export class WebServer {
                 }
 
                 if (r != null) {
-                    r = await this.resultTransform(r, requestContext, this._contentTransforms);
+
+                    if (!r.disableTransform)
+                        r = await this.resultTransform(r, requestContext, this._contentTransforms);
+
                     if (r.statusCode) {
                         res.statusCode = r.statusCode;
                     }
@@ -201,7 +204,7 @@ export class WebServer {
                     return;
                 }
             }
-            catch (err) {
+            catch (err: any) {
                 this.outputError(err, res);
                 return;
             }
@@ -213,15 +216,27 @@ export class WebServer {
 
     private start() {
         let settings: Settings = this._settings;
-        let server = http.createServer(async (req, res) => {
+
+
+        let func = async (req: http.IncomingMessage, res: http.ServerResponse) => {
             try {
                 await this.requestListener(req, res, settings, logger);
             }
-            catch (err) {
+            catch (err: any) {
                 this.outputError(err, res);
                 return;
             }
-        });
+        }
+
+        let server: net.Server;
+        if (settings.https) {
+            let h = settings.https;
+            server = https.createServer({ key: h?.key, cert: h?.cert }, func);
+        }
+        else {
+            server = http.createServer(func);
+        }
+
 
         let packagePath = "../package.json";
         let pkg = require(packagePath);
