@@ -30,7 +30,7 @@ export interface Settings {
 export type UrlRewriteOptions = {
     req: IncomingMessage
 }
-export type UrlRewriteFunc = (rawUrl: string, options: UrlRewriteOptions) => string | null | Promise<string>;
+export type UrlRewriteFunc = (rawUrl: string, options: UrlRewriteOptions) => string | null | Promise<string | null>;
 
 export interface UrlRewriteItem {
     targetUrl: string,

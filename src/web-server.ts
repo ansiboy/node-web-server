@@ -299,7 +299,7 @@ export class WebServer {
         }
     }
 
-    private outputError(err: Error | string, res: http.ServerResponse) {
+    outputError(err: Error | string, res: http.ServerResponse) {
         if (err == null) {
             err = new Error(`Unkonwn error because original error is null.`)
             err.name = 'nullError'
