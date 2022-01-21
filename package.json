@@ -7,7 +7,7 @@
         "build": "tsc -p src"
     },
     "dependencies": {
-        "log4js": "^6.3.0",
+        "log4js": "^6.4.0",
         "maishu-toolkit": "^1.6.1",
         "yargs": "^16.2.0"
     },
