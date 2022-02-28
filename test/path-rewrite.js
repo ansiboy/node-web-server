@@ -77,3 +77,4 @@ describe("rewrite", function () {
         });
     });
 });
+//# sourceMappingURL=path-rewrite.js.map

@@ -62,3 +62,4 @@ describe("virtual directory", function () {
         assert.strictEqual(temp1, temp2);
     });
 });
+//# sourceMappingURL=virtual-directory.js.map

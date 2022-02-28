@@ -19,12 +19,16 @@ import { RequestProcessorTypeCollection } from "./request-processors/collection"
 import { getLogger } from "./logger";
 import { loadPlugins } from "./load-plugins";
 import { Logger } from "log4js";
+import { processorPriorities } from "./request-processors/priority";
+import { FileRequestProcessor } from "./request-processors/file";
+import { Callback } from "maishu-toolkit";
+
 
 const DefaultWebSitePath = "../sample-website";
 export class WebServer {
 
     private _websiteDirectory: VirtualDirectory;
-    private _requestProcessors: RequestProcessorTypeCollection;
+    private _requestProcessors: WebServerRequestProcessors;
     private _settings: Settings;
     private _source: net.Server;
     private _contentTransforms: (ContentTransform | ContentTransformFunc)[] = [];
@@ -34,10 +38,10 @@ export class WebServer {
     };
     private _logSettings: NonNullable<Required<Settings["log"]>>;
 
-    private _defaultRequestProcessors = {
-        headers: new HeadersRequestProcessor(), proxy: new ProxyRequestProcessor(),
-        dynamic: new DynamicRequestProcessor(), static: new StaticFileRequestProcessor(),
-    };
+    // private _defaultRequestProcessors = {
+    //     headers: new HeadersRequestProcessor(), proxy: new ProxyRequestProcessor(),
+    //     dynamic: new DynamicRequestProcessor(), static: new StaticFileRequestProcessor(),
+    // };
 
     constructor(settings?: Settings) {
         settings = settings || {};
@@ -72,16 +76,25 @@ export class WebServer {
 
         this._settings = settings;
         this._logSettings = Object.assign({}, this._defaultLogSettings, settings.log || {});
-        this._requestProcessors = new RequestProcessorTypeCollection([
-            this._defaultRequestProcessors.headers, this._defaultRequestProcessors.proxy,
-            this._defaultRequestProcessors.dynamic, this._defaultRequestProcessors.static,
-        ]);
+        // this._requestProcessors = new RequestProcessorTypeCollection([
+        //     this._defaultRequestProcessors.headers, this._defaultRequestProcessors.proxy,
+        //     this._defaultRequestProcessors.dynamic, this._defaultRequestProcessors.static,
+        // ]);
+
+        this._requestProcessors = new WebServerRequestProcessors();
+
         this._source = this.start();
 
-        for (let i = 0; i < this.requestProcessors.length; i++) {
-            let requestProcessor = this.requestProcessors.item(i);
-            this.setProcessorOptions(requestProcessor, logger);
+        // for (let i = 0; i < this.requestProcessors.length; i++) {
+        //     let requestProcessor = this.requestProcessors.item(i);
+        //     this.setProcessorOptions(requestProcessor, logger);
+        // }
+
+        var processors = this._requestProcessors.items.map(o => o.processor);
+        for (let i = 0; i < processors.length; i++) {
+            this.setProcessorOptions(processors[i], logger)
         }
+
         this.requestProcessors.added.add(args => {
             this.setProcessorOptions(args.item, logger);
         })
@@ -166,8 +179,9 @@ export class WebServer {
             req, res, logLevel: this.logLevel
         });
 
-        for (let i = 0; i < this._requestProcessors.length; i++) {
-            let processor = this._requestProcessors.item(i);
+        var requestProcessors = this._requestProcessors.items.map(o => o.processor);
+        for (let i = 0; i < requestProcessors.length; i++) {
+            let processor = requestProcessors[i];
             try {
                 let r: RequestResult | null = null;
 
@@ -243,9 +257,10 @@ export class WebServer {
         let logger = getLogger(pkg.name, settings.log?.level)
         loadPlugins(this, logger);
 
+        var requestProcessors = this._requestProcessors.items.map(o => o.processor);
         if (settings.processors != null) {
-            for (let i = 0; i < this.requestProcessors.length; i++) {
-                let requestProcessor = this.requestProcessors.item(i);
+            for (let i = 0; i < requestProcessors.length; i++) {
+                let requestProcessor = requestProcessors[i];
                 let name = requestProcessor.constructor.name;
                 let processorProperties = settings.processors[name];
                 for (let prop in processorProperties) {
@@ -385,16 +400,16 @@ export class WebServer {
         }
     }
 
-    private setProcessorOptions(requestProcessor: RequestProcessor, logger: Logger) {
+    private setProcessorOptions(requestProcessor: RequestProcessor, logger: Logger, name?: string) {
         let processors = this._settings.processors || {};
-        let name = requestProcessor.constructor.name;
+        let typeName = requestProcessor.constructor.name;
         let shortName = requestProcessor.constructor.name.replace("RequestProcessor", "").replace("Processor", "");
         let alaisName = shortName + "Processor";
-        let processorProperties = processors[name] || processors[shortName] || processors[alaisName];
+        let processorProperties = processors[typeName] || processors[shortName] || processors[alaisName];
         for (let prop in processorProperties) {
             if ((requestProcessor as any)[prop] !== undefined) {
                 (requestProcessor as any)[prop] = processorProperties[prop];
-                logger.info(`Set processor '${name}' property '${prop}', value is:\n`);
+                logger.info(`Set processor '${typeName}' property '${prop}', value is:\n`);
                 logger.info(JSON.stringify(processorProperties[prop], null, "    "));
             }
         }
@@ -451,4 +466,98 @@ export class WebServer {
 
         return func;
     }
+}
+
+export class WebServerRequestProcessors {
+    private _defaultRequestProcessors = {
+        headers: new HeadersRequestProcessor(), proxy: new ProxyRequestProcessor(),
+        dynamic: new DynamicRequestProcessor(), static: new StaticFileRequestProcessor(),
+    };
+
+    private headers = new HeadersRequestProcessor();
+    private proxy = new ProxyRequestProcessor();
+    private dynamic = new DynamicRequestProcessor();
+    private static = new StaticFileRequestProcessor();
+    private file = new FileRequestProcessor();
+
+    // private priorities: { [key: string]: number } = {};
+    private _items: { priority: number; name: string, processor: RequestProcessor }[] = [];
+
+    added: Callback<{ item: RequestProcessor }> = new Callback();
+
+    constructor() {
+
+        const HEADERS = "headers";
+        const PROXY = "proxy";
+        const DYNAMIC = "dynamic";
+        const STATIC = "static";
+        const FILE = "file"
+
+        this.add(HEADERS, this.headers, processorPriorities.HeadersRequestProcessor);
+        this.add(PROXY, this.proxy, processorPriorities.ProxyRequestProcessor);
+        this.add(DYNAMIC, this.dynamic, processorPriorities.DynamicRequestProcessor);
+        this.add(FILE, this.file, processorPriorities.FileRequestProcessor);
+        this.add(STATIC, this.static, processorPriorities.StaticFileRequestProcessor);
+    }
+
+    add(name: string, processor: RequestProcessor, priority: number) {
+        if (priority == undefined)
+            priority = processorPriorities.Default;
+
+        let item = this._items.filter(o => o.name == name)[0];
+        if (item != null)
+            throw errors.requestProcessorTypeExists(name);
+
+        item = { priority, processor, name };
+        let nextItemIndex: number | null = null;
+        for (let i = 0; i < this._items.length; i++) {
+            let priority = this._items[i].priority;
+            if (priority == null)
+                break;
+
+            if (priority > priority) {
+                nextItemIndex = i;
+                break;
+            }
+        }
+
+        if (nextItemIndex != null) {
+            this._items.splice(nextItemIndex, 0, item);
+        }
+        else {
+            this._items.push(item);
+        }
+
+        this.added.fire({ item: processor });
+    }
+
+    get headersProcessor() {
+        return this.headers;
+    }
+
+    get proxyProcessor() {
+        return this.proxy;
+    }
+
+    get dynamicProcessor() {
+        return this.dynamic;
+    }
+
+    get fileProcessor() {
+        return this.file;
+    }
+
+    get staticProcessor() {
+        return this.static;
+    }
+
+    get items() {
+        return this._items;
+    }
+
+    find<T extends RequestProcessor>(name: string): T {
+        let item = this._items.filter(o => o.name == name)[0];
+        return item?.processor as T;
+    }
+
 }

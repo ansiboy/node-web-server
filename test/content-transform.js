@@ -154,3 +154,4 @@ describe("content-transform", function () {
         });
     });
 });
+//# sourceMappingURL=content-transform.js.map

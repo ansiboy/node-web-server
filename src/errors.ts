@@ -178,7 +178,7 @@ export let errors = {
         return error;
     },
     requestProcessorTypeExists(name: string) {
-        let msg = `request processor type named '${name}' is exists.`;
+        let msg = `Request processor type named '${name}' is exists.`;
         let error = new Error(msg);
         let errorName: keyof typeof errors = "requestProcessorTypeExists";
         error.name = errorName;

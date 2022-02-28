@@ -30,3 +30,4 @@ function readFile(physicalPath) {
     return source;
 }
 exports.readFile = readFile;
+//# sourceMappingURL=common.js.map

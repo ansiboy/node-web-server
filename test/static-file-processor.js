@@ -18,7 +18,7 @@ describe("StaticFileRequestProcessor class test", function () {
     it("config", function () {
         return __awaiter(this, void 0, void 0, function* () {
             let w = common_1.createWebServer();
-            var staticFileProcessor = w.requestProcessors.find(out_1.StaticFileProcessor);
+            var staticFileProcessor = w.requestProcessors.staticProcessor;
             assert.notStrictEqual(staticFileProcessor, null);
             staticFileProcessor.contentTypes[".less"] = "text/plain";
             const browser = new Browser();
@@ -31,7 +31,7 @@ describe("StaticFileRequestProcessor class test", function () {
     it("path", function () {
         return __awaiter(this, void 0, void 0, function* () {
             let w = common_1.createWebServer();
-            var staticFileProcessor = w.requestProcessors.find(out_1.StaticFileProcessor);
+            var staticFileProcessor = w.requestProcessors.staticProcessor;
             assert.notStrictEqual(staticFileProcessor, null);
             staticFileProcessor.staticPath = "public";
             const browser = new Browser();
@@ -44,7 +44,7 @@ describe("StaticFileRequestProcessor class test", function () {
     it("ignore paths", function () {
         return __awaiter(this, void 0, void 0, function* () {
             let w = common_1.createWebServer();
-            let staticFileProcessor = w.requestProcessors.find(out_1.StaticFileProcessor);
+            let staticFileProcessor = w.requestProcessors.staticProcessor;
             assert.notStrictEqual(staticFileProcessor, null);
             staticFileProcessor.staticPath = "public";
             const browser = new Browser();
@@ -62,3 +62,4 @@ describe("StaticFileRequestProcessor class test", function () {
         });
     });
 });
+//# sourceMappingURL=static-file-processor.js.map

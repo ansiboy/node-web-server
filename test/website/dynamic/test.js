@@ -4,3 +4,4 @@ let func = () => {
     return { content: "hello world" };
 };
 exports.default = func;
+//# sourceMappingURL=test.js.map

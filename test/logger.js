@@ -39,3 +39,4 @@ describe("logger", function () {
         assert.ok(fs.existsSync(logPath));
     });
 });
+//# sourceMappingURL=logger.js.map

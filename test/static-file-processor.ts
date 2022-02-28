@@ -8,7 +8,7 @@ describe("StaticFileRequestProcessor class test", function () {
     it("config", async function () {
 
         let w = createWebServer();
-        var staticFileProcessor = w.requestProcessors.find(StaticFileProcessor);
+        var staticFileProcessor = w.requestProcessors.staticProcessor;
         assert.notStrictEqual(staticFileProcessor, null);
 
         staticFileProcessor.contentTypes[".less"] = "text/plain";
@@ -22,7 +22,7 @@ describe("StaticFileRequestProcessor class test", function () {
 
     it("path", async function () {
         let w = createWebServer();
-        var staticFileProcessor = w.requestProcessors.find(StaticFileProcessor);
+        var staticFileProcessor = w.requestProcessors.staticProcessor;
         assert.notStrictEqual(staticFileProcessor, null);
 
         staticFileProcessor.staticPath = "public";
@@ -37,7 +37,7 @@ describe("StaticFileRequestProcessor class test", function () {
     it("ignore paths", async function () {
 
         let w = createWebServer();
-        let staticFileProcessor = w.requestProcessors.find(StaticFileProcessor);
+        let staticFileProcessor = w.requestProcessors.staticProcessor;
         assert.notStrictEqual(staticFileProcessor, null);
 
         staticFileProcessor.staticPath = "public";

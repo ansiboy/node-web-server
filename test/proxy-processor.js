@@ -11,7 +11,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const assert = require("assert");
 const common_1 = require("./common");
-const proxy_1 = require("../out/request-processors/proxy");
 describe("proxy-processor", function () {
     let token = "abcde";
     let station = common_1.createWebServer();
@@ -35,7 +34,7 @@ describe("proxy-processor", function () {
     // }
     // requestProcessorConfigs[ProxyProcessor.name] = proxyConfig;
     let webserver = common_1.createWebServer();
-    let proxyProcessor = webserver.requestProcessors.find(proxy_1.ProxyRequestProcessor);
+    let proxyProcessor = webserver.requestProcessors.proxyProcessor;
     assert.notStrictEqual(proxyProcessor, null);
     proxyProcessor.proxyTargets = {
         "/AdminWeiXin/(\\S+)": {
@@ -83,3 +82,4 @@ describe("proxy-processor", function () {
         });
     });
 });
+//# sourceMappingURL=proxy-processor.js.map

@@ -23,7 +23,7 @@ describe("dynamic", function () {
                 }
             }
         }/*/
-        let dynamicRequestProcessor = webServer.requestProcessors.find(DynamicRequestProcessor);
+        let dynamicRequestProcessor = webServer.requestProcessors.dynamicProcessor;
         dynamicRequestProcessor.scriptPath = "cgi-bin";
         let browser = createBrowser();
         let url = `http://127.0.0.1:${webServer.port}/cgi-bin/test.js`;

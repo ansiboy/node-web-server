@@ -1,68 +1,73 @@
 import { errors } from "../errors";
 import { RequestProcessor } from "../request-processor";
-import { processorPriorities } from "./priority";
 import { Callback } from "maishu-toolkit";
 
-type RequestProcessorType<T extends RequestProcessor> = { new(config?: any): T };
 
 
 export class RequestProcessorTypeCollection {
-    private items: RequestProcessor[] = [];
+    private _items: { [name: string]: RequestProcessor } = {};
 
     added: Callback<{ item: RequestProcessor }> = new Callback();
 
-    constructor(items?: RequestProcessor[]) {
-        if (items != null) {
-            items.forEach((o) => this.add(o));
-        }
-    }
 
-    add(item: RequestProcessor) {
+    add(name: string, item: RequestProcessor) {
+        if (!name)
+            throw errors.argumentNull("name");
+
         if (item == null)
             throw errors.argumentNull("item");
 
-        console.assert(item.constructor != null);
-        let existsItem = this.find(item.constructor as RequestProcessorType<any>);
-        if (existsItem != null) {
-            return;
-        }
+        if (this._items[name])
+            throw errors.requestProcessorTypeExists(name);
 
-        if (item.priority == null)
-            item.priority = processorPriorities.Default;
+        this._items[name] = item;
 
-        let nextItemIndex: number | null = null;
-        for (let i = 0; i < this.items.length; i++) {
-            let priority = this.items[i].priority;
-            if (priority == null)
-                break;
+        // console.assert(item.constructor != null);
+        // let existsItem = this.find(item.constructor as RequestProcessorType<any>);
+        // if (existsItem != null) {
+        //     return;
+        // }
 
-            if (priority > item.priority) {
-                nextItemIndex = i;
-                break;
-            }
-        }
+        // if (item.priority == null)
+        //     item.priority = processorPriorities.Default;
 
-        if (nextItemIndex != null) {
-            this.items.splice(nextItemIndex, 0, item);
-        }
-        else {
-            this.items.push(item);
-        }
+        // let nextItemIndex: number | null = null;
+        // for (let i = 0; i < this._items.length; i++) {
+        //     let priority = this._items[i].priority;
+        //     if (priority == null)
+        //         break;
+
+        //     if (priority > item.priority) {
+        //         nextItemIndex = i;
+        //         break;
+        //     }
+        // }
+
+        // if (nextItemIndex != null) {
+        //     this._items.splice(nextItemIndex, 0, item);
+        // }
+        // else {
+        //     this._items.push(item);
+        // }
 
         this.added.fire({ item });
     }
 
-    item(index: number) {
-        return this.items[index];
+    get items() {
+        return this._items;
     }
 
     get length() {
-        return this.items.length;
+        return Object.getOwnPropertyNames(this._items).length;
     }
 
-    find<T extends RequestProcessor>(type: RequestProcessorType<T>): T {
-        let item = this.items.filter(o => o instanceof type || o.constructor.name == type.name)[0] as T;
-        return item;
+    find<T extends RequestProcessor>(name: string): T {
+        return this.items[name] as T;
+    }
+
+    remove(name: string) {
+        if (name == null) throw errors.argumentNull("name");
+        delete this.items[name];
     }
 
 
