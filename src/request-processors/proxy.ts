@@ -4,15 +4,15 @@ import { errors } from "../errors";
 import { processorPriorities } from "./priority";
 
 export interface ProxyItem {
-    /** 转发请求的目标地址 */
-    targetUrl: string,
+    /** 转发请求的目标地址, null 表示不转发 */
+    targetUrl: string | null,
     /** HTTP header 信息 */
     headers?: { [name: string]: string } | ((requestContext: RequestContext) => { [name: string]: string } | Promise<{ [name: string]: string }>),
 }
 
 interface Options {
     /** 转发目标 */
-    proxyTargets: { [key: string]: ProxyItem | string };
+    proxyTargets: { [key: string]: ProxyItem | string | null };
 }
 
 export class ProxyRequestProcessor implements RequestProcessor {
@@ -40,8 +40,11 @@ export class ProxyRequestProcessor implements RequestProcessor {
             }
 
             let item = this.proxyTargets[key];
-            let proxyItem: ProxyItem = typeof item == "string" ? { targetUrl: item } : item;
+            let proxyItem: ProxyItem = (typeof item == "string" || item == null) ? { targetUrl: item } : item;
             let targetUrl = proxyItem.targetUrl;
+            if (targetUrl == null)
+                return null;
+
             let headers: http.IncomingMessage["headers"] = {};
             if (proxyItem.headers != null && typeof proxyItem.headers == "object") {
                 headers = proxyItem.headers;

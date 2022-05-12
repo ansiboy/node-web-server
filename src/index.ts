@@ -15,3 +15,4 @@ export { StaticFileRequestProcessor as StaticFileProcessor } from "./request-pro
 export { HeadersRequestProcessor as HeadersProcessor } from "./request-processors/headers";
 export { processorPriorities } from "./request-processors/priority";
 export { LoadPlugin } from "./load-plugins";
+export { loadModule } from "./load-module";

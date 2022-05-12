@@ -4,8 +4,8 @@
         "outDir": "../out",
         "declaration": true,
         "sourceMap": false,
-        "module": "commonjs",
+        "module": "CommonJS",
         "strict": true,
-        "strictPropertyInitialization": false
+        "strictPropertyInitialization": false,
     }
 }

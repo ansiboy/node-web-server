@@ -469,10 +469,6 @@ export class WebServer {
 }
 
 export class WebServerRequestProcessors {
-    private _defaultRequestProcessors = {
-        headers: new HeadersRequestProcessor(), proxy: new ProxyRequestProcessor(),
-        dynamic: new DynamicRequestProcessor(), static: new StaticFileRequestProcessor(),
-    };
 
     private headers = new HeadersRequestProcessor();
     private proxy = new ProxyRequestProcessor();
@@ -500,7 +496,7 @@ export class WebServerRequestProcessors {
         this.add(STATIC, this.static, processorPriorities.StaticFileRequestProcessor);
     }
 
-    add(name: string, processor: RequestProcessor, priority: number) {
+    add(name: string, processor: RequestProcessor, priority?: number) {
         if (priority == undefined)
             priority = processorPriorities.Default;
 
