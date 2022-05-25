@@ -22,7 +22,7 @@ import { Logger } from "log4js";
 import { processorPriorities } from "./request-processors/priority";
 import { FileRequestProcessor } from "./request-processors/file";
 import { Callback } from "maishu-toolkit";
-
+import { ungzip } from "node-gzip";
 
 const DefaultWebSitePath = "../sample-website";
 export class WebServer {
@@ -179,7 +179,7 @@ export class WebServer {
             req, res, logLevel: this.logLevel
         });
 
-        var requestProcessors = this._requestProcessors.items.map(o => o.processor);
+        var requestProcessors = this._requestProcessors.items.sort((a, b) => a.priority > b.priority ? -1 : 1).map(o => o.processor);
         for (let i = 0; i < requestProcessors.length; i++) {
             let processor = requestProcessors[i];
             try {
@@ -196,6 +196,12 @@ export class WebServer {
                     r = p as RequestResult;
                 }
 
+                if (res.getHeader("content-encoding") == "gzip" && r?.content instanceof Buffer) {
+                    r.content = await ungzip(r.content);
+                    res.removeHeader("content-length");
+                    res.removeHeader("content-encoding");
+                }
+
                 if (r != null) {
 
                     if (!r.disableTransform)
@@ -208,10 +214,12 @@ export class WebServer {
                         res.statusMessage = r.statusMessage;
                     }
                     if (r.headers) {
+                        res.getHeaderNames().forEach(n => res.removeHeader(n));
                         for (let key in r.headers) {
                             res.setHeader(key, r.headers[key] || "");
                         }
                     }
+
                     res.setHeader("processor", processor.constructor.name);
 
                     this.outputContent(r.content, requestContext);
@@ -309,6 +317,7 @@ export class WebServer {
                     content = "";
                 }
             }
+
             res.write(content);
             res.end();
         }
@@ -476,7 +485,6 @@ export class WebServerRequestProcessors {
     private static = new StaticFileRequestProcessor();
     private file = new FileRequestProcessor();
 
-    // private priorities: { [key: string]: number } = {};
     private _items: { priority: number; name: string, processor: RequestProcessor }[] = [];
 
     added: Callback<{ item: RequestProcessor }> = new Callback();
@@ -496,6 +504,11 @@ export class WebServerRequestProcessors {
         this.add(STATIC, this.static, processorPriorities.StaticFileRequestProcessor);
     }
 
+    /** 
+     * @param name 名称
+     * @param processor 请求处理
+     * @param priority 优先级，数字越小的越优先处理
+     */
     add(name: string, processor: RequestProcessor, priority?: number) {
         if (priority == undefined)
             priority = processorPriorities.Default;

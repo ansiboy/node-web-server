@@ -2,6 +2,7 @@ import { RequestProcessor, RequestContext, RequestResult } from "../request-proc
 import http = require('http');
 import { errors } from "../errors";
 import { processorPriorities } from "./priority";
+import { ungzip } from "node-gzip";
 
 export interface ProxyItem {
     /** 转发请求的目标地址, null 表示不转发 */
@@ -80,7 +81,6 @@ export function proxyRequest(targetUrl: string, req: http.IncomingMessage, res: 
     headers: http.IncomingMessage["headers"], method?: string): Promise<RequestResult> {
     return new Promise<RequestResult>(function (resolve, reject) {
         headers = Object.assign({}, req.headers, headers || {});
-        // headers = Object.assign(req.headers, headers);
         //=====================================================
         if (headers.host) {
             headers["original-host"] = headers.host;
@@ -103,10 +103,15 @@ export function proxyRequest(targetUrl: string, req: http.IncomingMessage, res: 
 
                 response.on("error", err => reject(err));
                 response.on("close", () => reject(errors.connectionClose()));
-                response.on("end", () => {
+                response.on("end", async () => {
                     let headers = Object.assign({}, response.headers);
                     if (headers["content-length"])
                         delete headers["content-length"];
+
+                    if (response.headers["content-encoding"] == "gzip") {
+                        buffer = await ungzip(buffer);
+                        delete headers["content-encoding"];
+                    }
 
                     resolve({
                         content: buffer, statusCode: response.statusCode || 200,

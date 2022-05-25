@@ -1,4 +1,3 @@
-import { dir } from "console";
 import * as fs from "fs";
 import * as path from "path";
 
@@ -25,7 +24,7 @@ export async function loadModule(name: string) {
     }
     else {
         let ext = path.extname(name);
-        let module = ext ? await eval(`import("file://${name}")`) : await import(name);
-        return module;
+        let module = ext ? await eval(`import("file://${name}")`) : await eval(`import("${name}")`);
+        return module.default || module;
     }
 }
