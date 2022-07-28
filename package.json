@@ -22,7 +22,7 @@
         "@types/mocha": "^7.0.2",
         "@types/node": "^14.0.14",
         "@types/node-gzip": "^1.1.0",
-        "grunt": "^1.0.1",
+        "grunt": "^1.5.3",
         "grunt-babel": "^8.0.0",
         "grunt-contrib-copy": "^1.0.0",
         "grunt-contrib-requirejs": "^1.0.0",
