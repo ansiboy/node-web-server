@@ -1,18 +1,17 @@
-import { WebServer, processorPriorities } from "../out";
-import { RequestProcessorTypeCollection } from "../out/request-processors/collection";
+import { processorPriorities } from "../out";
 import { createWebServer } from "./common";
-import { StaticFileProcessor } from "../out";
 import * as assert from "assert";
-import { WebServerRequestProcessors } from "../out/web-server";
 
 describe("RequestProcessorTypeCollection", function () {
+    
     let webserver = createWebServer();
+
     it("find", () => {
         let type = webserver.requestProcessors.find("static");
         assert.ok(type != null);
     })
-    it("add exists processor", () => {
 
+    it("add exists processor", () => {
 
         var p = webserver.requestProcessors.find("static");// new StaticFileProcessor();
         assert.notStrictEqual(p, null);

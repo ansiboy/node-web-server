@@ -15,7 +15,6 @@ import { DynamicRequestProcessor } from "./request-processors/cgi";
 import * as stream from "stream";
 import * as path from "path";
 import { HeadersRequestProcessor } from "./request-processors/headers";
-import { RequestProcessorTypeCollection } from "./request-processors/collection";
 import { getLogger } from "./logger";
 import { loadPlugins } from "./load-plugins";
 import { Logger } from "log4js";
@@ -37,11 +36,6 @@ export class WebServer {
         filePath: "log.txt",
     };
     private _logSettings: NonNullable<Required<Settings["log"]>>;
-
-    // private _defaultRequestProcessors = {
-    //     headers: new HeadersRequestProcessor(), proxy: new ProxyRequestProcessor(),
-    //     dynamic: new DynamicRequestProcessor(), static: new StaticFileRequestProcessor(),
-    // };
 
     constructor(settings?: Settings) {
         settings = settings || {};
@@ -76,19 +70,9 @@ export class WebServer {
 
         this._settings = settings;
         this._logSettings = Object.assign({}, this._defaultLogSettings, settings.log || {});
-        // this._requestProcessors = new RequestProcessorTypeCollection([
-        //     this._defaultRequestProcessors.headers, this._defaultRequestProcessors.proxy,
-        //     this._defaultRequestProcessors.dynamic, this._defaultRequestProcessors.static,
-        // ]);
 
         this._requestProcessors = new WebServerRequestProcessors();
-
         this._source = this.start();
-
-        // for (let i = 0; i < this.requestProcessors.length; i++) {
-        //     let requestProcessor = this.requestProcessors.item(i);
-        //     this.setProcessorOptions(requestProcessor, logger);
-        // }
 
         var processors = this._requestProcessors.items.map(o => o.processor);
         for (let i = 0; i < processors.length; i++) {
@@ -253,12 +237,11 @@ export class WebServer {
         let server: net.Server;
         if (settings.https) {
             let h = settings.https;
-            server = https.createServer({ key: h?.key, cert: h?.cert }, func);
+            server = https.createServer(h, func);
         }
         else {
-            server = http.createServer(func);
+            server = http.createServer({}, func);
         }
-
 
         let packagePath = "../package.json";
         let pkg = require(packagePath);
@@ -538,6 +521,14 @@ export class WebServerRequestProcessors {
         }
 
         this.added.fire({ item: processor });
+    }
+
+    remvoe(name: string) {
+        let item = this._items.filter(o => o.name)[0];
+        if (!item)
+            throw errors.requestProcessorTypeNotExists(name);
+
+        this._items = this._items.filter(o => o.name != name);
     }
 
     get headersProcessor() {

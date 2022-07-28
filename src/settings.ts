@@ -1,6 +1,7 @@
 import { VirtualDirectory } from "./virtual-directory";
 import { LogLevel } from "./logger";
 import { IncomingMessage } from "http";
+import { ServerOptions } from "https";
 
 export interface Settings {
     /** 服务端口 */
@@ -19,12 +20,7 @@ export interface Settings {
     processors?: { [name: string]: any },
     virtualPaths?: { [virtualPath: string]: string },
     urlRewrite?: { [url: string]: (string | UrlRewriteItem) } | UrlRewriteFunc,
-    https?: {
-        /** Private keys in PEM format. */
-        key: string,
-        /** PEM formatted CRLs (Certificate Revocation Lists). */
-        cert: string
-    }
+    https?: ServerOptions
 }
 
 export type UrlRewriteOptions = {
